@@ -10,31 +10,35 @@ light wight sql syntax.
 
   1. **Adding or editing meta-informations**
 
-    $ ./docmanager.py --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml
+  `$ ./docmanager.py --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml`
 
   2. **Deleting meta-infrmations**
 
-    $ ./docmanager.py --set maintainer version --files test_file1.xml test_file2.xml
+  `$ ./docmanager.py --set maintainer version --files test_file1.xml test_file2.xml`
 
   3. **Get meta-informations**
 
-    $ ./docmanager.py --get maintainer --files test_file1.xml test_file2.xml
+  `$ ./docmanager.py --get maintainer --files test_file1.xml test_file2.xml`
 
-    `Filename: test_file2.xml
-    maintainer=test_name`
+  ```
+  Filename: test_file2.xml
+  maintainer=test_name
+  ```
     
     For all informations use `all`.
 
   4. **Analyze meta-inforations**
 
-   $ ./docmanager.py --analyse SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml
-
-   `+----------------+---------+------------+
-   |     Files      | version | maintainer |
-   +----------------+---------+------------+
-   | test_file1.xml |   1.0   | test_name  |
-   | test_file2.xml |    -    | test_name  |
-   +----------------+---------+------------+`
+  `$ ./docmanager.py --analyse SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
+  
+  ```
+  +----------------+---------+------------+
+  |     Files      | version | maintainer |
+  +----------------+---------+------------+
+  | test_file1.xml |   1.0   | test_name  |
+  | test_file2.xml |    -    | test_name  |
+  +----------------+---------+------------+
+  ```
   
 ## Contribution
 
