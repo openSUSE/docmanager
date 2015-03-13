@@ -60,7 +60,7 @@ class ArgParser:
                 )
         actions.add_argument(
                     "-a",
-                    "--analyse",
+                    "--analyze",
                     nargs="+",
                     help="Similar to get, but query can be given as pseudo SQL syntax. "  \
                          "allowed keywords are SELECT, WHERE, and SORTBY. " \
@@ -75,9 +75,9 @@ class ArgParser:
         elif self.get is not None:
             self.action="get"
             self.arguments=self.get
-        elif self.analyse is not None:
-            self.action="analyse"
-            self.arguments=self.analyse
+        elif self.analyze is not None:
+            self.action="analyze"
+            self.arguments=self.analyze
 
 if __name__ == "__main__":
     DocManager()

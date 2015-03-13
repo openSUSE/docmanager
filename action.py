@@ -52,7 +52,7 @@ class Actions:
                 print(key+"="+value)
 
 
-    def analyse(self, arguments):
+    def analyze(self, arguments):
         #split the arguments by sql like keywords
         #and convert strings into dicts
         splited_arguments = self.split_arguments(arguments)

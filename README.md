@@ -24,13 +24,13 @@ light wight sql syntax.
   Filename: test_file2.xml
   maintainer=test_name
   ```
-    
-    For all informations use `all`.
+
+  For all informations use `all`.
 
   4. **Analyze meta-inforations**
 
-  `$ ./docmanager.py --analyse SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
-  
+  `$ ./docmanager.py --analyze SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
+
   ```
   +----------------+---------+------------+
   |     Files      | version | maintainer |
@@ -39,7 +39,7 @@ light wight sql syntax.
   | test_file2.xml |    -    | test_name  |
   +----------------+---------+------------+
   ```
-  
+
 ## Contribution
 
   1. Create a branch if you have exit otherwise fork it.
