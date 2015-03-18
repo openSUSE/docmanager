@@ -12,8 +12,11 @@ build/
 develop-eggs/
 dist/
 downloads/
+bin/
+include/
 eggs/
 lib/
+lib64
 lib64/
 parts/
 sdist/
@@ -27,6 +30,9 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
+# Pip
+pip-selfcheck.json
 
 # Installer logs
 pip-log.txt

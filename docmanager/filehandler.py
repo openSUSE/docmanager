@@ -19,7 +19,7 @@
 
 import os
 import subprocess
-import xmlhandler
+from docmanager import xmlhandler
 
 class Files:
 
