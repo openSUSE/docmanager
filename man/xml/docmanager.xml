@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY progname "DocManager">
+<!ENTITY version "3.0.0">
+<!ENTITY progcmd "docmanager">
+<!ENTITY release "04/21/2015">
+]>
+<refentry lang="en" id="docmanager">
+ <refentryinfo>
+  <authorgroup>
+   <author>
+    <contrib>Developer</contrib>
+    <firstname>Rick</firstname>
+    <surname>Salvesky</surname>
+    <email>rsalevsky@suse.de</email>
+   </author>
+   <author>
+    <contrib>Packager &amp; Man Page creator</contrib>
+    <firstname>Manuel</firstname>
+    <surname>Schnitzer</surname>
+    <email>mschnitzer@suse.de</email>
+   </author>
+  </authorgroup>
+ </refentryinfo>
+ <refmeta>
+  <refentrytitle>&progname;</refentrytitle>
+  <manvolnum>1</manvolnum>
+  <refmiscinfo class="date">&release;</refmiscinfo>
+  <refmiscinfo class="version">&version;</refmiscinfo>
+  <refmiscinfo class="manual">The &progname;</refmiscinfo>
+ </refmeta>
+ <refnamediv>
+  <refname>&progcmd;</refname>
+  <refpurpose>
+   The &progname; is a tool to manage meta-information within DocBook5 documents.
+  </refpurpose>
+ </refnamediv>
+ <refsynopsisdiv id="docmanager.synopsis">
+  <title>Synopsis</title>
+  <cmdsynopsis>
+   <command>&progcmd;</command>
+   <arg choice="opt">-h</arg>
+   <arg choice="plain" rep="repeat">-f FILES</arg>
+   <group choice="req">
+    <arg>-s SET</arg>
+    <arg>-g GET</arg>
+    <arg>-a ANALYZE</arg>
+   </group>
+   <!--<arg choice="plain">[-h] -f FILES [FILES ...] (-s SET [SET ...] | -g GET [GET ...] | -a ANALYZE [ANALYZE ...])</arg>-->
+  </cmdsynopsis>
+ </refsynopsisdiv>
+ <refsect1 id="docmanager.description">
+  <title>Description</title>
+  <para>
+   The &progname; is a tool to manage meta-information within DocBook5 documents. It
+   is possible to add new information as well as editing and deleting. The main advantage
+   of this tool is the analyze feature. This feature creates a table with all wanted
+   information. You can restrict the information with a lightweight SQL syntax.
+  </para>
+ </refsect1>
+ <refsect1 id="docmanager.optionaloptions">
+  <title>Optional Options</title>
+  <variablelist>
+   <varlistentry>
+    <term><option>-h</option> or <option>--help</option></term>
+    <listitem>
+     <para>Shows this help message and exit.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ <refsect1 id="docmanager.options">
+  <title>Options</title>
+  <variablelist>
+   <varlistentry>
+    <term><option>-a</option> or <option>--analyze</option></term>
+    <listitem>
+     <para>Similar to get, but query can be given as pseudo SQL syntax. Allowed keywords are SELECT, WHERE, and SORTBY. Output is formatted as table.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>-f</option> or <option>--files</option></term>
+    <listitem>
+     <para>One or more DocBook XML or DC files.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>-g</option> or <option>--get</option></term>
+    <listitem>
+     <para>Get key and returns value.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>-s</option> or <option>--set</option></term>
+    <listitem>
+     <para>Set key=value property (one or more) to delete the key let the value blank.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ <refsect1 id="docmanager.examples">
+  <title>Examples</title>
+  <variablelist>
+   <varlistentry>
+    <term><command>&progcmd;</command> -f example.xml -s hello=world</term>
+    <listitem>
+     <para>Set the information value "world" in the property "hello".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -f example.xml -g hello</term>
+    <listitem>
+     <para>Reads the value of the property "hello". If you followed the first example, the output would be "hello=world".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -f example.xml -a SELECT hello</term>
+    <listitem>
+     <para>Shows the value of the property "hello". The output will be displayed as a table structure.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -f example.xml -a SELECT hello test</term>
+    <listitem>
+     <para>Shows the value of the property "hello" and "test". The output will be displayed as a table structure.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+</refentry>
