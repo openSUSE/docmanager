@@ -30,7 +30,7 @@ class ArgParser:
 
     def __init__(self):
         self.__parser = argparse.ArgumentParser(prog="docmanager",
-                        description="Docmanager sets, gets, or analyzes meta-informations for DocBook5 XML files.")
+                        description="Docmanager sets, gets, or analyzes meta-information for DocBook5 XML files.")
         self.add_arguments()
         self.parse_arguments()
 

@@ -1,22 +1,22 @@
 # DocManager [![Build Status](https://travis-ci.org/openSUSE/docmanager.svg?branch=develop)](https://travis-ci.org/openSUSE/docmanager)
 
-The DocManager is a tool to manage meta-informations within DocBook5 documents.
-It is possible to add new informations as well as editing and deleting. The
+The DocManager is a tool to manage meta-information within DocBook5 documents.
+It is possible to add new information as well as editing and deleting. The
 main advantage of this tool is the analyze feature. This feature creates a
-table with all wanted informations. You can restrict the informations with a
-light wight sql syntax.
+table with all wanted information. You can restrict the information with a
+lightweight SQL syntax.
 
 ## Usage
 
-  1. **Adding or editing meta-informations**
+  1. **Adding or editing meta-information**
 
   `$ ./docmanager.py --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml`
 
-  2. **Deleting meta-infrmations**
+  2. **Deleting meta-infrmation**
 
   `$ ./docmanager.py --set maintainer version --files test_file1.xml test_file2.xml`
 
-  3. **Get meta-informations**
+  3. **Get meta-information**
 
   `$ ./docmanager.py --get maintainer --files test_file1.xml test_file2.xml`
 
@@ -25,9 +25,9 @@ light wight sql syntax.
   maintainer=test_name
   ```
 
-  For all informations use `all`.
+  For all information use `all`.
 
-  4. **Analyze meta-inforations**
+  4. **Analyze meta-information**
 
   `$ ./docmanager.py --analyze SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
 
@@ -42,7 +42,7 @@ light wight sql syntax.
 
 ## Contribution
 
-  1. Create a branch if you have exit otherwise fork it.
+  1. Create a branch if you have access otherwise fork it.
   2. Make your changes.
   3. Create a pull request.
   4. Done! Your changes will be reviewed as soon as possible.
