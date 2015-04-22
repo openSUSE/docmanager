@@ -6,6 +6,10 @@ main advantage of this tool is the analyze feature. This feature creates a
 table with all wanted information. You can restrict the information with a
 lightweight SQL syntax.
 
+## Repositories
+  1. Stable Repository: not yet available
+  2. Unstable Repository: https://build.opensuse.org/package/show/Documentation:Tools:Develop/docmanager
+
 ## Usage
 
   1. **Adding or editing meta-information**
