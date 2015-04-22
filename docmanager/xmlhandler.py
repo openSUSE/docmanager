@@ -21,43 +21,42 @@ from lxml import etree
 
 class XmlHandler:
 
-    __namespace = {"docbook":"http://docbook.org/ns/docbook", "docmanager":"urn:x-suse:ns:docmanager"}
+    __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
 
     def __init__(self, file):
         #register the namespace
-        etree.register_namespace("dm", "{docmanager}".format(**self.__namespace))
+        etree.register_namespace("dm", "{dm}".format(**self.__namespace))
         parser = etree.XMLParser(remove_blank_text=False, resolve_entities=False, dtd_validation=False)
         #load the file and set a reference to the docmanager group
         self.__tree = etree.parse(file, parser)
-        self.__docmanager = self.__tree.find("//docmanager:docmanager", namespaces=self.__namespace)
+        self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
 
     def create_group(self):
         #search the info-element if not exists raise an error
-        element = self.__tree.find("//docbook:info", namespaces=self.__namespace)
+        element = self.__tree.find("//d:info", namespaces=self.__namespace)
         if element is not None:
-            self.__docmanager = etree.Element("{{{docmanager}}}docmanager".format(**self.__namespace))
+            self.__docmanager = etree.Element("{{{dm}}}docmanager".format(**self.__namespace))
             element.append(self.__docmanager)
             self.write()
         else:
             raise NameError("Can't find the info element in %s." %self.filename)
 
     def set(self, key, value):
-        key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
+        key_handler = self.__docmanager.find("dm:"+key, namespaces=self.__namespace)
 
         #update the old key or create a new key
         if key_handler is not None:
             key_handler.text = value
         else:
-            key_handler = etree.Element(("{{{docmanager}}}"+key).format(**self.__namespace))
             key_handler.text = value
             self.__docmanager.append(key_handler)
         self.write()
 
     def is_set(self, key, values):
         #check if the key has on of the given values
-        element = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
+        element = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
         if element is not None and element.text in values:
             return True
         else:
@@ -77,7 +76,7 @@ class XmlHandler:
         return values
 
     def delete(self, key):
-        key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
+        key_handler = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
