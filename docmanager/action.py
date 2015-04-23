@@ -46,10 +46,14 @@ class Actions:
     def get(self, arguments):
         #get the key=value pairs and print them file by file
         file_values = self.__files.get(arguments)
-        for filename, values in file_values.items():
-            print("Filename: %s" %filename)
+        files_count = len(file_values.items())
+
+        for filename, values in sorted(file_values.items()):
             for key, value in values.items():
-                print(key+"="+value)
+                if files_count > 1:
+                    print(filename + " -> " + value)
+                else:
+                    print(value)
 
 
     def analyze(self, arguments):

@@ -78,8 +78,6 @@ class ArgParser:
             self.action="analyze"
             self.arguments=self.analyze
 
-
-
 def main():
     """Entry point for the application script"""
     DocManager()
