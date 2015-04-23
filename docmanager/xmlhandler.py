@@ -34,6 +34,17 @@ class XmlHandler:
         if self.__docmanager is None:
             self.create_group()
 
+    def get_indendation(self, node):
+        n = node
+        indent=""
+        while n is not None:
+            if n is self.__root:
+                break
+            if n.tail is not None:
+                ind = "".join([ i for i in n.tail.split("\n") if i ])
+                indent += ind
+            n=node.getparent()
+        return indent
     def create_group(self):
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
