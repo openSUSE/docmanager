@@ -95,7 +95,9 @@ class XmlHandler:
             self.write()
 
     def write(self):
-        self.__tree.write(self.filename, pretty_print=True, with_tail=True)
+        self.__tree.write(self.filename,
+                          # pretty_print=True,
+                          with_tail=True)
 
     @property
     def filename(self):
