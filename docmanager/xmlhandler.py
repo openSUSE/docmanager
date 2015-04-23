@@ -45,12 +45,17 @@ class XmlHandler:
                 indent += ind
             n=node.getparent()
         return indent
+
     def create_group(self):
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
         if element is not None:
-            self.__docmanager = etree.Element("{{{dm}}}docmanager".format(**self.__namespace))
-            element.append(self.__docmanager)
+            self.__docmanager = etree.SubElement(element,
+                                                 "{{{dm}}}docmanager".format(**self.__namespace),
+                                                 # nsmap=self.__namespace
+                                                 )
+            indent = self.get_indendation(element)
+            self.__docmanager.tail="\n"+indent
             self.write()
         else:
             raise NameError("Can't find the info element in %s." %self.filename)
@@ -62,8 +67,11 @@ class XmlHandler:
         if key_handler is not None:
             key_handler.text = value
         else:
-            key_handler.text = value
-            self.__docmanager.append(key_handler)
+            node = etree.SubElement(self.__docmanager,
+                                    "{{{dm}}}{key}".format(key=key, **self.__namespace),
+                                    # nsmap=self.__namespace
+                                    )
+            node.text = value
         self.write()
 
     def is_set(self, key, values):
