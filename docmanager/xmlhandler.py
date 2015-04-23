@@ -23,12 +23,13 @@ class XmlHandler:
 
     __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
 
-    def __init__(self, file):
+    def __init__(self, filename):
         #register the namespace
         etree.register_namespace("dm", "{dm}".format(**self.__namespace))
-        parser = etree.XMLParser(remove_blank_text=False, resolve_entities=False, dtd_validation=False)
-        #load the file and set a reference to the docmanager group
-        self.__tree = etree.parse(file, parser)
+        self.__xmlparser = etree.XMLParser(remove_blank_text=False, resolve_entities=False, dtd_validation=False)
+        #load the file and set a reference to the dm group
+        self.__tree = etree.parse(filename, self.__xmlparser)
+        self.__root = self.__tree.getroot()
         self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
