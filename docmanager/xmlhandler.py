@@ -22,6 +22,7 @@ from lxml import etree
 class XmlHandler:
 
     __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
+    indendation="  "
 
     def __init__(self, filename):
         #register the namespace
@@ -55,6 +56,7 @@ class XmlHandler:
                                                  # nsmap=self.__namespace
                                                  )
             indent = self.get_indendation(element)
+            self.__docmanager.text = "\n"+indent
             self.__docmanager.tail="\n"+indent
             self.write()
         else:
@@ -71,6 +73,8 @@ class XmlHandler:
                                     "{{{dm}}}{key}".format(key=key, **self.__namespace),
                                     # nsmap=self.__namespace
                                     )
+            indent = self.get_indendation(node)
+            node.tail = "\n"+indent
             node.text = value
         self.write()
 
