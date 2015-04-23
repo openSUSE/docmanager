@@ -17,9 +17,11 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+from docmanager import xmlhandler
+from lxml import etree
 import os
 import subprocess
-from docmanager import xmlhandler
+import sys
 
 class Files:
 
@@ -28,10 +30,19 @@ class Files:
 
         #open an XML-Handler for each file
         for file in files:
+            #check if the file does exists
+            if not os.path.exists(file):
+                print("File \"" + file + "\" could not be found.")
+                sys.exit(1)
+
             file_name, file_extension = os.path.splitext(file)
             #check if the file is a normal XML or a DC file
             if file_extension == ".xml":
-                self.__xml_handlers.append(xmlhandler.XmlHandler(file))
+                try:
+                    self.__xml_handlers.append(xmlhandler.XmlHandler(file))
+                except etree.XMLSyntaxError as e:
+                    print("Error during parsing the file \"" + file + "\": " + str(e))
+                    sys.exit(3)
             else:
                 try:
                     #run daps to get all files from a documentation
@@ -39,8 +50,9 @@ class Files:
                     daps_files = daps_files.decode("utf-8")
                     for daps_file in daps_files.split():
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
-                except subprocess.CalledProcessError:
-                    raise RuntimeError("An error occurred while running daps!")
+                except subprocess.CalledProcessError as e:
+                    print("An error occurred while running daps for file \"" + file + "\": " + str(e))
+                    sys.exit(4)
 
     def get(self, keys):
         values = {}
@@ -67,7 +79,11 @@ class Files:
         #iter over all files and set key=value
         #if no value give delete the element
         for xml_handler in self.__xml_handlers:
-            if value is not None:
-                xml_handler.set(key, value)
-            else:
-                xml_handler.delete(key)
+            try:
+                if value is not None:
+                    xml_handler.set(key, value)
+                else:
+                    xml_handler.delete(key)
+            except ValueError as e:
+                print("Could not set value for property \"" + key + "\": " + str(e))
+                sys.exit(2)
