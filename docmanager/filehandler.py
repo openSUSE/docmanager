@@ -18,8 +18,7 @@
 # you may find current contact information at www.suse.com
 
 from docmanager import xmlhandler
-from docmanager.logmanager import log
-from docmanager.logmanager import logmgr_flog
+from docmanager.logmanager import log, logmgr_flog
 from lxml import etree
 import os
 import subprocess
@@ -36,7 +35,7 @@ class Files:
         for file in files:
             #check if the file does exists
             if not os.path.exists(file):
-                print("File \"" + file + "\" could not be found.")
+                sys.error("File \"" + file + "\" could not be found.")
                 sys.exit(1)
 
             file_name, file_extension = os.path.splitext(file)
@@ -45,7 +44,7 @@ class Files:
                 try:
                     self.__xml_handlers.append(xmlhandler.XmlHandler(file))
                 except etree.XMLSyntaxError as e:
-                    print("Error during parsing the file \"" + file + "\": " + str(e))
+                    sys.error("Error during parsing the file \"" + file + "\": " + str(e))
                     sys.exit(3)
             else:
                 try:
@@ -55,7 +54,8 @@ class Files:
                     for daps_file in daps_files.split():
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
                 except subprocess.CalledProcessError as e:
-                    print("An error occurred while running daps for file \"" + file + "\": " + str(e))
+                    sys.debug("Exception thrown: CalledProcessError")
+                    sys.error("An error occurred while running daps for file \"" + file + "\": " + str(e))
                     sys.exit(4)
 
     def get(self, keys):
@@ -95,5 +95,6 @@ class Files:
                 else:
                     xml_handler.delete(key)
             except ValueError as e:
-                print("Could not set value for property \"" + key + "\": " + str(e))
+                sys.debug("Exception thrown: ValueError")
+                sys.error("Could not set value for property \"" + key + "\": " + str(e))
                 sys.exit(2)

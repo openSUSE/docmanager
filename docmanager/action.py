@@ -19,8 +19,7 @@
 
 from docmanager import filehandler
 from docmanager import table
-from docmanager.logmanager import log
-from docmanager.logmanager import logmgr_flog
+from docmanager.logmanager import log, logmgr_flog
 import sys
 
 class Actions:
@@ -35,7 +34,8 @@ class Actions:
         if method is not None:
             method(arguments)
         else:
-            raise RuntimeError("Method %s is not implemented!" %action)
+            log.error("Method \"%s\" is not implemented.", action)
+            sys.exit(6)
 
 
     def set(self, arguments):
@@ -49,7 +49,8 @@ class Actions:
                 log.debug("Set value for property \"%s\" to \"%s\".", key, value)
                 self.__files.set(key, value)
             else:
-                self.__files.set(argument)
+                log.error("Invalid usage. You can set values with the following format: property=value")
+                sys.exit(5)
 
     def get(self, arguments):
         logmgr_flog()
