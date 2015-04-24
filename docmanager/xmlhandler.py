@@ -17,6 +17,8 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+from docmanager.logmanager import log
+from docmanager.logmanager import logmgr_flog
 from lxml import etree
 
 class XmlHandler:
@@ -24,6 +26,8 @@ class XmlHandler:
     __namespace = {"docbook":"http://docbook.org/ns/docbook", "docmanager":"urn:x-suse:ns:docmanager"}
 
     def __init__(self, file):
+        logmgr_flog()
+
         #register the namespace
         etree.register_namespace("dm", "{docmanager}".format(**self.__namespace))
         parser = etree.XMLParser(remove_blank_text=False, resolve_entities=False, dtd_validation=False)
@@ -34,6 +38,8 @@ class XmlHandler:
             self.create_group()
 
     def create_group(self):
+        logmgr_flog()
+
         #search the info-element if not exists raise an error
         element = self.__tree.find("//docbook:info", namespaces=self.__namespace)
         if element is not None:
@@ -44,6 +50,8 @@ class XmlHandler:
             raise NameError("Can't find the info element in %s." %self.filename)
 
     def set(self, key, value):
+        logmgr_flog()
+
         key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
 
         #update the old key or create a new key
@@ -56,6 +64,8 @@ class XmlHandler:
         self.write()
 
     def is_set(self, key, values):
+        logmgr_flog()
+
         #check if the key has on of the given values
         element = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
         if element is not None and element.text in values:
@@ -64,6 +74,8 @@ class XmlHandler:
             return False
 
     def get(self, keys=None):
+        logmgr_flog()
+
         values = {}
         for child in self.__docmanager.iterchildren():
             tag = etree.QName(child)
@@ -77,6 +89,8 @@ class XmlHandler:
         return values
 
     def delete(self, key):
+        logmgr_flog()
+
         key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
 
         if key_handler is not None:
@@ -84,8 +98,12 @@ class XmlHandler:
             self.write()
 
     def write(self):
+        logmgr_flog()
+
         self.__tree.write(self.filename, pretty_print=True, with_tail=True)
 
     @property
     def filename(self):
+        logmgr_flog()
+
         return self.__tree.docinfo.URL

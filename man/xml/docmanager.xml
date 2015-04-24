@@ -70,6 +70,12 @@
      <para>Shows this help message and exit.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term><option>-v</option></term>
+    <listitem>
+     <para>Be more verbose. The verbosity level can be increased by adding more "v" behind the option. (Example: -vv and so on. Maximum: -vvv)</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.options">

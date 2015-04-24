@@ -19,12 +19,17 @@
 
 from docmanager import filehandler
 from docmanager import table
+from docmanager.logmanager import log
+from docmanager.logmanager import logmgr_flog
+import sys
 
 class Actions:
 
     __keywords=["SELECT", "WHERE", "SORTBY"]
 
     def __init__(self, files, action, arguments):
+        logmgr_flog()
+
         self.__files = filehandler.Files(files)
         method = getattr(self, action)
         if method is not None:
@@ -34,16 +39,21 @@ class Actions:
 
 
     def set(self, arguments):
+        logmgr_flog()
+
         for argument in arguments:
             #has the key an value?
             #when not delete the element
             if argument.find("=") >= 0:
                 key, value = argument.split("=")
+                log.debug("Set value for property \"%s\" to \"%s\".", key, value)
                 self.__files.set(key, value)
             else:
                 self.__files.set(argument)
 
     def get(self, arguments):
+        logmgr_flog()
+
         #get the key=value pairs and print them file by file
         file_values = self.__files.get(arguments)
         files_count = len(file_values.items())
@@ -57,6 +67,8 @@ class Actions:
 
 
     def analyze(self, arguments):
+        logmgr_flog()
+
         #split the arguments by sql like keywords
         #and convert strings into dicts
         splited_arguments = self.split_arguments(arguments)
@@ -78,6 +90,8 @@ class Actions:
         tbl.print()
 
     def split_arguments(self, arguments):
+        logmgr_flog()
+
         splited_arguments = {}
         for keyword in self.__keywords:
             splited_arguments.update({keyword:[]})
@@ -91,6 +105,8 @@ class Actions:
         return splited_arguments
 
     def parse_where(self, where):
+        logmgr_flog()
+
         filterd_where = {}
         for pair in where:
             key, values = pair.split("=")
@@ -99,6 +115,8 @@ class Actions:
         return filterd_where
 
     def parse_sort(self, sort):
+        logmgr_flog()
+
         if len(sort) > 0:
             return sort[0]
         else:

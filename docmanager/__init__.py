@@ -18,6 +18,9 @@
 
 import argparse
 from docmanager import action
+from docmanager.logmanager import log
+import logging
+import sys
 
 class DocManager:
 
@@ -65,6 +68,10 @@ class ArgParser:
                          "allowed keywords are SELECT, WHERE, and SORTBY. " \
                          "Output is formatted as table."
                 )
+        self.__parser.add_argument('-v', '--verbose',
+                    action='count',
+                    help="Increase verbosity level"
+                )
 
     def parse_arguments(self):
         self.__parser.parse_args(namespace=self)
@@ -77,6 +84,14 @@ class ArgParser:
         elif self.analyze is not None:
             self.action="analyze"
             self.arguments=self.analyze
+
+        loglevel = {
+            None: logging.NOTSET,
+            1: logging.INFO,
+            2: logging.DEBUG
+        }
+
+        log.setLevel(loglevel.get(self.verbose, logging.DEBUG))
 
 def main():
     """Entry point for the application script"""

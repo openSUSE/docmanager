@@ -18,6 +18,8 @@
 # you may find current contact information at www.suse.com
 
 from docmanager import xmlhandler
+from docmanager.logmanager import log
+from docmanager.logmanager import logmgr_flog
 from lxml import etree
 import os
 import subprocess
@@ -26,6 +28,8 @@ import sys
 class Files:
 
     def __init__(self, files):
+        logmgr_flog()
+
         self.__xml_handlers = []
 
         #open an XML-Handler for each file
@@ -55,6 +59,8 @@ class Files:
                     sys.exit(4)
 
     def get(self, keys):
+        logmgr_flog()
+
         values = {}
         #iter over all files
         for xml_handler in self.__xml_handlers:
@@ -64,6 +70,8 @@ class Files:
         return values
 
     def is_set(self, pairs):
+        logmgr_flog()
+
         is_set = {}
         #iter over all files
         for xml_handler in self.__xml_handlers:
@@ -76,6 +84,8 @@ class Files:
         return is_set
 
     def set(self, key, value=None):
+        logmgr_flog()
+
         #iter over all files and set key=value
         #if no value give delete the element
         for xml_handler in self.__xml_handlers:
