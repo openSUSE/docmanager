@@ -14,26 +14,25 @@ lightweight SQL syntax.
 
   1. **Adding or editing meta-information**
 
-  `$ ./docmanager.py --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml`
+  `$ docmanager --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml`
 
-  2. **Deleting meta-infrmation**
+  2. **Deleting meta-information**
 
-  `$ ./docmanager.py --set maintainer version --files test_file1.xml test_file2.xml`
+  `$ docmanager --delete maintainer version --files test_file1.xml test_file2.xml`
 
   3. **Get meta-information**
 
-  `$ ./docmanager.py --get maintainer --files test_file1.xml test_file2.xml`
+  `$ docmanager --get maintainer --files test_file1.xml`
 
   ```
-  Filename: test_file2.xml
-  maintainer=test_name
+  test_name
   ```
 
   For all information use `all`.
 
   4. **Analyze meta-information**
 
-  `$ ./docmanager.py --analyze SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
+  `$ docmanager --analyze SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
 
   ```
   +----------------+---------+------------+
