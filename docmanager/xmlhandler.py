@@ -31,33 +31,41 @@ class XmlHandler:
         #load the file and set a reference to the dm group
         self.__tree = etree.parse(filename, self.__xmlparser)
         self.__root = self.__tree.getroot()
+        self.indent=""
         self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
 
-    def get_indendation(self, node):
+    def __get_indendation(self, node):
         n = node
         indent=""
         while n is not None:
             if n is self.__root:
                 break
             if n.tail is not None:
-                ind = "".join([ i for i in n.tail.split("\n") if i ])
-                indent += ind
+                indent += "".join([ i for i in n.tail.split("\n") if i ])
             n=node.getparent()
         return indent
+
+    def get_indendation(self, node, indendation=""):
+        indent = "".join([ "".join(n.tail.split("\n")) for n in node.iterancestors()
+                          if n.tail is not None ])
+        return indent+indendation
+
 
     def create_group(self):
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
         if element is not None:
+            prev=element.getprevious()
+            self.indent= "".join(prev.tail.split("\n"))
+
             self.__docmanager = etree.SubElement(element,
                                                  "{{{dm}}}docmanager".format(**self.__namespace),
-                                                 # nsmap=self.__namespace
                                                  )
-            indent = self.get_indendation(element)
-            self.__docmanager.text = "\n"+indent
-            self.__docmanager.tail="\n"+indent
+            # indent = self.get_indendation(element)
+            self.__docmanager.text = '\n' #+ self.indent + self.indendation
+            self.__docmanager.tail = '\n' #+ self.indent
             self.write()
         else:
             raise NameError("Can't find the info element in %s." %self.filename)
@@ -73,13 +81,12 @@ class XmlHandler:
                                     "{{{dm}}}{key}".format(key=key, **self.__namespace),
                                     # nsmap=self.__namespace
                                     )
-            indent = self.get_indendation(node)
-            node.tail = "\n"+indent
+            node.tail = '\n' # + self.indent #+ self.indendation
             node.text = value
         self.write()
 
     def is_set(self, key, values):
-        #check if the key has on of the given values
+        #check if the key has one of the given values
         element = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
         if element is not None and element.text in values:
             return True
