@@ -18,7 +18,7 @@
     <email>rsalevsky@suse.de</email>
    </author>
    <author>
-    <contrib>Packager &amp; Man Page creator</contrib>
+    <contrib>Packager and Developer</contrib>
     <firstname>Manuel</firstname>
     <surname>Schnitzer</surname>
     <email>mschnitzer@suse.de</email>
@@ -49,7 +49,6 @@
     <arg>-g GET</arg>
     <arg>-a ANALYZE</arg>
    </group>
-   <!--<arg choice="plain">[-h] -f FILES [FILES ...] (-s SET [SET ...] | -g GET [GET ...] | -a ANALYZE [ANALYZE ...])</arg>-->
   </cmdsynopsis>
  </refsynopsisdiv>
  <refsect1 id="docmanager.description">
@@ -105,6 +104,12 @@
      <para>Set key=value property (one or more) to delete the key let the value blank.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term><option>-d</option> or <option>--delete</option></term>
+    <listitem>
+     <para>Deletes the given properties from the specified XML files.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.exitcodes">
@@ -140,6 +145,18 @@
      <para>An error occurred while running daps.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>5</term>
+    <listitem>
+     <para>Invalid usage of key=value in --set</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>6</term>
+    <listitem>
+     <para>(For development only): Method "..." is not implemented.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.examples">
@@ -167,6 +184,12 @@
     <term><command>&progcmd;</command> -f example.xml -a SELECT hello test</term>
     <listitem>
      <para>Shows the value of the property "hello" and "test". The output will be displayed as a table structure.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -f example.xml -d property1 property2</term>
+    <listitem>
+     <para>Deletes the property1 and property2 from the example.xml file.</para>
     </listitem>
    </varlistentry>
   </variablelist>

@@ -46,8 +46,9 @@ class Actions:
             #when not delete the element
             if argument.find("=") >= 0:
                 key, value = argument.split("=")
-                log.debug("Set value for property \"%s\" to \"%s\".", key, value)
+                log.debug("Trying to set value for property \"%s\" to \"%s\".", key, value)
                 self.__files.set(key, value)
+                print("Set value for property \"{}\" to \"{}\".".format(key, value))
             else:
                 log.error("Invalid usage. You can set values with the following format: property=value")
                 sys.exit(5)
@@ -89,6 +90,14 @@ class Actions:
         tbl.add_by_list(values)
         tbl.sort(sort)
         tbl.print()
+
+    def delete(self, arguments):
+        logmgr_flog()
+
+        for argument in arguments:
+            log.debug("Trying to delete property \"%s\".", argument)
+            self.__files.set(argument)
+            print("Property \"{}\" has been deleted.".format(argument))
 
     def split_arguments(self, arguments):
         logmgr_flog()

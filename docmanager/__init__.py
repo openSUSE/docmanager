@@ -68,6 +68,12 @@ class ArgParser:
                          "allowed keywords are SELECT, WHERE, and SORTBY. " \
                          "Output is formatted as table."
                 )
+        actions.add_argument(
+                    "-d",
+                    "--delete",
+                    nargs="+",
+                    help="Delete properties from XML documents."
+                )
         self.__parser.add_argument('-v', '--verbose',
                     action='count',
                     help="Increase verbosity level"
@@ -84,6 +90,9 @@ class ArgParser:
         elif self.analyze is not None:
             self.action="analyze"
             self.arguments=self.analyze
+        elif self.delete is not None:
+            self.action="delete"
+            self.arguments=self.delete
 
         loglevel = {
             None: logging.NOTSET,

@@ -54,7 +54,7 @@ class Files:
                     for daps_file in daps_files.split():
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
                 except subprocess.CalledProcessError as e:
-                    sys.debug("Exception thrown: CalledProcessError")
+                    sys.debug("Exception thrown: subprocess.CalledProcessError")
                     sys.error("An error occurred while running daps for file \"" + file + "\": " + str(e))
                     sys.exit(4)
 
