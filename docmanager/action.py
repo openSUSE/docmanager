@@ -23,10 +23,18 @@ from docmanager.logmanager import log, logmgr_flog
 import sys
 
 class Actions:
+    """An Actions instance represents an action event
+    """
 
     __keywords=["SELECT", "WHERE", "SORTBY"]
 
     def __init__(self, files, action, arguments):
+        """Initialize Actions class
+
+        :param list files:     list of filenames
+        :param str action:     action to apply to filename
+        :param list arguments: arguments to pass to method from `action`
+        """
         logmgr_flog()
 
         self.__files = filehandler.Files(files)
@@ -39,6 +47,10 @@ class Actions:
 
 
     def set(self, arguments):
+        """Set key/value pairs from arguments
+
+        :param list arguments: List of arguments with key=value pairs
+        """
         logmgr_flog()
 
         for argument in arguments:
@@ -54,6 +66,10 @@ class Actions:
                 sys.exit(5)
 
     def get(self, arguments):
+        """Lists all properties
+
+        :param list arguments:
+        """
         logmgr_flog()
 
         #get the key=value pairs and print them file by file
@@ -69,6 +85,10 @@ class Actions:
 
 
     def analyze(self, arguments):
+        """Display table after selecting properties
+
+        :param list arguments:
+        """
         logmgr_flog()
 
         #split the arguments by sql like keywords
@@ -89,9 +109,13 @@ class Actions:
         tbl = table.Table()
         tbl.add_by_list(values)
         tbl.sort(sort)
-        tbl.print()
+        tbl.print() # toms: if __str__ is implemented, use print(tbl)
 
     def delete(self, arguments):
+        """Delete a property
+
+        :param list arguments:
+        """
         logmgr_flog()
 
         for argument in arguments:
@@ -100,6 +124,12 @@ class Actions:
             print("Property \"{}\" has been deleted.".format(argument))
 
     def split_arguments(self, arguments):
+        """TODO:
+
+        :param list arguments:
+        :return:
+        :rtype:  dict
+        """
         logmgr_flog()
 
         splited_arguments = {}
@@ -115,6 +145,13 @@ class Actions:
         return splited_arguments
 
     def parse_where(self, where):
+        """TODO:
+
+        :param list where:
+        :return:
+        :rtype: dict
+        """
+
         logmgr_flog()
 
         filterd_where = {}
@@ -125,6 +162,12 @@ class Actions:
         return filterd_where
 
     def parse_sort(self, sort):
+        """TODO:
+
+        :param sort:
+        :return:
+        :rtype:  None or TODO
+        """
         logmgr_flog()
 
         if len(sort) > 0:

@@ -16,6 +16,8 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+__author__="Rick Salevsky"
+
 import argparse
 from docmanager import action
 from docmanager.logmanager import log
@@ -23,20 +25,29 @@ import logging
 import sys
 
 class DocManager:
+    """TODO:
+    """
+    # toms: Not sure what this class is all about. For me it seems to be useless
+    #       Couldn't the __init__ code be moved to main()?
 
     def __init__(self):
+        """Initializes DocManager class"""
         parser = ArgParser()
         action.Actions(parser.files, parser.action, parser.arguments)
 
 class ArgParser:
+    """Encapsulates arguments in ArgumentParser
+    """
 
     def __init__(self):
+        """Initializes ArgParser class"""
         self.__parser = argparse.ArgumentParser(prog="docmanager",
                         description="Docmanager sets, gets, or analyzes meta-information for DocBook5 XML files.")
         self.add_arguments()
         self.parse_arguments()
 
     def add_arguments(self):
+        """Adds arguments to ArgumentParser"""
         file_group = self.__parser.add_argument_group("Files")
         file_group.add_argument(
                     "-f",
@@ -80,6 +91,7 @@ class ArgParser:
                 )
 
     def parse_arguments(self):
+        """Parses command line arguments"""
         self.__parser.parse_args(namespace=self)
         if self.set is not None:
             self.action="set"

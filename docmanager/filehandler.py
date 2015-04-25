@@ -25,8 +25,14 @@ import subprocess
 import sys
 
 class Files:
-
+    """TODO
+    """
+    
     def __init__(self, files):
+        """Initializes Files class
+
+        :param list files: list with file names
+        """
         logmgr_flog()
 
         self.__xml_handlers = []
@@ -59,6 +65,12 @@ class Files:
                     sys.exit(4)
 
     def get(self, keys):
+        """TODO
+
+        :param str keys:
+        :return:
+        :rtype: dict
+        """
         logmgr_flog()
 
         values = {}
@@ -70,6 +82,12 @@ class Files:
         return values
 
     def is_set(self, pairs):
+        """TODO
+
+        :param type pairs:
+        :return: mapping of filenames and result
+        :rtype: dict
+        """
         logmgr_flog()
 
         is_set = {}
@@ -84,6 +102,12 @@ class Files:
         return is_set
 
     def set(self, key, value=None):
+        """Set value to key
+
+        :param key:   element name to set
+        :param value: value of element
+        :type value:  str or None
+        """
         logmgr_flog()
 
         #iter over all files and set key=value

@@ -21,10 +21,15 @@ from docmanager.logmanager import log, logmgr_flog
 from lxml import etree
 
 class XmlHandler:
-
+    """An XmlHandler instance represents an XML tree of a file
+    """
     __namespace = {"docbook":"http://docbook.org/ns/docbook", "docmanager":"urn:x-suse:ns:docmanager"}
 
     def __init__(self, file):
+        """Initializes the XmlHandler class
+
+        :param file: filename of XML file
+        """
         logmgr_flog()
 
         #register the namespace
@@ -37,6 +42,7 @@ class XmlHandler:
             self.create_group()
 
     def create_group(self):
+        """Creates the docmanager group element"""
         logmgr_flog()
 
         #search the info-element if not exists raise an error
@@ -49,6 +55,14 @@ class XmlHandler:
             raise NameError("Can't find the info element in %s." %self.filename)
 
     def set(self, key, value):
+        """Sets the key as element and value as content
+
+        If key = "foo" and value="bar":
+
+           <foo>bar</foo>
+
+        whereas foo belongs to the DocManager namespace
+        """
         logmgr_flog()
 
         key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
@@ -63,6 +77,14 @@ class XmlHandler:
         self.write()
 
     def is_set(self, key, values):
+        """Checks if element 'key' exists with 'values'
+
+        :param str key: the element to search for
+        :param str values: the value inside the element
+
+        :return: if conditions are met
+        :rtype: bool
+        """
         logmgr_flog()
 
         #check if the key has on of the given values
@@ -73,6 +95,14 @@ class XmlHandler:
             return False
 
     def get(self, keys=None):
+        """Returns all matching values for a key in docmanager element
+
+        :param key: localname of element to search for
+        :type key: list, tuple, or None
+        :return: the values
+        :rtype: dict
+
+        """
         logmgr_flog()
 
         values = {}
@@ -88,6 +118,10 @@ class XmlHandler:
         return values
 
     def delete(self, key):
+        """Deletes an element inside docmanager element
+
+        :param str key: element name to delete
+        """
         logmgr_flog()
 
         key_handler = self.__docmanager.find("./docmanager:"+key, namespaces=self.__namespace)
@@ -97,12 +131,18 @@ class XmlHandler:
             self.write()
 
     def write(self):
+        """Write XML tree to original filename"""
         logmgr_flog()
 
         self.__tree.write(self.filename, pretty_print=True, with_tail=True)
 
     @property
     def filename(self):
+        """Returns filename of the input source
+
+        :return: filename
+        :rtype:  str
+        """
         logmgr_flog()
 
         return self.__tree.docinfo.URL
