@@ -113,7 +113,31 @@ class XmlHandler:
             key_handler.getparent().remove(key_handler)
             self.write()
 
+    def indent_dm(self):
+        #
+        dmindent='    '
+        dm = self.__tree.find("//dm:docmanager",
+                              namespaces=self.__namespace)
+        info = dm.getparent().getprevious()
+        infoindent = "".join(info.tail.split('\n'))
+        prev = dm.getprevious()
+        previndent = "".join(prev.tail.split('\n'))
+        indent=self.get_indendation(dm.getprevious())
+        print(">>> info:   {!r}".format(infoindent))
+        print(">>> parent: {!r}".format(indent))
+        print(">>> prev:   {!r}".format(previndent))
+        prev.tail = '\n' + infoindent
+        dm.text = '\n' + indent + '    '
+        dm.tail = '\n' + infoindent
+        print(">>> dm.text: {!r}".format(dm.text))
+        print(">>> dm.tail: {!r}".format(dm.tail))
+        for node in dm.iterchildren():
+            i = dmindent if node.getnext() is not None else ''
+            node.tail = '\n' + indent + i
+
     def write(self):
+        # Only indent docmanager child elements
+        self.indent_dm()
         self.__tree.write(self.filename,
                           # pretty_print=True,
                           with_tail=True)
