@@ -88,6 +88,11 @@ class XmlHandler:
             key_handler.getparent().remove(key_handler)
             self.write()
 
+    def get_indendation(self, node, indendation=""):
+        indent = "".join([ "".join(n.tail.split("\n")) for n in node.iterancestors()
+                          if n.tail is not None ])
+        return indent+indendation
+
     def indent_dm(self):
         #
         dmindent='    '
