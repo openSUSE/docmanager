@@ -37,7 +37,6 @@ class XmlHandler:
         #load the file and set a reference to the dm group
         self.__tree = etree.parse(filename, self.__xmlparser)
         self.__root = self.__tree.getroot()
-        self.indent=""
         self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
@@ -49,7 +48,6 @@ class XmlHandler:
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
         if element is not None:
-            prev=element.getprevious()
             self.__docmanager = etree.SubElement(element,
                                                  "{{{dm}}}docmanager".format(**self.__namespace),
                                                  )
@@ -173,3 +171,26 @@ class XmlHandler:
         logmgr_flog()
 
         return self.__tree.docinfo.URL
+
+    @filename.setter
+    def filename(self, node):
+        raise ValueError("filename is only readable")
+    @filename.deleter
+    def filename(self):
+        raise ValueError("filename cannot be deleted")
+
+    @property
+    def tree(self):
+        """Return our parsed tree object
+
+        :return: tree object
+        :rtype:  lxml.etree._ElementTree
+        """
+        return self.__tree
+
+    @tree.setter
+    def tree(self, node):
+        raise ValueError("tree is only readable")
+    @tree.deleter
+    def tree(self):
+        raise ValueError("tree cannot be deleted")

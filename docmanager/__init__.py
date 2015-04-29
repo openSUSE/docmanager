@@ -17,6 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky"
+__version__="3.0"
 
 import argparse
 from docmanager import action
@@ -39,15 +40,21 @@ class ArgParser:
     """Encapsulates arguments in ArgumentParser
     """
 
-    def __init__(self):
+    def __init__(self, args=None):
         """Initializes ArgParser class"""
+        self.__args=args
         self.__parser = argparse.ArgumentParser(prog="docmanager",
+                        # version=__version__,
                         description="Docmanager sets, gets, or analyzes meta-information for DocBook5 XML files.")
         self.add_arguments()
         self.parse_arguments()
 
     def add_arguments(self):
         """Adds arguments to ArgumentParser"""
+        self.__parser.add_argument('--version',
+                    action='version',
+                    version='%(prog)s ' + __version__
+                    )
         file_group = self.__parser.add_argument_group("Files")
         file_group.add_argument(
                     "-f",
@@ -92,7 +99,7 @@ class ArgParser:
 
     def parse_arguments(self):
         """Parses command line arguments"""
-        self.__parser.parse_args(namespace=self)
+        self.__parser.parse_args(args=self.__args, namespace=self)
         if self.set is not None:
             self.action="set"
             self.arguments=self.set
