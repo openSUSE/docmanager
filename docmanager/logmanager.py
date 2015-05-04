@@ -16,17 +16,20 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-
 import logging
 import sys
+import traceback
+import os
 
 log = logging.getLogger(__file__)
 _ch = logging.StreamHandler(sys.stderr)
-_frmt = logging.Formatter('%(levelname)s: %(message)s')
+_frmt = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', '%H:%M:%S')
 _ch.setFormatter(_frmt)
 log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
 def logmgr_flog():
-    pass
+    stack = traceback.extract_stack()
+    file, line, func, text = stack[-2]
 
+    log.debug("Called function \"%s\" in file %s/%s (line: %d).", func, os.getcwd(), os.path.basename(file), line)
