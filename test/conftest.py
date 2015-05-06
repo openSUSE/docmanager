@@ -32,8 +32,32 @@ sys.path.append('.')
 # Fixtures
 #
 
-@pytest.fixture(params=["test.01.xml"])
-def xmltmpfile(request, tmpdir):
+@pytest.fixture(params=["testfiles/valid_xml_file.xml"])
+def tmp_valid_xml(request, tmpdir):
+    """Copies XML file to temporary directory
+
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param request: XML filename as parameter
+    """
+    xmlfile=testdir / request.param
+    assert xmlfile.exists(), "temp XML file does not exist"
+    xmlfile.copy(tmpdir)
+    return tmpdir.listdir(sort=xmlfile.basename)[0]
+
+@pytest.fixture(params=["testfiles/docmanager_overwrite_test.xml"])
+def tmp_docmanager_overwrite(request, tmpdir):
+    """Copies XML file to temporary directory
+
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param request: XML filename as parameter
+    """
+    xmlfile=testdir / request.param
+    assert xmlfile.exists(), "temp XML file does not exist"
+    xmlfile.copy(tmpdir)
+    return tmpdir.listdir(sort=xmlfile.basename)[0]
+
+@pytest.fixture(params=["testfiles/broken_xml_file.xml"])
+def tmp_broken_xml(request, tmpdir):
     """Copies XML file to temporary directory
 
     :param pytest.fixture tmpdir: temporary directory fixture

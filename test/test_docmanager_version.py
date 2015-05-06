@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 
-import sys
 import pytest
-
 from docmanager import __version__
 from docmanager import ArgParser
-
 
 def test_version():
     """Check if version is available and set"""

@@ -1,0 +1,18 @@
+<!DOCTYPE article [
+<!ENTITY foo "Hallo Welt">
+]>
+<article xmlns:dm="urn:x-suse:ns:docmanager" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+  <title>Example</title>
+  <info>
+    <author>
+        <personname>
+            <firstname>Manuel</firstname>
+            <surname>Schnitzer</surname>
+        </personname>
+    </author>
+  <dm:docmanager>
+      <dm:hello>SUSE</dm:hello>
+  </dm:docmanager>
+  </info>
+  <para>Bla and &foo;</para>
+</article>
