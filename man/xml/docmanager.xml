@@ -157,6 +157,12 @@
      <para>(For development only): Method "..." is not implemented.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>7</term>
+    <listitem>
+     <para>The info element could not be found in one of the given XML files.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.examples">

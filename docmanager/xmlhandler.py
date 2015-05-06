@@ -17,6 +17,7 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import sys
 from docmanager.logmanager import log, logmgr_flog
 from lxml import etree
 
@@ -53,7 +54,8 @@ class XmlHandler:
                                                  )
             self.write()
         else:
-            raise NameError("Can't find the info element in %s." %self.filename)
+            log.error("Can't find the \"info\" element in {}.".format(self.filename))
+            sys.exit(7)
 
     def set(self, key, value):
         """Sets the key as element and value as content
