@@ -19,7 +19,7 @@
 
 from docmanager import prettytable
 
-class Table:
+class Table(object):
     """A Table instance represents the result of the search
     """
     def __init__(self):

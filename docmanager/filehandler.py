@@ -24,7 +24,7 @@ import os
 import subprocess
 import sys
 
-class Files:
+class Files(object):
     """TODO
     """
     
