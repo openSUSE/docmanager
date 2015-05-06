@@ -1,2 +1,5 @@
+# Requirements file for pip
+# Use it with pip install -r requirements.txt
+
 lxml>=3.3.5
 wheel==0.24.0

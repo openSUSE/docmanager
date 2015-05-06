@@ -17,6 +17,7 @@
 # you may find current contact information at www.suse.com
 
 import sys
+import os
 
 import pytest
 import py.path
@@ -27,6 +28,19 @@ testdir = py.path.local(py.path.local(__file__).dirname)
 # Add current directory; this makes it possible to import all
 # docmanager related files
 sys.path.append('.')
+
+
+# ------------------------------------------------------
+# Markers
+#
+reason = 'Fails on Travis or else there is no network connection to GitHub.'
+
+travis = os.environ.get('TRAVIS', False)
+skipif_travis = pytest.mark.skipif(travis, reason=reason)
+
+no_network = os.environ.get('DM_NO_NETWORK_TESTS', False)
+skipif_no_network = pytest.mark.skipif(no_network, reason=reason)
+
 
 # ------------------------------------------------------
 # Fixtures
