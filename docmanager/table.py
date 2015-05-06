@@ -39,7 +39,7 @@ class Table:
             if key != "Files":
                 value = (values.get(key))
                 #has the file this value?
-                if value != None:
+                if value is not None:
                     row.append(value)
                 else:
                     row.append("-")
