@@ -1,4 +1,4 @@
-# DocManager [![Build Status](https://travis-ci.org/openSUSE/docmanager.svg?branch=develop)](https://travis-ci.org/openSUSE/docmanager)
+# DocManager [![Build Status](https://travis-ci.org/openSUSE/docmanager.svg?branch=develop)](https://travis-ci.org/openSUSE/docmanager) [![Coverage Status](https://coveralls.io/repos/openSUSE/docmanager/badge.svg?branch=feature%2Fcoverage)](https://coveralls.io/r/openSUSE/docmanager?branch=feature%2Fcoverage)
 
 The DocManager is a tool to manage meta-information within DocBook5 documents.
 It is possible to add new information as well as editing and deleting. The
