@@ -81,3 +81,15 @@ def tmp_broken_xml(request, tmpdir):
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
     return tmpdir.listdir(sort=xmlfile.basename)[0]
+
+@pytest.fixture(params=["testfiles/missing_info_element.xml"])
+def tmp_missing_info_element(request, tmpdir):
+    """Copies XML file to temporary directory
+
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param request: XML filename as parameter
+    """
+    xmlfile=testdir / request.param
+    assert xmlfile.exists(), "temp XML file does not exist"
+    xmlfile.copy(tmpdir)
+    return tmpdir.listdir(sort=xmlfile.basename)[0]
