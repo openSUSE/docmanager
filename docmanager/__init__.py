@@ -24,10 +24,9 @@ from docmanager import action
 from docmanager.logmanager import log
 import logging
 import re
-import sys
 
 
-class ArgParser:
+class ArgParser(object):
     """Encapsulates arguments in ArgumentParser
     """
 

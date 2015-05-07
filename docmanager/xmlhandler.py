@@ -21,7 +21,7 @@ import sys
 from docmanager.logmanager import log, logmgr_flog
 from lxml import etree
 
-class XmlHandler:
+class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
     __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}

@@ -22,7 +22,7 @@ from docmanager import table
 from docmanager.logmanager import log, logmgr_flog
 import sys
 
-class Actions:
+class Actions(object):
     """An Actions instance represents an action event
     """
 
@@ -101,8 +101,8 @@ class Actions:
         #if the file has no key=value match remove the file
         #from the list
         is_set = self.__files.is_set(where)
-        for file, bool in is_set.items():
-            if bool == False:
+        for file, boolean in is_set.items():
+            if boolean is False:
                 values.pop(file)
 
         #create the table, add content, sort and print
@@ -140,7 +140,7 @@ class Actions:
         for part in arguments:
             if part in self.__keywords:
                 keyword = part
-            elif keyword != None:
+            elif keyword is not None:
                 splited_arguments[keyword].append(part)
         return splited_arguments
 
