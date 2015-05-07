@@ -111,6 +111,8 @@ class ArgParser(object):
         # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
         # regardless of the passed arguments
         _props=[ ]
+        # Use an empty list when self.properties = None
+        self.properties = [] if self.properties is None else self.properties
         for item in self.properties:
             _props.extend(re.split("[ ,;]", item))
         self.properties = _props
@@ -125,8 +127,6 @@ class ArgParser(object):
         log.setLevel(loglevel.get(self.verbose, logging.DEBUG))
         log.debug("args: {}".format(dir(self.__args)))
 
-    def __repr__(self):
-        """ """
 
 
 def main():

@@ -27,7 +27,7 @@ import sys
 class Files(object):
     """TODO
     """
-    
+
     def __init__(self, files):
         """Initializes Files class
 
@@ -41,7 +41,7 @@ class Files(object):
         for file in files:
             #check if the file does exists
             if not os.path.exists(file):
-                sys.error("File \"" + file + "\" could not be found.")
+                log.error("File '%s' not found." % file)
                 sys.exit(1)
 
             file_name, file_extension = os.path.splitext(file)
@@ -50,7 +50,7 @@ class Files(object):
                 try:
                     self.__xml_handlers.append(xmlhandler.XmlHandler(file))
                 except etree.XMLSyntaxError as e:
-                    sys.error("Error during parsing the file \"" + file + "\": " + str(e))
+                    log.error("Error during parsing the file '%s': %s" % (file, str(e)) )
                     sys.exit(3)
             else:
                 try:
