@@ -15,15 +15,15 @@ lightweight SQL syntax.
 
   1. **Adding or editing meta-information**
 
-  `$ docmanager --set maintainer=test_name version=test_version --files test_file1.xml test_file2.xml`
+  `$ docmanager set -p maintainer=test_name -p version=test_version test_file1.xml test_file2.xml`
 
   2. **Deleting meta-information**
 
-  `$ docmanager --delete maintainer version --files test_file1.xml test_file2.xml`
+  `$ docmanager del -p maintainer,version test_file1.xml test_file2.xml`
 
   3. **Get meta-information**
 
-  `$ docmanager --get maintainer --files test_file1.xml`
+  `$ docmanager get maintainer test_file1.xml`
 
   ```
   test_name
@@ -33,7 +33,7 @@ lightweight SQL syntax.
 
   4. **Analyze meta-information**
 
-  `$ docmanager --analyze SELECT maintainer version WHERE maintainer=test_name --files test_file1.xml test_file2.xml`
+  `$ docmanager analyze SELECT maintainer version WHERE maintainer=test_name -- test_file1.xml test_file2.xml`
 
   ```
   +----------------+---------+------------+
