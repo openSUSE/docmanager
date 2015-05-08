@@ -17,13 +17,14 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky"
-__version__="3.0"
+__version__="3.0.0"
 
 import argparse
 from docmanager import action
 from docmanager.logmanager import log
 import logging
 import re
+import sys
 
 
 class ArgParser(object):
@@ -125,8 +126,10 @@ class ArgParser(object):
         }
 
         log.setLevel(loglevel.get(self.verbose, logging.DEBUG))
-        log.debug("args: {}".format(dir(self.__args)))
 
+
+    def __repr__(self):
+        """ """
 
 
 def main():
