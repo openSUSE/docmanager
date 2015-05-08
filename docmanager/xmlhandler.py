@@ -17,14 +17,59 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import re
 import sys
+
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.core import NS
 from lxml import etree
+
+
+def localname(tag):
+    """Returns the local name of an element
+
+    :param str tag: Usually in the form of {http://docbook.org/ns/docbook}article
+    :return:  local name
+    :rtype:  str
+    """
+    m = re.search("\{(?P<ns>.*)\}(?P<local>[a-z]+)", tag)
+    if m:
+        return m.groupdict()['local']
+    else:
+        return tag
+
 
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
     __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
+    # All elements which are valid as root (from 5.1CR3)
+    validroots = ('abstract', 'address', 'annotation', 'audiodata',
+                   'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
+                   'bibliolist', 'blockquote', 'book', 'calloutlist',
+                   'calloutlist', 'caption', 'caution', 'classsynopsis',
+                   'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
+                   'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
+                   'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
+                   'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
+                   'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
+                   'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
+                   'important', 'index', 'indexdiv', 'informalequation',
+                   'informalequation', 'informalexample', 'informalfigure',
+                   'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
+                   'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
+                   'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
+                   'para', 'part', 'partintro', 'personblurb', 'procedure',
+                   'productionset', 'programlisting', 'programlistingco',
+                   'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
+                   'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
+                   'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
+                   'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
+                   'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
+                   'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
+                   'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
+                   'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
+                   'topic', 'variablelist', 'videodata', 'videoobject', 'warning')
 
     def __init__(self, filename):
         """Initializes the XmlHandler class
@@ -42,20 +87,32 @@ class XmlHandler(object):
         if self.__docmanager is None:
             self.create_group()
 
+    def check_root_element(self):
+        """Checks if root element is valid"""
+        if self._root.tag not in self.validroots:
+            raise ValueError("Cannot add info element to %s. Not a valid root element.")
+
     def create_group(self):
         """Creates the docmanager group element"""
         logmgr_flog()
 
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
-        if element is not None:
-            self.__docmanager = etree.SubElement(element,
-                                                 "{{{dm}}}docmanager".format(**self.__namespace),
-                                                 )
-            self.write()
-        else:
-            log.error("Can't find the \"info\" element in {}.".format(self.filename))
-            sys.exit(7)
+        # TODO: We need to check for a --force option
+        if element is None:
+            log.warn("Can't find the <info> element in '%s'. "
+                     "Adding one." % self.__tree.docinfo.URL)
+            title = self.__root.getchildren()[0]
+            idx = self.__root.index(title) + 1
+            self.__root.insert(idx, etree.Element("{%s}info" % NS["d"]))
+            element = self.__root.getchildren()[idx]
+            element.tail = self.__root.getchildren()[idx-1].tail
+
+        self.__docmanager = etree.SubElement(element,
+                                             "{{{dm}}}docmanager".format(**self.__namespace),
+                                            )
+        #log.debug("docmanager?: %s" % etree.tostring(self.__tree).decode("UTF-8"))
+        self.write()
 
     def set(self, key, value):
         """Sets the key as element and value as content
@@ -142,9 +199,15 @@ class XmlHandler(object):
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=self.__namespace)
+        dmchildren = dm.getchildren()
+        #log.info("dm: %s" % dmchildren)
+        if not dm:
+            return
         info = dm.getparent().getprevious()
+        #log.info("info: %s" % info)
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()
+        #log.info("prev: %s" % prev)
         previndent = "".join(prev.tail.split('\n'))
         indent=self.get_indendation(dm.getprevious())
         prev.tail = '\n' + infoindent
@@ -175,7 +238,7 @@ class XmlHandler(object):
         return self.__tree.docinfo.URL
 
     @filename.setter
-    def filename(self, node):
+    def filename(self, _):
         raise ValueError("filename is only readable")
     @filename.deleter
     def filename(self):
@@ -191,8 +254,25 @@ class XmlHandler(object):
         return self.__tree
 
     @tree.setter
-    def tree(self, node):
+    def tree(self, _):
         raise ValueError("tree is only readable")
     @tree.deleter
     def tree(self):
         raise ValueError("tree cannot be deleted")
+
+    @property
+    def root(self):
+        """Returns the root element of the XML tree
+
+        :return: root element
+        :rtype:  lxml.etree._Element
+        """
+        return self.__root
+
+    @root.setter
+    def root(self, _):
+        raise ValueError("root is only readable")
+
+    @root.deleter
+    def root(self):
+        raise ValueError("root cannot be deleted")

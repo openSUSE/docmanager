@@ -46,48 +46,58 @@ skipif_no_network = pytest.mark.skipif(no_network, reason=reason)
 # Fixtures
 #
 
-@pytest.fixture(params=["testfiles/valid_xml_file.xml"])
-def tmp_valid_xml(request, tmpdir):
-    """Copies XML file to temporary directory
+@pytest.fixture
+def testdir():
+    """Fixture: Returns the test directory"""
+    return py.path.local(py.path.local(__file__).dirname) / "testfiles"
 
-    :param pytest.fixture tmpdir: temporary directory fixture
+
+@pytest.fixture(params=["valid_xml_file.xml"])
+def tmp_valid_xml(request, tmpdir, testdir):
+    """Fixture: Copies valid XML file to temporary directory
+
     :param request: XML filename as parameter
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param py.path.local testdir: path to test directory
     """
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
     return tmpdir.listdir(sort=xmlfile.basename)[0]
 
-@pytest.fixture(params=["testfiles/docmanager_overwrite_test.xml"])
-def tmp_docmanager_overwrite(request, tmpdir):
-    """Copies XML file to temporary directory
+@pytest.fixture(params=["docmanager_overwrite_test.xml"])
+def tmp_docmanager_overwrite(request, tmpdir, testdir):
+    """Fixture: Copies XML file to temporary directory
 
-    :param pytest.fixture tmpdir: temporary directory fixture
     :param request: XML filename as parameter
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param py.path.local testdir: path to test directory
     """
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
     return tmpdir.listdir(sort=xmlfile.basename)[0]
 
-@pytest.fixture(params=["testfiles/broken_xml_file.xml"])
-def tmp_broken_xml(request, tmpdir):
-    """Copies XML file to temporary directory
+@pytest.fixture(params=["broken_xml_file.xml"])
+def tmp_broken_xml(request, tmpdir, testdir):
+    """Fixture: Copies broken XML file to temporary directory
 
-    :param pytest.fixture tmpdir: temporary directory fixture
     :param request: XML filename as parameter
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param py.path.local testdir: path to test directory
     """
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
     return tmpdir.listdir(sort=xmlfile.basename)[0]
 
-@pytest.fixture(params=["testfiles/missing_info_element.xml"])
-def tmp_missing_info_element(request, tmpdir):
-    """Copies XML file to temporary directory
+@pytest.fixture(params=["missing_info_element.xml"])
+def tmp_missing_info_element(request, tmpdir, testdir):
+    """Fixture: Copies XML file with missing info element to temporary directory
 
-    :param pytest.fixture tmpdir: temporary directory fixture
     :param request: XML filename as parameter
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param py.path.local testdir: path to test directory
     """
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
