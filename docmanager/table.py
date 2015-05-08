@@ -17,7 +17,7 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from docmanager import prettytable
+import prettytable
 
 class Table(object):
     """A Table instance represents the result of the search
