@@ -1,0 +1,10 @@
+# Configuration file for landscape.io
+# See https://docs.landscape.io/configuration.html
+
+ignore-paths:
+    - build/
+    - dist/
+    - env/
+    - man/
+    - test/
+    - tests/
