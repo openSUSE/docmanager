@@ -21,7 +21,7 @@ def repeat(iterable, n=1):
 @pytest.mark.parametrize("props,xmlset,expected", [
   (["status"], ["test-dm-status-1.xml", "test-dm-status-2.xml"], ["a", "b"]),
   (["foo"], ["test-dm-status-1.xml", "test-dm-status-2.xml"],    []),
-  (["status", "abc"], ["test-dm-status-1.xml", "test-dm-status-2.xml"], ["A", "a", "B", "b"]),
+  (["status", "abc"], ["test-dm-status-1.xml", "test-dm-status-2.xml"], ["a", "A", "b", "B"]),
 ])
 def test_multiple_files(props, xmlset, expected, testdir, tmpdir, capsys):
     """Checks multiple files to get the correct result
@@ -42,15 +42,15 @@ def test_multiple_files(props, xmlset, expected, testdir, tmpdir, capsys):
     cli="get -p %s %s" % (",".join(props), " ".join(xmlfiles))
     a = Actions( parsecli(cli.split()) )
     out, err = capsys.readouterr()
-    result = [ tuple(line.split(" -> "))  for line in out.strip().split("\n") ]
+    result = [ tuple(line.split(" -> "))  for line in out.strip().split("\n") ].sort()
 
     # TODO: Make it more general
     # Expected the following output:
     #  file1 -> a
     #  file2 -> b
     if expected:
-        expected = list(zip(repeat(xmlfiles, len(props)), expected))
+        expected = list(zip(repeat(xmlfiles, len(props)), expected)).sort()
     else:
-        expected = [('',)]
+        expected = None
     assert not err
     assert expected == result
