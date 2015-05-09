@@ -76,6 +76,11 @@ class ArgParser(object):
                         action='append',
                         help=''
                         )
+        pset.add_argument("files",
+                    nargs='+',
+                    metavar="FILES",
+                    help="One or more DocBook XML or DC files."
+                    )
 
         # 'del' subparser
         pdel = subparsers.add_parser('del',
@@ -86,6 +91,11 @@ class ArgParser(object):
                         action='append',
                         help=''
                         )
+        pdel.add_argument("files",
+                    nargs='+',
+                    metavar="FILES",
+                    help="One or more DocBook XML or DC files."
+                    )
 
         # analyze subparser
         panalyze = subparsers.add_parser('analyze',
@@ -94,9 +104,7 @@ class ArgParser(object):
                                             'allowed keywords are SELECT, WHERE, and SORTBY. ' \
                                             'Output is formatted as table.'
                                         )
-
-        # Filenames
-        self.__parser.add_argument("files",
+        panalyze.add_argument("files",
                     nargs='+',
                     metavar="FILES",
                     help="One or more DocBook XML or DC files."
