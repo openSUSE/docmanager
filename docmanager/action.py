@@ -28,14 +28,15 @@ class Actions(object):
 
     __keywords=["SELECT", "WHERE", "SORTBY"]
 
-    def __init__(self, files, action, arguments):
+    def __init__(self, args):
         """Initialize Actions class
 
-        :param list files:     list of filenames
-        :param str action:     action to apply to filename
-        :param list arguments: arguments to pass to method from `action`
+        :param argparse.Namespace args: result from argparse.parse_args
         """
         logmgr_flog()
+        files = args.files
+        action = args.action
+        arguments = args.arguments
 
         self.__files = filehandler.Files(files)
         method = getattr(self, action)
@@ -84,7 +85,7 @@ class Actions(object):
                     print(value)
 
 
-    def analyze(self, arguments):
+    def query(self, arguments):
         """Display table after selecting properties
 
         :param list arguments:

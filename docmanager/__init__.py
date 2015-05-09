@@ -23,124 +23,115 @@ import argparse
 from docmanager import action
 from docmanager.logmanager import log
 import logging
-import re
-import sys
 
 
-class ArgParser(object):
-    """Encapsulates arguments in ArgumentParser
+def parsecli(cliargs=None):
+    """Parse command line arguments
+
+    :param list cliargs: Arguments to parse or None (=use sys.argv)
+    :return: parsed arguments
+    :rtype: argparse.Namespace
     """
+    filesargs = dict(nargs='+',
+                     metavar="FILE",
+                     help='One or more DocBook XML or DC files.'
+                )
+    propargs = dict(action='append',
+                    # metavar="PROP[[=VALUE],PROP[=VALUE]...]
+                    help='One or more properties to get, set, or delete. '
+                         'Syntax of PROPERTIES: PROP[[=VALUE],PROP[=VALUE]...] '
+                         'Example (get/del): -p foo or -p foo,bar or -p foo -p bar '
+                         'Example (set): -p foo=a or -p foo=a,bar=b or -p foo=a -p bar=b'
+               )
 
-    def __init__(self, args=None):
-        """Initializes ArgParser class"""
-        self.__args=args
-        self.__parser = argparse.ArgumentParser(prog="docmanager",
-                        description="Docmanager sets, gets, or analyzes meta-information for DocBook5 XML files.")
-        self.add_arguments()
-        self.parse_arguments()
-
-    def add_arguments(self):
-        """Adds arguments to ArgumentParser"""
-        self.__parser.add_argument('--version',
+    parser = argparse.ArgumentParser(
+        prog="docmanager",
+        usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]",
+        description="Docmanager sets, gets, delets, or queries "
+                    "meta-information for DocBook5 XML files.")
+    parser.add_argument('--version',
                         action='version',
                         version='%(prog)s ' + __version__
                         )
-        self.__parser.add_argument('-v', '--verbose',
-                    action='count',
-                    help="Increase verbosity level"
+    parser.add_argument('-v', '--verbose',
+                action='count',
+                help="Increase verbosity level"
+            )
+
+    # Create a subparser for all of our subcommands,
+    # save the subcommand in 'dest'
+    subparsers = parser.add_subparsers(
+        dest='action',
+        title="Available subcommands",
+        # metavar="COMMAND"
+        )
+
+    # 'get' subparser
+    pget = subparsers.add_parser('get',
+                        aliases=['g'],
+                        help='Get key and returns value'
+                    )
+    pget.add_argument('-p', '--properties', **propargs)
+    pget.add_argument("files", **filesargs)
+
+    # 'set' subparser
+    pset = subparsers.add_parser('set',
+                        aliases=['s'],
+                        help='Set key=value property (one or more) to '
+                             'delete the key let the value blank.'
+                    )
+    pset.add_argument('-p', '--properties', **propargs)
+    pset.add_argument("files", **filesargs)
+
+    # 'del' subparser
+    pdel = subparsers.add_parser('del',
+                        aliases=['d'],
+                        help='Delete properties from XML documents'
+                    )
+    pdel.add_argument('-p', '--properties', **propargs)
+    pdel.add_argument("files", **filesargs)
+
+    # analyze subparser
+    panalyze = subparsers.add_parser('query',
+                                     aliases=['q', 'analyze'],
+                                     help='Similar to get, but query can be given as pseudo SQL syntax. '  \
+                                        'allowed keywords are SELECT, WHERE, and SORTBY. ' \
+                                        'Output is formatted as table.'
+                                    )
+    panalyze.add_argument("files",
+                nargs='+',
+                metavar="FILES",
+                help='One or more DocBook XML or DC files.'
                 )
 
-        # Create a subparser for all of our subcommands,
-        # save the subcommand in 'dest'
-        subparsers = self.__parser.add_subparsers(dest='action')
+    ## -----
+    args = parser.parse_args(args=cliargs)
 
-        # 'get' subparser
-        pget = subparsers.add_parser('get',
-                            aliases=['g'],
-                            help='Get key and returns value'
-                        )
-        pget.add_argument('-p', '--properties',
-                        action='append',
-                        help=''
-                        )
-        pget.add_argument('-k', '--list-all-keys',
-                        help='list all keys in info element'
-                        )
+    # Fix properties
+    # Handle the different styles with -p foo and -p foo,bar
+    # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
+    # regardless of the passed arguments
+    _props=[ ]
+    # Use an empty list when args.properties = None
+    args.properties = [] if args.properties is None else args.properties
+    for item in args.properties:
+        _props.extend(re.split("[ ,;]", item))
+    args.properties = _props
 
-        # 'set' subparser
-        pset = subparsers.add_parser('set',
-                            aliases=['s'],
-                            help='Set key=value property (one or more) to delete the key let the value blank.'
-                        )
-        pset.add_argument('-p', '--properties',
-                        action='append',
-                        help=''
-                        )
-        pset.add_argument("files",
-                    nargs='+',
-                    metavar="FILES",
-                    help="One or more DocBook XML or DC files."
-                    )
+    args.arguments = args.properties
+    loglevel = {
+        None: logging.NOTSET,
+        1: logging.INFO,
+        2: logging.DEBUG
+    }
 
-        # 'del' subparser
-        pdel = subparsers.add_parser('del',
-                            aliases=['d'],
-                            help='Delete properties from XML documents'
-                        )
-        pdel.add_argument('-p', '--properties',
-                        action='append',
-                        help=''
-                        )
-        pdel.add_argument("files",
-                    nargs='+',
-                    metavar="FILES",
-                    help="One or more DocBook XML or DC files."
-                    )
-
-        # analyze subparser
-        panalyze = subparsers.add_parser('analyze',
-                                         aliases=['a'],
-                                         help='Similar to get, but query can be given as pseudo SQL syntax. '  \
-                                            'allowed keywords are SELECT, WHERE, and SORTBY. ' \
-                                            'Output is formatted as table.'
-                                        )
-        panalyze.add_argument("files",
-                    nargs='+',
-                    metavar="FILES",
-                    help="One or more DocBook XML or DC files."
-                    )
+    log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
+    return args
 
 
-    def parse_arguments(self):
-        """Parses command line arguments"""
-        self.__parser.parse_args(args=self.__args, namespace=self)
+def main(cliargs=None):
+    """Entry point for the application script
 
-        # Fix properties
-        # Handle the different styles with -p foo and -p foo,bar
-        # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
-        # regardless of the passed arguments
-        _props=[ ]
-        # Use an empty list when self.properties = None
-        self.properties = [] if self.properties is None else self.properties
-        for item in self.properties:
-            _props.extend(re.split("[ ,;]", item))
-        self.properties = _props
-
-        self.arguments = self.properties
-        loglevel = {
-            None: logging.NOTSET,
-            1: logging.INFO,
-            2: logging.DEBUG
-        }
-
-        log.setLevel(loglevel.get(self.verbose, logging.DEBUG))
-
-
-    def __repr__(self):
-        """ """
-
-
-def main():
-    """Entry point for the application script"""
-    parser = ArgParser()
-    action.Actions(parser.files, parser.action, parser.arguments)
+    :param list cliargs: Arguments to parse or None (=use sys.argv)
+    """
+    action.Actions( parsecli(cliargs) )
