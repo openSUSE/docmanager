@@ -23,6 +23,7 @@ import argparse
 from docmanager import action
 from docmanager.logmanager import log
 import logging
+import re
 
 
 def parsecli(cliargs=None):
@@ -106,6 +107,19 @@ def parsecli(cliargs=None):
 
     ## -----
     args = parser.parse_args(args=cliargs)
+
+    # Rewrite aliases
+    actions = { "g":   "get",
+                "get": "get",
+                "d":   "del",
+                "del": "del",
+                "s":   "set",
+                "set": "set",
+                "q":   "query",
+                "a":   "query",
+                "analyze": "query",
+               }
+    args.action = actions.get(args.action)
 
     # Fix properties
     # Handle the different styles with -p foo and -p foo,bar
