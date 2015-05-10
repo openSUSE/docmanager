@@ -78,6 +78,6 @@ class Table(object):
         """
         self.__table.sortby = sortby
 
-    def print(self):
-        # TODO: Use __str__ magic method instead!
-        print(self.__table)
+    def __str__(self):
+        """Return formatted table"""
+        return self.__table

@@ -18,7 +18,6 @@
 # you may find current contact information at www.suse.com
 
 import re
-import sys
 
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.core import NS
@@ -79,18 +78,22 @@ class XmlHandler(object):
         logmgr_flog()
         #register the namespace
         etree.register_namespace("dm", "{dm}".format(**self.__namespace))
-        self.__xmlparser = etree.XMLParser(remove_blank_text=False, resolve_entities=False, dtd_validation=False)
+        self.__xmlparser = etree.XMLParser(remove_blank_text=False,
+                                           resolve_entities=False,
+                                           dtd_validation=False)
         #load the file and set a reference to the dm group
         self.__tree = etree.parse(filename, self.__xmlparser)
         self.__root = self.__tree.getroot()
-        self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=self.__namespace)
+        self.__docmanager = self.__tree.find("//dm:docmanager",
+                                             namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
 
     def check_root_element(self):
         """Checks if root element is valid"""
         if self._root.tag not in self.validroots:
-            raise ValueError("Cannot add info element to %s. Not a valid root element.")
+            raise ValueError("Cannot add info element to %s. "
+                             "Not a valid root element." % self._root.tag)
 
     def create_group(self):
         """Creates the docmanager group element"""
@@ -125,13 +128,15 @@ class XmlHandler(object):
            whereas foo belongs to the DocManager namespace
         """
         logmgr_flog()
-        key_handler = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
+        key_handler = self.__docmanager.find("./dm:"+key,
+                                             namespaces=self.__namespace)
         #update the old key or create a new key
         if key_handler is not None:
             key_handler.text = value
         else:
             node = etree.SubElement(self.__docmanager,
-                                    "{{{dm}}}{key}".format(key=key, **self.__namespace),
+                                    "{{{dm}}}{key}".format(key=key,
+                                                           **self.__namespace),
                                     # nsmap=self.__namespace
                                     )
             node.text = value
@@ -149,7 +154,8 @@ class XmlHandler(object):
         logmgr_flog()
 
         #check if the key has on of the given values
-        element = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
+        element = self.__docmanager.find("./dm:"+key,
+                                         namespaces=self.__namespace)
         if element is not None and element.text in values:
             return True
         else:
@@ -183,15 +189,17 @@ class XmlHandler(object):
         :param str key: element name to delete
         """
         logmgr_flog()
-        key_handler = self.__docmanager.find("./dm:"+key, namespaces=self.__namespace)
+        key_handler = self.__docmanager.find("./dm:"+key,
+                                             namespaces=self.__namespace)
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
             self.write()
 
     def get_indendation(self, node, indendation=""):
-        indent = "".join([ "".join(n.tail.split("\n")) for n in node.iterancestors()
-                          if n.tail is not None ])
+        indent = "".join(["".join(n.tail.split("\n"))
+                          for n in node.iterancestors()
+                            if n.tail is not None ])
         return indent+indendation
 
     def indent_dm(self):
@@ -199,9 +207,7 @@ class XmlHandler(object):
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=self.__namespace)
-        dmchildren = dm.getchildren()
-        #log.info("dm: %s" % dmchildren)
-        if not dm:
+        if dm is not None:
             return
         info = dm.getparent().getprevious()
         #log.info("info: %s" % info)

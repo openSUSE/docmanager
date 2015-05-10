@@ -59,11 +59,13 @@ class Actions(object):
             #when not delete the element
             if argument.find("=") >= 0:
                 key, value = argument.split("=")
-                log.debug("Trying to set value for property \"%s\" to \"%s\".", key, value)
+                log.debug("Trying to set value for property '%s' to '%s'" %
+                          (key, value))
                 self.__files.set(key, value)
                 print("Set value for property \"{}\" to \"{}\".".format(key, value))
             else:
-                log.error("Invalid usage. You can set values with the following format: property=value")
+                log.error("Invalid usage. Set values "
+                          "with the following format: property=value")
                 sys.exit(5)
 
     def get(self, arguments):
@@ -78,7 +80,7 @@ class Actions(object):
         files_count = len(file_values.items())
 
         for filename, values in sorted(file_values.items()):
-            for key, value in values.items():
+            for _, value in values.items():
                 if files_count > 1:
                     print(filename + " -> " + value)
                 else:
@@ -110,7 +112,7 @@ class Actions(object):
         tbl = table.Table()
         tbl.add_by_list(values)
         tbl.sort(sort)
-        tbl.print() # toms: if __str__ is implemented, use print(tbl)
+        print(tbl)
 
     def delete(self, arguments):
         """Delete a property
