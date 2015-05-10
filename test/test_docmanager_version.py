@@ -12,6 +12,6 @@ def test_version_from_cli(capsys):
     """Checks if option --version creates a correct version"""
     # Source: http://pytest.org/latest/capture.html?highlight=capsys#accessing-captured-output-from-a-test-function
     with pytest.raises(SystemExit):
-        parser = parsecli(["testdm", "--version"])
+        parser = parsecli(["--version"])
         out, err = capsys.readouterr()
         assert err.split()[-1] == __version__
