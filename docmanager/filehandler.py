@@ -121,7 +121,6 @@ class Files(object):
                 else:
                     xml_handler.delete(key)
             except ValueError as e:
-                sys.debug("Exception thrown: ValueError")
                 log.error("Could not set value for property "
-                          "'%s':" % (key, str(e)))
+                          "'%s': %s", key, str(e))
                 sys.exit(2)
