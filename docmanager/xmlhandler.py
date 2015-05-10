@@ -199,9 +199,9 @@ class XmlHandler(object):
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=self.__namespace)
+        if dm is not None:
         dmchildren = dm.getchildren()
         #log.info("dm: %s" % dmchildren)
-        if not dm:
             return
         info = dm.getparent().getprevious()
         #log.info("info: %s" % info)
