@@ -38,30 +38,30 @@ class Files(object):
         self.__xml_handlers = []
 
         #open an XML-Handler for each file
-        for file in files:
+        for f in files:
             #check if the file does exists
-            if not os.path.exists(file):
-                log.error("File '%s' not found." % file)
+            if not os.path.exists(f):
+                log.error("File '%s' not found." % f)
                 sys.exit(1)
 
-            file_name, file_extension = os.path.splitext(file)
+            _, file_extension = os.path.splitext(f)
             #check if the file is a normal XML or a DC file
             if file_extension == ".xml":
                 try:
-                    self.__xml_handlers.append(xmlhandler.XmlHandler(file))
+                    self.__xml_handlers.append(xmlhandler.XmlHandler(f))
                 except etree.XMLSyntaxError as e:
-                    log.error("Error during parsing the file '%s': %s" % (file, str(e)) )
+                    log.error("Error during parsing the file '%s': %s" % (f, str(e)) )
                     sys.exit(3)
             else:
                 try:
                     #run daps to get all files from a documentation
-                    daps_files = subprocess.check_output("daps -d %s list-srcfiles --nodc --noent --noimg" %file, shell=True)
+                    daps_files = subprocess.check_output("daps -d %s list-srcfiles --nodc --noent --noimg" % f, shell=True)
                     daps_files = daps_files.decode("utf-8")
                     for daps_file in daps_files.split():
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
                 except subprocess.CalledProcessError as e:
                     sys.debug("Exception thrown: subprocess.CalledProcessError")
-                    sys.error("An error occurred while running daps for file \"" + file + "\": " + str(e))
+                    sys.error("An error occurred while running daps for file \"" + f + "\": " + str(e))
                     sys.exit(4)
 
     def get(self, keys):
