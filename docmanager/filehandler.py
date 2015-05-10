@@ -50,7 +50,8 @@ class Files(object):
                 try:
                     self.__xml_handlers.append(xmlhandler.XmlHandler(f))
                 except etree.XMLSyntaxError as e:
-                    log.error("Error during parsing the file '%s': %s" % (f, str(e)) )
+                    log.error("Error during parsing the file '%s': %s" %
+                              (f, str(e)) )
                     sys.exit(3)
             else:
                 try:
@@ -61,7 +62,8 @@ class Files(object):
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
                 except subprocess.CalledProcessError as e:
                     sys.debug("Exception thrown: subprocess.CalledProcessError")
-                    sys.error("An error occurred while running daps for file \"" + f + "\": " + str(e))
+                    log.error("An error occurred while running daps for file "
+                              "'%s': %s" % (f , str(e)) )
                     sys.exit(4)
 
     def get(self, keys):
@@ -120,5 +122,6 @@ class Files(object):
                     xml_handler.delete(key)
             except ValueError as e:
                 sys.debug("Exception thrown: ValueError")
-                sys.error("Could not set value for property \"" + key + "\": " + str(e))
+                log.error("Could not set value for property "
+                          "'%s':" % (key, str(e)))
                 sys.exit(2)

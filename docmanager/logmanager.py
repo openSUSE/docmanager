@@ -23,13 +23,16 @@ import os
 
 log = logging.getLogger(__file__)
 _ch = logging.StreamHandler(sys.stderr)
-_frmt = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', '%H:%M:%S')
+_frmt = logging.Formatter('%(asctime)s [%(levelname)s]: '
+                          '%(message)s', '%H:%M:%S')
 _ch.setFormatter(_frmt)
 log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
 def logmgr_flog():
     stack = traceback.extract_stack()
-    file, line, func, text = stack[-2]
+    filename, line, func, _ = stack[-2]
 
-    log.debug("Called function \"%s\" in file %s/%s (line: %d).", func, os.getcwd(), os.path.basename(file), line)
+    log.debug('Called function "%s" in file %s/%s (line: %d).' %
+              (func, os.getcwd(), os.path.basename(filename), line)
+             )
