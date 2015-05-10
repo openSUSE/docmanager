@@ -110,7 +110,7 @@ class Actions(object):
         tbl = table.Table()
         tbl.add_by_list(values)
         tbl.sort(sort)
-        tbl.print() # toms: if __str__ is implemented, use print(tbl)
+        print(tbl)
 
     def delete(self, arguments):
         """Delete a property
