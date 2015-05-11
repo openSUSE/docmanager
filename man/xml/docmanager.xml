@@ -6,7 +6,7 @@
 <!ENTITY progname "DocManager">
 <!ENTITY version "3.0.0">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "04/23/2015">
+<!ENTITY release "05/11/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
