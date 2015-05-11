@@ -197,26 +197,36 @@ class XmlHandler(object):
             self.write()
 
     def get_indendation(self, node, indendation=""):
-        indent = "".join(["".join(n.tail.split("\n"))
+        """Calculates indendation level
+
+        :param lxml.etree._Element node: node where to start
+        :param str indendation: Additional indendation
+        """
+        indent = ""
+        if node is not None:
+            indent = "".join(["".join(n.tail.split("\n"))
                           for n in node.iterancestors()
                             if n.tail is not None ])
         return indent+indendation
 
     def indent_dm(self):
-        #
+        """Indents only dm:docmanager element and its children"""
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=self.__namespace)
-        if dm is not None:
+        if dm is None:
             return
+        log.debug("-----")
         info = dm.getparent().getprevious()
         #log.info("info: %s" % info)
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()
         #log.info("prev: %s" % prev)
-        previndent = "".join(prev.tail.split('\n'))
+        if prev is not None:
+            log.info("prev: %s" % prev)
+            previndent = "".join(prev.tail.split('\n'))
+            prev.tail = '\n' + infoindent
         indent=self.get_indendation(dm.getprevious())
-        prev.tail = '\n' + infoindent
         dm.text = '\n' + indent + '    '
         dm.tail = '\n' + infoindent
         for node in dm.iterchildren():
