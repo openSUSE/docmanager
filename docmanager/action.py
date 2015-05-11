@@ -21,6 +21,7 @@ from docmanager import filehandler
 from docmanager import table
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlhandler import XmlHandler, localname
+from docmanager.core import ReturnCodes
 from prettytable import PrettyTable
 import sys
 
@@ -49,7 +50,7 @@ class Actions(object):
             method(arguments)
         else:
             log.error("Method \"%s\" is not implemented.", action)
-            sys.exit(6)
+            sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
 
 
     def set(self, arguments):
@@ -71,7 +72,7 @@ class Actions(object):
             else:
                 log.error("Invalid usage. Set values "
                           "with the following format: property=value")
-                sys.exit(5)
+                sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
     def get(self, arguments, output = None):
         """Lists all properties

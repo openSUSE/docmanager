@@ -22,6 +22,7 @@ __version__="3.0.0"
 import argparse
 from docmanager import action
 from docmanager.logmanager import log
+from docmanager.core import ReturnCodes
 import logging
 import re
 import sys
@@ -134,7 +135,7 @@ def parsecli(cliargs=None):
     # Use an empty list when args.properties = None
     if args.action is None:
         parser.print_help()
-        sys.exit(8)
+        sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
 
     args.properties = [] if args.properties is None else args.properties
     for item in args.properties:

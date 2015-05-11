@@ -19,6 +19,7 @@
 
 from docmanager import xmlhandler
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.core import ReturnCodes
 from lxml import etree
 import os
 import subprocess
@@ -42,7 +43,7 @@ class Files(object):
             #check if the file does exists
             if not os.path.exists(f):
                 log.error("File '%s' not found." % f)
-                sys.exit(1)
+                sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
 
             _, file_extension = os.path.splitext(f)
             #check if the file is a normal XML or a DC file
@@ -52,7 +53,7 @@ class Files(object):
                 except etree.XMLSyntaxError as e:
                     log.error("Error during parsing the file '%s': %s" %
                               (f, str(e)) )
-                    sys.exit(3)
+                    sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
             else:
                 try:
                     #run daps to get all files from a documentation
@@ -64,7 +65,7 @@ class Files(object):
                     sys.debug("Exception thrown: subprocess.CalledProcessError")
                     log.error("An error occurred while running daps for file "
                               "'%s': %s" % (f , str(e)) )
-                    sys.exit(4)
+                    sys.exit(ReturnCodes.E_DAPS_ERROR)
 
     def get(self, keys):
         """TODO
@@ -123,4 +124,4 @@ class Files(object):
             except ValueError as e:
                 log.error("Could not set value for property "
                           "'%s': %s", key, str(e))
-                sys.exit(2)
+                sys.exit(ReturnCodes.E_COULD_NOT_SET_VALUE)
