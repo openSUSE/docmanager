@@ -20,6 +20,8 @@
 from docmanager import filehandler
 from docmanager import table
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.xmlhandler import XmlHandler, localname
+from prettytable import PrettyTable
 import sys
 
 class Actions(object):
@@ -34,11 +36,14 @@ class Actions(object):
         :param argparse.Namespace args: result from argparse.parse_args
         """
         logmgr_flog()
+
         files = args.files
         action = args.action
         arguments = args.arguments
 
+        self.__args = args
         self.__files = filehandler.Files(files)
+
         method = getattr(self, action)
         if method is not None:
             method(arguments)
@@ -68,10 +73,10 @@ class Actions(object):
                           "with the following format: property=value")
                 sys.exit(5)
 
-    def get(self, arguments):
+    def get(self, arguments, output = None):
         """Lists all properties
 
-        :param list arguments:
+        :param list arguments
         """
         logmgr_flog()
 
@@ -79,13 +84,51 @@ class Actions(object):
         file_values = self.__files.get(arguments)
         files_count = len(file_values.items())
 
-        for filename, values in sorted(file_values.items()):
-            for _, value in values.items():
-                if files_count > 1:
-                    print(filename + " -> " + value)
-                else:
-                    print(value)
+        if not len(arguments):
+            for i in file_values.keys():
+                count = 0
+                print("Properties in " + i + ":")
 
+                if self.__args.format == "table":
+                    tbl = PrettyTable(["Property", "Value"])
+                    tbl.padding_width = 1 # One space between column edges and contents (default)
+
+                    handler = XmlHandler(i)
+                    x = handler.get_all()
+                    for k in x.keys():
+                        prop = localname(k)
+                        tbl.add_row([prop, x[k]])
+                        count += 1
+
+                    if count > 0:
+                        print(tbl)
+                else:
+                    handler = XmlHandler(i)
+                    x = handler.get_all()
+                    for k in x.keys():
+                        prop = localname(k)
+                        print(prop + ": " + x[k])
+        else:
+            if self.__args.format == "table":
+                count = 0
+
+                tbl = PrettyTable(["Property", "Value"])
+                tbl.padding_width = 1 # One space between column edges and contents (default)
+
+                for i in sorted(file_values.keys()):
+                    for x in file_values[i]:
+                        tbl.add_row([x, file_values[i][x]])
+                        count += 1
+
+                if count > 0:
+                    print(tbl)
+            else:
+                for i in sorted(file_values.keys()):
+                    for x in file_values[i]:
+                        if len(file_values[i]) > 1:
+                            print("{}: {}".format(x, file_values[i][x]))
+                        else:
+                            print(file_values[i][x])
 
     def query(self, arguments):
         """Display table after selecting properties

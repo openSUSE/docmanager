@@ -23,6 +23,12 @@
     <surname>Schnitzer</surname>
     <email>mschnitzer@suse.de</email>
    </author>
+   <author>
+    <contrib>Developer</contrib>
+    <firstname>Thomas</firstname>
+    <surname>Schraitle</surname>
+    <email>toms@opensuse.org</email>
+   </author>
   </authorgroup>
  </refentryinfo>
  <refmeta>
@@ -161,6 +167,12 @@
     <term>7</term>
     <listitem>
      <para>The info element could not be found in one of the given XML files.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>8</term>
+    <listitem>
+     <para>&progname; was called without any arguments.</para>
     </listitem>
    </varlistentry>
   </variablelist>
