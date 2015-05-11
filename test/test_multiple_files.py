@@ -30,7 +30,7 @@ def compare_pytest_version(minimum):
     """
     pytestversion = [ int(n) for n in pytest.__version__.split('.')]
     minimum = list(minimum)
-    return minimum <= pytestversion
+    return minimum > pytestversion
 
 
 
