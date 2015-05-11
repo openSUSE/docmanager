@@ -24,6 +24,7 @@ from docmanager import action
 from docmanager.logmanager import log
 import logging
 import re
+import sys
 
 
 def parsecli(cliargs=None):
@@ -73,6 +74,10 @@ def parsecli(cliargs=None):
                         help='Get key and returns value'
                     )
     pget.add_argument('-p', '--properties', **propargs)
+    pget.add_argument('-f', '--format',
+                      choices=['table'],
+                      help='Set the output format.'
+                    )
     pget.add_argument("files", **filesargs)
 
     # 'set' subparser
@@ -127,6 +132,10 @@ def parsecli(cliargs=None):
     # regardless of the passed arguments
     _props=[ ]
     # Use an empty list when args.properties = None
+    if args.action is None:
+        parser.print_help()
+        sys.exit(8)
+
     args.properties = [] if args.properties is None else args.properties
     for item in args.properties:
         _props.extend(re.split("[ ,;]", item))
@@ -140,6 +149,7 @@ def parsecli(cliargs=None):
     }
 
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
+    log.debug("Arguments: %s" %args)
     return args
 
 
