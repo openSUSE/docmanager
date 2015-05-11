@@ -161,6 +161,7 @@ class XmlHandler(object):
         else:
             return False
 
+
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
 
@@ -175,13 +176,24 @@ class XmlHandler(object):
         for child in self.__docmanager.iterchildren():
             tag = etree.QName(child)
             #check if we want a selection or all keys
-            if keys is not None and "all" not in keys:
+            if keys is not None:
                 #if the element required?
                 if tag.localname in keys:
                     values.update({tag.localname:child.text})
             else:
                 values.update({tag.localname:child.text})
+
         return values
+
+    def get_all(self):
+        """Returns all keys and values in a docmanager xml file
+        """
+
+        ret = dict()
+        for i in self.__docmanager.iterchildren():
+            ret[i.tag] = i.text
+
+        return ret
 
     def delete(self, key):
         """Deletes an element inside docmanager element

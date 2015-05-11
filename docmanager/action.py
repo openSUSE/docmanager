@@ -20,6 +20,8 @@
 from docmanager import filehandler
 from docmanager import table
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.xmlhandler import XmlHandler
+from prettytable import PrettyTable
 import sys
 
 class Actions(object):
@@ -68,10 +70,10 @@ class Actions(object):
                           "with the following format: property=value")
                 sys.exit(5)
 
-    def get(self, arguments):
+    def get(self, arguments, output = None):
         """Lists all properties
 
-        :param list arguments:
+        :param list arguments
         """
         logmgr_flog()
 
@@ -79,13 +81,33 @@ class Actions(object):
         file_values = self.__files.get(arguments)
         files_count = len(file_values.items())
 
-        for filename, values in sorted(file_values.items()):
-            for _, value in values.items():
-                if files_count > 1:
-                    print(filename + " -> " + value)
-                else:
-                    print(value)
+        if not len(arguments):
+            for i in file_values.keys():
+                print("Properties in " + i + ":")
 
+                if output == "table":
+                    tbl = PrettyTable(["Property", "Value"])
+                    tbl.padding_width = 1 # One space between column edges and contents (default)
+
+                    handler = XmlHandler(i)
+                    x = handler.get_all()
+                    for k in x.keys():
+                        tbl.add_row([k, x[k]])
+
+                    print(tbl)
+                else:
+                    handler = XmlHandler(i)
+                    x = handler.get_all()
+                    for k in x.keys():
+                        print(k + ": " + x[k])
+
+        else:
+            for i in sorted(file_values.keys()):
+                for x in file_values[i]:
+                    if len(file_values[i]) > 1:
+                        print("{}: {}".format(x, file_values[i][x]))
+                    else:
+                        print(file_values[i][x])
 
     def query(self, arguments):
         """Display table after selecting properties
