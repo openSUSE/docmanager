@@ -88,6 +88,24 @@ def parsecli(cliargs=None):
                              'delete the key let the value blank.'
                     )
     pset.add_argument('-p', '--properties', **propargs)
+    pset.add_argument('--maintainer',
+                      help='Set the property "maintainer" for the given documents.'
+                    )
+    pset.add_argument('--status',
+                      help='Set the property "status" for the given documents.'
+                    )
+    pset.add_argument('--deadline',
+                      help='Set the property "deadline" for the given documents.'
+                    )
+    pset.add_argument('--priority',
+                      help='Set the property "priority" for the given documents.'
+                    )
+    pset.add_argument('--translation',
+                      help='Set the property "translation" for the given documents.'
+                    )
+    pset.add_argument('--languages',
+                      help='Set the property "languages" for the given documents.'
+                    )
     pset.add_argument("files", **filesargs)
 
     # 'del' subparser
