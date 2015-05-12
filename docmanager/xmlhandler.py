@@ -17,7 +17,9 @@
 # you may find current contact information at www.suse.com
 
 import re
+import sys
 
+from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.core import NS
 from lxml import etree
@@ -104,7 +106,13 @@ class XmlHandler(object):
         if element is None:
             log.warn("Can't find the <info> element in '%s'. "
                      "Adding one." % self.__tree.docinfo.URL)
+            
+            if not self.__root.getchildren():
+                log.error("The \"{}\" file is not a valid DocBook 5 file.".format(self.__tree.docinfo.URL))
+                sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
+            
             title = self.__root.getchildren()[0]
+            
             idx = self.__root.index(title) + 1
             self.__root.insert(idx, etree.Element("{%s}info" % NS["d"]))
             element = self.__root.getchildren()[idx]
