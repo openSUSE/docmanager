@@ -118,3 +118,16 @@ def tmp_missing_info_element(request, tmpdir, testdir):
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
     return tmpdir.listdir(sort=xmlfile.basename)[0]
+
+@pytest.fixture(params=["invalid_db5_file.xml"])
+def tmp_invalid_db5_file(request, tmpdir, testdir):
+    """Fixture: Copies XML file with missing info element to temporary directory
+
+    :param request: XML filename as parameter
+    :param pytest.fixture tmpdir: temporary directory fixture
+    :param py.path.local testdir: path to test directory
+    """
+    xmlfile=testdir / request.param
+    assert xmlfile.exists(), "temp XML file does not exist"
+    xmlfile.copy(tmpdir)
+    return tmpdir.listdir(sort=xmlfile.basename)[0]
