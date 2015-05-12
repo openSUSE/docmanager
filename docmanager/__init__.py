@@ -28,6 +28,22 @@ import re
 import sys
 
 
+def populate_properties(args):
+    """Populate args.properties from "standard" options
+
+    :param argparse.Namespace args:
+    :return: list of property=value items
+    :rtype: list
+    """
+    result=[]
+
+    for prop in ('maintainer', 'status', 'deadline',
+                 'priority', 'translation', 'languages'):
+        if hasattr(args, prop) and getattr(args, prop) is not None:
+            result.append( "{}={}".format(prop, getattr(args, prop)) )
+    return result
+
+
 def parsecli(cliargs=None):
     """Parse command line arguments
 
@@ -145,20 +161,25 @@ def parsecli(cliargs=None):
                }
     args.action = actions.get(args.action)
 
+    # If docmanager is called without anything, print the help and exit
+    if args.action is None:
+        parser.print_help()
+        sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
+
     # Fix properties
     # Handle the different styles with -p foo and -p foo,bar
     # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
     # regardless of the passed arguments
     _props=[ ]
     # Use an empty list when args.properties = None
-    if args.action is None:
-        parser.print_help()
-        sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
-
     args.properties = [] if args.properties is None else args.properties
     for item in args.properties:
         _props.extend(re.split("[ ,;]", item))
     args.properties = _props
+
+    # Fill "standard" properties (like status) also into properties list:
+    if args.action in ("s", "set"):
+        args.properties.extend(populate_properties(args))
 
     args.arguments = args.properties
     loglevel = {

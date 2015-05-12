@@ -39,7 +39,7 @@ class Actions(object):
 
         files = args.files
         action = args.action
-        arguments = self.get_arguments(args)
+        arguments = args.arguments
 
         self.__args = args
         self.__files = filehandler.Files(files)
@@ -49,22 +49,6 @@ class Actions(object):
         else:
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
-
-    def get_arguments(self, args):
-        if hasattr(args, 'maintainer') and args.maintainer is not None:
-            return [ "maintainer={}".format(args.maintainer) ]
-        elif hasattr(args, 'status') and args.status is not None:
-            return [ "status={}".format(args.status) ]
-        elif hasattr(args, 'deadline') and args.deadline is not None:
-            return [ "deadline={}".format(args.deadline) ]
-        elif hasattr(args, 'priority') and args.priority is not None:
-            return [ "priority={}".format(args.priority) ]
-        elif hasattr(args, 'translation') and args.translation is not None:
-            return [ "translation={}".format(args.translation) ]
-        elif hasattr(args, 'languages') and args.languages is not None:
-            return [ "languages={}".format(args.languages) ]
-        else:
-            return args.arguments
 
     def set(self, arguments):
         """Set key/value pairs from arguments
