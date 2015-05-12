@@ -2,7 +2,7 @@
 
 import pytest
 from argparse import Namespace
-
+from conftest import compare_pytest_version
 from docmanager.action import Actions
 from docmanager import parsecli
 
@@ -16,23 +16,6 @@ def repeat(iterable, n=1):
     for i in iterable:
         for j in range(n):
             yield i
-
-
-
-
-def compare_pytest_version(minimum):
-    """Compares existing pytest version with required
-
-    :param list minimum: Minimum version in the form of
-                         [major, minor, release ]
-    :return: condition met (True) or not (False)
-    :rtype: bool
-    """
-    pytestversion = [ int(n) for n in pytest.__version__.split('.')]
-    minimum = list(minimum)
-    return minimum > pytestversion
-
-
 
 @pytest.mark.skipif(compare_pytest_version((2,6,4)),
                     reason="Need 2.6.4 to execute this test")

@@ -41,6 +41,21 @@ skipif_travis = pytest.mark.skipif(travis, reason=reason)
 no_network = os.environ.get('DM_NO_NETWORK_TESTS', False)
 skipif_no_network = pytest.mark.skipif(no_network, reason=reason)
 
+# ------------------------------------------------------
+# Version Check
+#
+def compare_pytest_version(minimum):
+    """Compares existing pytest version with required
+
+    :param list minimum: Minimum version in the form of
+                         [major, minor, release ]
+    :return: condition met (True) or not (False)
+    :rtype: bool
+    """
+    pytestversion = [ int(n) for n in pytest.__version__.split('.')]
+    minimum = list(minimum)
+    return minimum > pytestversion
+
 
 # ------------------------------------------------------
 # Fixtures

@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 
 import pytest
+from conftest import compare_pytest_version
 from docmanager.action import Actions
 from docmanager import parsecli
 
+@pytest.mark.skipif(compare_pytest_version((2,6,4)),
+                    reason="Need 2.6.4 to execute this test")
 def test_docmanager_delcheck(capsys, tmp_valid_xml):
     """This test checks, if we can delete a property in an xml file"""
     
