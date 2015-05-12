@@ -135,8 +135,8 @@ def parsecli(cliargs=None):
     # Rewrite aliases
     actions = { "g":   "get",
                 "get": "get",
-                "d":   "del",
-                "del": "del",
+                "d":   "delete",
+                "del": "delete",
                 "s":   "set",
                 "set": "set",
                 "q":   "query",

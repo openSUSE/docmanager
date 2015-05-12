@@ -45,9 +45,8 @@ class Actions(object):
         self.__args = args
         self.__files = filehandler.Files(files)
 
-        method = getattr(self, action)
-        if method is not None:
-            method(arguments)
+        if hasattr(self, action) and getattr(self, action) is not None:
+            getattr(self, action)(arguments)
         else:
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
