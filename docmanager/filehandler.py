@@ -41,7 +41,7 @@ class Files(object):
         for f in files:
             #check if the file does exists
             if not os.path.exists(f):
-                log.error("File '%s' not found." % f)
+                log.error("File '%s' not found.", f)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
 
             _, file_extension = os.path.splitext(f)
@@ -50,13 +50,14 @@ class Files(object):
                 try:
                     self.__xml_handlers.append(xmlhandler.XmlHandler(f))
                 except etree.XMLSyntaxError as e:
-                    log.error("Error during parsing the file '%s': %s" %
-                              (f, str(e)) )
+                    log.error("Error during parsing the file '%s': %s",
+                              f, str(e) )
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
             else:
                 try:
                     #run daps to get all files from a documentation
-                    daps_files = subprocess.check_output("daps -d %s list-srcfiles --nodc --noent --noimg" % f, shell=True)
+                    cmd = "daps -d %s list-srcfiles --nodc --noent --noimg" % f
+                    daps_files = subprocess.check_output(cmd, shell=True)
                     daps_files = daps_files.decode("utf-8")
                     for daps_file in daps_files.split():
                         self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))

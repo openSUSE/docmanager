@@ -104,11 +104,12 @@ class XmlHandler(object):
         element = self.__tree.find("//d:info", namespaces=self.__namespace)
         # TODO: We need to check for a --force option
         if element is None:
-            log.warn("Can't find the <info> element in '%s'. "
-                     "Adding one." % self.__tree.docinfo.URL)
+            log.warn("Can't find the <info> element in '%s'. Adding one.",
+                     self.__tree.docinfo.URL)
             
             if not self.__root.getchildren():
-                log.error("The \"{}\" file is not a valid DocBook 5 file.".format(self.__tree.docinfo.URL))
+                log.error("The \"%s\" file is not a valid DocBook 5 file.",
+                          self.__tree.docinfo.URL)
                 sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
             
             title = self.__root.getchildren()[0]
@@ -237,12 +238,12 @@ class XmlHandler(object):
             return
         log.debug("-----")
         info = dm.getparent().getprevious()
-        #log.info("info: %s" % info)
+        #log.info("info: %s", info)
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()
-        #log.info("prev: %s" % prev)
+        #log.info("prev: %s", prev)
         if prev is not None:
-            log.info("prev: %s" % prev)
+            log.info("prev: %s", prev)
             previndent = "".join(prev.tail.split('\n'))
             prev.tail = '\n' + infoindent
         indent=self.get_indendation(dm.getprevious())

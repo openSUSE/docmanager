@@ -190,7 +190,7 @@ def parsecli(cliargs=None):
     }
 
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
-    log.debug("Arguments: %s" %args)
+    log.debug("Arguments: %s", args)
     return args
 
 

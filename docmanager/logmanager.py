@@ -50,6 +50,6 @@ def logmgr_flog():
     stack = traceback.extract_stack()
     filename, line, func, _ = stack[-2]
 
-    log.debug('Called function "%s" in file %s/%s (line: %d).' %
-              (func, os.getcwd(), os.path.basename(filename), line)
+    log.debug('Called function "%s" in file %s/%s (line: %d).',
+              func, os.getcwd(), os.path.basename(filename), line
              )

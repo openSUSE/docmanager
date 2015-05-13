@@ -62,8 +62,8 @@ class Actions(object):
             #when not delete the element
             if argument.find("=") >= 0:
                 key, value = argument.split("=")
-                log.debug("Trying to set value for property '%s' to '%s'" %
-                          (key, value))
+                log.debug("Trying to set value for property '%s' to '%s'",
+                          key, value)
                 self.__files.set(key, value)
                 print("Set value for property \"{}\" to \"{}\".".format(key, value))
             else:
