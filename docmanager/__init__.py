@@ -174,7 +174,8 @@ def parsecli(cliargs=None):
     # Use an empty list when args.properties = None
     args.properties = [] if args.properties is None else args.properties
     for item in args.properties:
-        _props.extend(re.split("[ ,;]", item))
+        m = re.split("[,;]", item)
+        _props.extend(m)
     args.properties = _props
 
     # Fill "standard" properties (like status) also into properties list:
