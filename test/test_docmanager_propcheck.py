@@ -9,7 +9,6 @@ from docmanager import parsecli
     ("set -p hello=world -p world=hello {}", ['hello=world', 'world=hello']),
     ("set -p hello=world,world=hello {}", ['hello=world', 'world=hello']),
 ])
-
 def test_docmanager_propcheck(input, expected, tmp_valid_xml):
     """Check the arguments from the argument parser for the set and get commands"""
     args = parsecli(input.format(tmp_valid_xml).split())

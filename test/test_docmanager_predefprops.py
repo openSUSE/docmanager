@@ -17,7 +17,6 @@ from docmanager.action import Actions
     ('translation', 'DE'),
     ('languages', 'EN'),
 ])
-
 def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     """Check predefined property actions"""
     # write test
@@ -27,7 +26,7 @@ def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
 
     expected = 'Set value for property "{}" to "{}".'.format(option, value)
     assert out[:-1] == expected, "set test: Expected output '{}' but got '{}'.".format(expected, out[:-1])
-    
+
     # read test
     clicmd = 'get -p {} {}'.format(option, tmp_valid_xml)
     a = Actions(parsecli(clicmd.split()))
