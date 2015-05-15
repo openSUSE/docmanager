@@ -78,7 +78,7 @@ def tmp_valid_xml(request, tmpdir, testdir):
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
-    return tmpdir.listdir(sort=xmlfile.basename)[0]
+    return tmpdir / request.param
 
 @pytest.fixture(params=["docmanager_overwrite_test.xml"])
 def tmp_docmanager_overwrite(request, tmpdir, testdir):
@@ -91,7 +91,7 @@ def tmp_docmanager_overwrite(request, tmpdir, testdir):
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
-    return tmpdir.listdir(sort=xmlfile.basename)[0]
+    return tmpdir / request.param
 
 @pytest.fixture(params=["broken_xml_file.xml"])
 def tmp_broken_xml(request, tmpdir, testdir):
@@ -104,7 +104,7 @@ def tmp_broken_xml(request, tmpdir, testdir):
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
-    return tmpdir.listdir(sort=xmlfile.basename)[0]
+    return tmpdir / request.param
 
 @pytest.fixture(params=["missing_info_element.xml"])
 def tmp_missing_info_element(request, tmpdir, testdir):
@@ -117,7 +117,7 @@ def tmp_missing_info_element(request, tmpdir, testdir):
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
-    return tmpdir.listdir(sort=xmlfile.basename)[0]
+    return tmpdir / request.param
 
 @pytest.fixture(params=["invalid_db5_file.xml"])
 def tmp_invalid_db5_file(request, tmpdir, testdir):
@@ -130,4 +130,11 @@ def tmp_invalid_db5_file(request, tmpdir, testdir):
     xmlfile=testdir / request.param
     assert xmlfile.exists(), "temp XML file does not exist"
     xmlfile.copy(tmpdir)
-    return tmpdir.listdir(sort=xmlfile.basename)[0]
+    return tmpdir / request.param
+
+@pytest.fixture(params=["book.dtd"])
+def bookdtd(request, tmpdir, testdir):
+    dtdfile = testdir / request.param
+    assert dtdfile.exists(), "DTD file %s does not exist" % request.param
+    dtdfile.copy(tmpdir)
+    return tmpdir / request.param

@@ -7,6 +7,7 @@
     <dm:docmanager>
       <dm:status>b</dm:status>
       <dm:abc>B</dm:abc>
+      <dm:xyz>Hi</dm:xyz>
     </dm:docmanager>
   </info>
   <para>Bla</para>

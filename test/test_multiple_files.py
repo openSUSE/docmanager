@@ -3,8 +3,8 @@
 import pytest
 from argparse import Namespace
 from conftest import compare_pytest_version
-from docmanager.action import Actions
-from docmanager import parsecli
+from docmanager import main
+import shlex
 
 
 def repeat(iterable, n=1):
@@ -40,8 +40,8 @@ def test_multiple_files(props, xmlset, expected, testdir, tmpdir, capsys):
         xmlfile.copy(tmpdir)
     xmlfiles = [ str(tmpdir / base) for base in xmlset ]
 
-    cli="get -p %s %s" % (",".join(props), " ".join(xmlfiles))
-    a = Actions( parsecli(cli.split()) )
+    clicmd = "get -p %s %s" % (",".join(props), " ".join(xmlfiles))
+    a = main(shlex.split(clicmd))
     out, err = capsys.readouterr()
     result = [ tuple(line.split(" -> "))  for line in out.strip().split("\n") ].sort()
 

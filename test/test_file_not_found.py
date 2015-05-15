@@ -7,4 +7,4 @@ def test_file_not_found():
     """Check a filename which cannot be found
     """
     with pytest.raises(SystemExit):
-        f = Files(["__filename_not_found__"])
+        f = Files(["__filename_not_found__"], "get", {})

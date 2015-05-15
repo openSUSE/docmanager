@@ -22,6 +22,7 @@ import sys
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.core import NS
+from io import StringIO
 from lxml import etree
 
 
@@ -37,6 +38,48 @@ def localname(tag):
         return m.groupdict()['local']
     else:
         return tag
+
+
+class XMLProxy(object):
+    """Proxy class that stands for a XmlHandler class
+    """
+
+    def __init__(self, source):
+        self.__source = source
+        self.__buffer = None
+        self.__doctype = None
+        self.__xml = None
+
+        # self.__xml = XmlHandler(self.__source)
+
+    def set(self, key, value):
+        """Sets the key as element and value as content
+
+           :param key:    name of the element
+           :param value:  value that this element will contain
+
+           If key="foo" and value="bar" you will get:
+            <foo>bar</foo>
+           whereas foo belongs to the DocManager namespace
+        """
+
+    def get(self, keys=None):
+        """Returns all matching values for a key in docmanager element
+
+        :param key: localname of element to search for
+        :type key: list, tuple, or None
+        :return: the values
+        :rtype: dict
+        """
+
+    def delete(self, key):
+        """Deletes an element inside docmanager element
+
+        :param str key: element name to delete
+        """
+
+    def write(self, filename):
+        """Write XML tree to original filename"""
 
 
 class XmlHandler(object):
@@ -81,10 +124,12 @@ class XmlHandler(object):
         etree.register_namespace("dm", "{dm}".format(**self.__namespace))
         self.__xmlparser = etree.XMLParser(remove_blank_text=False,
                                            resolve_entities=False,
+                                           # load_dtd=False,
                                            dtd_validation=False)
         #load the file and set a reference to the dm group
         self.__tree = etree.parse(filename, self.__xmlparser)
         self.__root = self.__tree.getroot()
+        # self.check_root_element()
         self.__docmanager = self.__tree.find("//dm:docmanager",
                                              namespaces=self.__namespace)
         if self.__docmanager is None:
@@ -125,7 +170,7 @@ class XmlHandler(object):
         #log.debug("docmanager?: %s" % etree.tostring(self.__tree).decode("UTF-8"))
         self.write()
 
-    def set(self, key, value):
+    def set_only(self, key, value):
         """Sets the key as element and value as content
 
            :param key:    name of the element
@@ -148,6 +193,27 @@ class XmlHandler(object):
                                     # nsmap=self.__namespace
                                     )
             node.text = value
+
+    def set(self, key, value):
+        """Sets the key as element and value as content and perform a write
+
+           :param key:    name of the element
+           :param value:  value that this element will contain
+
+           If key="foo" and value="bar" you will get:
+            <foo>bar</foo>
+           whereas foo belongs to the DocManager namespace
+        """
+        self.set_only(key, value)
+        self.write()
+
+    def set_all(self, **kwargs):
+        """Set all keys at once
+
+           :param dict kwargs: dictionary with properties and their values
+        """
+        for key in kwargs:
+            self.set_only(key, kwargs[key])
         self.write()
 
     def is_set(self, key, values):
@@ -162,13 +228,12 @@ class XmlHandler(object):
         logmgr_flog()
 
         #check if the key has on of the given values
-        element = self.__docmanager.find("./dm:"+key,
+        element = self.__docmanager.find("./dm:" + key,
                                          namespaces=self.__namespace)
         if element is not None and element.text in values:
             return True
         else:
             return False
-
 
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
@@ -195,6 +260,9 @@ class XmlHandler(object):
 
     def get_all(self):
         """Returns all keys and values in a docmanager xml file
+
+        :return: the values
+        :rtype: dict
         """
 
         ret = dict()

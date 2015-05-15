@@ -20,7 +20,7 @@ __author__="Rick Salevsky"
 __version__="3.0.0"
 
 import argparse
-from docmanager import action
+from docmanager import filehandler
 from docmanager.logmanager import log
 from docmanager.core import ReturnCodes
 import logging
@@ -53,7 +53,7 @@ def parsecli(cliargs=None):
     """
     filesargs = dict(nargs='+',
                      metavar="FILE",
-                     help='One or more DocBook XML or DC files.'
+                     help='One or more DocBook XML'
                 )
     propargs = dict(action='append',
                     # metavar="PROP[[=VALUE],PROP[=VALUE]...]
@@ -88,12 +88,13 @@ def parsecli(cliargs=None):
     # 'get' subparser
     pget = subparsers.add_parser('get',
                         aliases=['g'],
-                        help='Get key and returns value'
+                        help='Get one or more keys and returns their values'
                     )
     pget.add_argument('-p', '--properties', **propargs)
     pget.add_argument('-f', '--format',
-                      choices=['table'],
-                      help='Set the output format.'
+                      choices=['table', 'text'],
+                      default='text',
+                      help='Set the output format (default "%(default)s").'
                     )
     pget.add_argument("files", **filesargs)
 
@@ -104,24 +105,13 @@ def parsecli(cliargs=None):
                              'delete the key let the value blank.'
                     )
     pset.add_argument('-p', '--properties', **propargs)
-    pset.add_argument('--maintainer',
-                      help='Set the property "maintainer" for the given documents.'
-                    )
-    pset.add_argument('--status',
-                      help='Set the property "status" for the given documents.'
-                    )
-    pset.add_argument('--deadline',
-                      help='Set the property "deadline" for the given documents.'
-                    )
-    pset.add_argument('--priority',
-                      help='Set the property "priority" for the given documents.'
-                    )
-    pset.add_argument('--translation',
-                      help='Set the property "translation" for the given documents.'
-                    )
-    pset.add_argument('--languages',
-                      help='Set the property "languages" for the given documents.'
-                    )
+
+    for arg in ('maintainer', 'status', 'deadline',
+                'priority', 'translation', 'languages'):
+        pset.add_argument('--{}'.format(arg),
+                          help='Set the property "{}" '
+                               'for the given documents.'.format(arg)
+                         )
     pset.add_argument("files", **filesargs)
 
     # 'del' subparser
@@ -161,6 +151,11 @@ def parsecli(cliargs=None):
                }
     args.action = actions.get(args.action)
 
+    # As format is only available for get, make arg.format undefined for
+    # other subcommands
+    if not hasattr(args, 'format'):
+        args.format = None
+
     # If docmanager is called without anything, print the help and exit
     if args.action is None:
         parser.print_help()
@@ -182,7 +177,6 @@ def parsecli(cliargs=None):
     if args.action in ("s", "set"):
         args.properties.extend(populate_properties(args))
 
-    args.arguments = args.properties
     loglevel = {
         None: logging.NOTSET,
         1: logging.INFO,
@@ -199,4 +193,13 @@ def main(cliargs=None):
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
-    action.Actions( parsecli(cliargs) )
+    args = parsecli(cliargs)
+    # print(args)
+    renderer = filehandler.getRenderer(args.format)
+    files = filehandler.Files(args.files,
+                              args.action,
+                              args.properties,
+                              )
+    result = renderer(files)
+    if result is not None:
+        print(result)
