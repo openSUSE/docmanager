@@ -25,12 +25,12 @@ def main(cliargs=None):
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
-    from docmanager.filehandler import Files, getRenderer
+    from docmanager.filehandler import Files, getrenderer
     from docmanager.cli import parsecli
 
     args = parsecli(cliargs)
     # print(args)
-    renderer = getRenderer(args.format)
+    renderer = getrenderer(args.format)
     files = Files(args.files,
                               args.action,
                               args.properties,

@@ -24,7 +24,7 @@ from prettytable import PrettyTable
 import os
 import sys
 
-__all__ = ['getRenderer', 'Files', 'textrender', 'tablerender', 'defaultrenderer']
+__all__ = ['getrenderer', 'Files', 'textrender', 'tablerender', 'DEFAULTRENDERER']
 
 
 # ---------------------------------------------------
@@ -74,9 +74,9 @@ def tablerender(files, **kwargs):
     return str(tbl)
 
 
-defaultrenderer = textrender
+DEFAULTRENDERER = textrender
 
-def getRenderer(fmt):
+def getrenderer(fmt):
     """Returns the renderer for a specific format
 
     :param str fmt: format ('text', 'table', or 'default')
@@ -84,13 +84,13 @@ def getRenderer(fmt):
     :rtype: function
     """
     # Available renderer
-    Renderer = {
+    renderer = {
         'default': textrender,
         'text':    textrender,
         'table':   tablerender,
     }
 
-    return Renderer.get(fmt, defaultrenderer)
+    return renderer.get(fmt, DEFAULTRENDERER)
 
 
 
