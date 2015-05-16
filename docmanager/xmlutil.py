@@ -17,6 +17,53 @@
 # you may find current contact information at www.suse.com
 
 from lxml import etree
+import re
+
+# All elements which are valid as root (from 5.1CR3)
+VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
+              'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
+              'bibliolist', 'blockquote', 'book', 'calloutlist',
+              'calloutlist', 'caption', 'caution', 'classsynopsis',
+              'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
+              'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
+              'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
+              'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
+              'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
+              'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
+              'important', 'index', 'indexdiv', 'informalequation',
+              'informalequation', 'informalexample', 'informalfigure',
+              'informaltable', 'inlinemediaobject', 'itemizedlist',
+              'legalnotice', 'literallayout', 'mediaobject', 'methodsynopsis',
+              'msg', 'msgexplan', 'msgmain', 'msgrel', 'msgset', 'msgsub',
+              'note', 'orderedlist', 'para', 'part', 'partintro',
+              'personblurb', 'procedure', 'productionset', 'programlisting',
+              'programlistingco', 'programlistingco', 'qandadiv',
+              'qandaentry', 'qandaset', 'qandaset', 'refentry',
+              'refsect1', 'refsect2', 'refsect3',
+              'refsection', 'refsynopsisdiv', 'revhistory', 'screen',
+              'screenco', 'screenco', 'screenshot',
+              'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
+              'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
+              'simpara', 'simplelist', 'simplesect',
+              'step', 'stepalternatives', 'synopsis',
+              'table', 'task', 'taskprerequisites', 'taskrelated',
+              'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
+              'topic', 'variablelist', 'videodata', 'videoobject', 'warning'
+             )
+
+def localname(tag):
+    """Returns the local name of an element
+
+    :param str tag: Usually in the form of {http://docbook.org/ns/docbook}article
+    :return:  local name
+    :rtype:  str
+    """
+    m = re.search("\{(?P<ns>.*)\}(?P<local>[a-z]+)", tag)
+    if m:
+        return m.groupdict()['local']
+    else:
+        return tag
+
 
 def root_sourceline(source, resolver=None):
     """Gets the line number of the root element

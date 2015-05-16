@@ -16,28 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-import re
 import sys
 
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.xmlutil import prolog, VALIDROOTS
 from docmanager.core import NS
 from io import StringIO
 from lxml import etree
-
-
-def localname(tag):
-    """Returns the local name of an element
-
-    :param str tag: Usually in the form of {http://docbook.org/ns/docbook}article
-    :return:  local name
-    :rtype:  str
-    """
-    m = re.search("\{(?P<ns>.*)\}(?P<local>[a-z]+)", tag)
-    if m:
-        return m.groupdict()['local']
-    else:
-        return tag
 
 
 class XMLProxy(object):
@@ -85,34 +71,6 @@ class XMLProxy(object):
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
-    __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
-    # All elements which are valid as root (from 5.1CR3)
-    validroots = ('abstract', 'address', 'annotation', 'audiodata',
-                   'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
-                   'bibliolist', 'blockquote', 'book', 'calloutlist',
-                   'calloutlist', 'caption', 'caution', 'classsynopsis',
-                   'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
-                   'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
-                   'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
-                   'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
-                   'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
-                   'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
-                   'important', 'index', 'indexdiv', 'informalequation',
-                   'informalequation', 'informalexample', 'informalfigure',
-                   'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
-                   'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
-                   'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
-                   'para', 'part', 'partintro', 'personblurb', 'procedure',
-                   'productionset', 'programlisting', 'programlistingco',
-                   'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
-                   'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
-                   'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
-                   'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
-                   'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
-                   'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
-                   'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
-                   'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
-                   'topic', 'variablelist', 'videodata', 'videoobject', 'warning')
 
     def __init__(self, filename):
         """Initializes the XmlHandler class
@@ -121,7 +79,7 @@ class XmlHandler(object):
         """
         logmgr_flog()
         #register the namespace
-        etree.register_namespace("dm", "{dm}".format(**self.__namespace))
+        etree.register_namespace("dm", "{dm}".format(**NS))
         self.__xmlparser = etree.XMLParser(remove_blank_text=False,
                                            resolve_entities=False,
                                            # load_dtd=False,
@@ -131,13 +89,13 @@ class XmlHandler(object):
         self.__root = self.__tree.getroot()
         # self.check_root_element()
         self.__docmanager = self.__tree.find("//dm:docmanager",
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
         if self.__docmanager is None:
             self.create_group()
 
     def check_root_element(self):
         """Checks if root element is valid"""
-        if self._root.tag not in self.validroots:
+        if self._root.tag not in VALIDROOTS:
             raise ValueError("Cannot add info element to %s. "
                              "Not a valid root element." % self._root.tag)
 
@@ -146,7 +104,7 @@ class XmlHandler(object):
         logmgr_flog()
 
         #search the info-element if not exists raise an error
-        element = self.__tree.find("//d:info", namespaces=self.__namespace)
+        element = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if element is None:
             log.warn("Can't find the <info> element in '%s'. Adding one.",
@@ -165,7 +123,7 @@ class XmlHandler(object):
             element.tail = self.__root.getchildren()[idx-1].tail
 
         self.__docmanager = etree.SubElement(element,
-                                             "{{{dm}}}docmanager".format(**self.__namespace),
+                                             "{{{dm}}}docmanager".format(**NS),
                                             )
         #log.debug("docmanager?: %s" % etree.tostring(self.__tree).decode("UTF-8"))
         self.write()
@@ -182,15 +140,15 @@ class XmlHandler(object):
         """
         logmgr_flog()
         key_handler = self.__docmanager.find("./dm:"+key,
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
         #update the old key or create a new key
         if key_handler is not None:
             key_handler.text = value
         else:
             node = etree.SubElement(self.__docmanager,
                                     "{{{dm}}}{key}".format(key=key,
-                                                           **self.__namespace),
-                                    # nsmap=self.__namespace
+                                                           **NS),
+                                    # nsmap=NS
                                     )
             node.text = value
 
@@ -229,7 +187,7 @@ class XmlHandler(object):
 
         #check if the key has on of the given values
         element = self.__docmanager.find("./dm:" + key,
-                                         namespaces=self.__namespace)
+                                         namespaces=NS)
         if element is not None and element.text in values:
             return True
         else:
@@ -278,7 +236,7 @@ class XmlHandler(object):
         """
         logmgr_flog()
         key_handler = self.__docmanager.find("./dm:"+key,
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
@@ -300,8 +258,7 @@ class XmlHandler(object):
     def indent_dm(self):
         """Indents only dm:docmanager element and its children"""
         dmindent='    '
-        dm = self.__tree.find("//dm:docmanager",
-                              namespaces=self.__namespace)
+        dm = self.__tree.find("//dm:docmanager", namespaces=NS)
         if dm is None:
             return
         log.debug("-----")

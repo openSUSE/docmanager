@@ -22,7 +22,6 @@ from docmanager.core import ReturnCodes
 from lxml import etree
 from prettytable import PrettyTable
 import os
-import subprocess
 import sys
 
 __all__ = ['getRenderer', 'Files', 'textrender', 'tablerender', 'defaultrenderer']
@@ -30,7 +29,12 @@ __all__ = ['getRenderer', 'Files', 'textrender', 'tablerender', 'defaultrenderer
 
 # ---------------------------------------------------
 def textrender(files, **kwargs):
-    """Normal renderer
+    """Normal text output
+
+    :param Files files: Files object
+    :param dict kwargs: for further customizations
+    :return: rendered output
+    :rtype: str
     """
     data = files.action()
     if data is None:
@@ -50,7 +54,12 @@ def textrender(files, **kwargs):
 
 
 def tablerender(files, **kwargs):
-    """Table renderer
+    """Table rendered output
+
+    :param Files files: Files object
+    :param dict kwargs: for further customizations
+    :return: rendered output
+    :rtype: str
     """
     data = files.action()
     if data is None:
@@ -65,13 +74,12 @@ def tablerender(files, **kwargs):
     return str(tbl)
 
 
-
 defaultrenderer = textrender
 
 def getRenderer(fmt):
     """Returns the renderer for a specific format
 
-    :param str fmt: format ('text', 'table', 'default')
+    :param str fmt: format ('text', 'table', or 'default')
     :return: function of renderer
     :rtype: function
     """
@@ -88,8 +96,7 @@ def getRenderer(fmt):
 
 # ---------------------------------------------------
 class Files(object):
-    """Set of XML files
-    """
+    """Set of XML files"""
 
     def __init__(self, files, action, properties):
         """Initializes Files class
@@ -111,14 +118,11 @@ class Files(object):
             if not os.path.exists(f):
                 log.error("File '%s' not found.", f)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
-
-            _, file_extension = os.path.splitext(f)
-
             try:
                 self.__xml_handlers.append(xmlhandler.XmlHandler(f))
-            except etree.XMLSyntaxError as e:
+            except etree.XMLSyntaxError as err:
                 log.error("Error during parsing the file '%s': %s",
-                          f, str(e) )
+                          f, str(err) )
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
     def __iter__(self):
@@ -219,7 +223,7 @@ class Files(object):
                         xml_handler.set(key, value)
                     else:
                         xml_handler.delete(key)
-                except ValueError as e:
+                except ValueError as err:
                     log.error("Could not set value for property "
-                            "'%s': %s", key, str(e))
+                            "'%s': %s", key, str(err))
                     sys.exit(ReturnCodes.E_COULD_NOT_SET_VALUE)
