@@ -19,25 +19,19 @@
 __author__="Rick Salevsky"
 __version__="3.0.0"
 
-from docmanager import filehandler
-from docmanager.cli import parsecli
-from docmanager.logmanager import log
-from docmanager.core import ReturnCodes
-import logging
-import re
-import sys
-
-
 
 def main(cliargs=None):
     """Entry point for the application script
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
+    from docmanager.filehandler import Files, getRenderer
+    from docmanager.cli import parsecli
+
     args = parsecli(cliargs)
     # print(args)
-    renderer = filehandler.getRenderer(args.format)
-    files = filehandler.Files(args.files,
+    renderer = getRenderer(args.format)
+    files = Files(args.files,
                               args.action,
                               args.properties,
                               )
