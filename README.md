@@ -18,35 +18,29 @@ lightweight SQL syntax.
 
   1. **Adding or editing meta-information**
 
-  `$ docmanager set -p maintainer=test_name -p version=test_version test_file1.xml test_file2.xml`
+      $ docmanager set -p maintainer=test_name -p version=test_version test_file1.xml test_file2.xml
 
   2. **Deleting meta-information**
 
-  `$ docmanager del -p maintainer,version test_file1.xml test_file2.xml`
+      $ docmanager del -p maintainer,version test_file1.xml test_file2.xml
 
   3. **Get meta-information**
 
-  `$ docmanager get maintainer test_file1.xml`
-
-  ```
-  test_name
-  ```
+      $ docmanager get maintainer test_file1.xml
+      test_name
 
   For all information use `all`.
 
   4. **Analyze meta-information**
 
-  `$ docmanager analyze SELECT maintainer version WHERE maintainer=test_name -- test_file1.xml test_file2.xml`
-
-  ```
-  +----------------+---------+------------+
-  |     Files      | version | maintainer |
-  +----------------+---------+------------+
-  | test_file1.xml |   1.0   | test_name  |
-  | test_file2.xml |    -    | test_name  |
-  +----------------+---------+------------+
-  ```
-
+      $ docmanager analyze SELECT maintainer version WHERE maintainer=test_name -- test_file1.xml test_file2.xml
+      +----------------+---------+------------+
+      |     Files      | version | maintainer |
+      +----------------+---------+------------+
+      | test_file1.xml |   1.0   | test_name  |
+      | test_file2.xml |    -    | test_name  |
+      +----------------+---------+------------+
+  
 ## Contribution
 
   1. Create a branch if you have access otherwise fork it.
