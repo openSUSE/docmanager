@@ -22,47 +22,48 @@ from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import prolog, VALIDROOTS
 from docmanager.core import NS
-from io import StringIO
+import io
 from lxml import etree
 
+class XMLProxy:
+    """Proxy base class; redirects everything to another object"""
+    def __init__(self, subject):
+        """Constructor
 
-class XMLProxy(object):
-    """Proxy class that stands for a XmlHandler class
-    """
+        :param subject: Any object
+        """
+        self.__subject = subject
 
-    def __init__(self, source):
+
+    def __getattr__(self, name):
+        """Redirects acces of XMLProxy.METHOD to self.__subject.METHOD
+
+    See https://docs.python.org/3.4/reference/datamodel.html#object.__getattr__
+
+        :param str name: Name of the
+        """
+        return getattr(self.__subject, name)
+
+
+class XMLProxyHandler(XMLProxy):
+    """Proxy class that stands for a XmlHandler class"""
+
+    def __init__(self, subject, source):
+        """Constructor
+
+        :param source:
+        """
         self.__source = source
         self.__buffer = None
         self.__doctype = None
         self.__xml = None
 
-        # self.__xml = XmlHandler(self.__source)
-
-    def set(self, key, value):
-        """Sets the key as element and value as content
-
-           :param key:    name of the element
-           :param value:  value that this element will contain
-
-           If key="foo" and value="bar" you will get:
-            <foo>bar</foo>
-           whereas foo belongs to the DocManager namespace
-        """
-
-    def get(self, keys=None):
-        """Returns all matching values for a key in docmanager element
-
-        :param key: localname of element to search for
-        :type key: list, tuple, or None
-        :return: the values
-        :rtype: dict
-        """
-
-    def delete(self, key):
-        """Deletes an element inside docmanager element
-
-        :param str key: element name to delete
-        """
+        if os.path.exists(source):
+            source = open(source, 'r')
+        # elif isinstance(source, io.TextIOWrapper):
+        self.__buffer = io.StringIO(source.read())
+        self.rootstartline, self.header = prolog(self.__buffer)
+        super().__init__(self, subject)
 
     def write(self, filename):
         """Write XML tree to original filename"""
