@@ -105,7 +105,8 @@ class XMLProxyHandler(XMLProxy):
     def __init__(self, subject, source):
         """Constructor
 
-        :param source:
+        :param subject: non-instantiated object
+        :param source:  filename,
         """
         self.__source = source
         self.__buffer = None
@@ -116,21 +117,26 @@ class XMLProxyHandler(XMLProxy):
             source = open(source, 'r')
         # elif isinstance(source, io.TextIOWrapper):
         self.__buffer = io.StringIO(source.read())
-        self.rootstartline, self.header = prolog(self.__buffer)
-        super().__init__(self, subject)
+        self.prologlen, self.sourceline, self.header = prolog(self.__buffer)
+        self.__buffer.seek(self.prologlen)
+        super().__init__(self, subject() )
 
-    def write(self, filename):
-        """Write XML tree to original filename"""
+    def write(self, target):
+        """Write XML tree to original filename
+
+        :param target: target filename, or file-like object
+                       if None, use filename from property instead
+        """
 
 
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, source):
         """Initializes the XmlHandler class
 
-        :param str filename: filename of XML file
+        :param str source: filename of XML file
         """
         logmgr_flog()
         #register the namespace
@@ -140,7 +146,7 @@ class XmlHandler(object):
                                            # load_dtd=False,
                                            dtd_validation=False)
         #load the file and set a reference to the dm group
-        self.__tree = etree.parse(filename, self.__xmlparser)
+        self.__tree = etree.parse(source, self.__xmlparser)
         self.__root = self.__tree.getroot()
         # self.check_root_element()
         self.__docmanager = self.__tree.find("//dm:docmanager",
@@ -157,14 +163,12 @@ class XmlHandler(object):
     def create_group(self):
         """Creates the docmanager group element"""
         logmgr_flog()
-
         #search the info-element if not exists raise an error
         element = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if element is None:
             log.warn("Can't find the <info> element in '%s'. Adding one.",
                      self.__tree.docinfo.URL)
-            
             if not self.__root.getchildren():
                 log.error("The \"%s\" file is not a valid DocBook 5 file.",
                           self.__tree.docinfo.URL)
