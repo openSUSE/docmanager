@@ -333,12 +333,17 @@ class XmlHandler(object):
             i = dmindent if node.getnext() is not None else ''
             node.tail = '\n' + indent + i
 
-    def write(self):
-        """Write XML tree to original filename"""
+    def write(self, target=None):
+        """Write XML tree to original filename
+
+        :param target: target filename, or file-like object
+                       if None, use filename from property instead
+        """
         logmgr_flog()
         # Only indent docmanager child elements
         self.indent_dm()
-        self.__tree.write(self.filename,
+        target = target if target is not None else self.filename
+        self.__tree.write(target,
                           # pretty_print=True,
                           with_tail=True)
 
