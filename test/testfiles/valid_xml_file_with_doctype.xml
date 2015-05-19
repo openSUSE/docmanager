@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE article [
+  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">
+  %entity.ent;
+]>
+
+<article version="5.0" xml:lang="en"
+        xmlns:dm="urn:x-suse:ns:docmanager"
+        xmlns="http://docbook.org/ns/docbook"
+        xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Example</title>
+  <para>Bla</para>
+</article>
