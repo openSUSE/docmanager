@@ -23,7 +23,61 @@ from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import prolog, VALIDROOTS
 from docmanager.core import NS
 import io
+import re
 from lxml import etree
+
+# -------------------------------------------------------------------
+# Regular Expressions
+ENTS = re.compile("(&(\#?\w+);)")
+STEN = re.compile("(\[\[\[(\#?\w+)\]\]\])")
+
+def ent2txt(match, start="[[[", end="]]]"):
+    """Replace any &text; -> [[[text]]]
+
+    :param _sre.SRE_Match match: match object from re
+    :param str start: Start string of entity replacement
+    :param str end:   end string
+    :return: replaced string
+    :rtype: str
+    """
+    if match:
+        return "{}{}{}".format(start,
+                               match.group(2),
+                               end)
+
+
+def txt2ent(match):
+    """Replace any [[[text]]] -> &text;
+
+    :param _sre.SRE_Match match: match object from re
+    :return: replaced string
+    :rtype: str
+    """
+    if match:
+        return "&{};".format(match.group(2))
+
+
+def preserve_entities(text):
+    """Preserve any entities in text
+
+    :param str text: the text that should preserve entities
+    :return: the preserved text
+    :rtype: str
+    """
+    return ENTS.sub(ent2txt, text)
+
+
+def recover_entities(text):
+    """Recover any preserved entities in text
+
+    :param str text: the text that should recover entities
+    :return: the recovered text
+    :rtype: str
+    """
+    return STEN.sub(txt2ent, text)
+
+
+# -------------------------------------------------------------------
 
 class XMLProxy:
     """Proxy base class; redirects everything to another object"""
