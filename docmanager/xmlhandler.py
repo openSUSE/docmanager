@@ -17,18 +17,18 @@
 # you may find current contact information at www.suse.com
 
 import sys
+import re
 
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import prolog, VALIDROOTS
 from docmanager.core import NS
 import io
-import re
 from lxml import etree
 
 # -------------------------------------------------------------------
 # Regular Expressions
-ENTS = re.compile("(&(\#?\w+);)")
+ENTS = re.compile("(&(\w+);)")
 STEN = re.compile("(\[\[\[(\#?\w+)\]\]\])")
 
 def ent2txt(match, start="[[[", end="]]]"):
