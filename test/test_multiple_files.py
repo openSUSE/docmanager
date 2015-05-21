@@ -20,9 +20,18 @@ def repeat(iterable, n=1):
 @pytest.mark.skipif(compare_pytest_version((2,6,4)),
                     reason="Need 2.6.4 to execute this test")
 @pytest.mark.parametrize("props,xmlset,expected", [
-  (["status"], ["test-dm-status-1.xml", "test-dm-status-2.xml"], ["a", "b"]),
-  (["foo"], ["test-dm-status-1.xml", "test-dm-status-2.xml"],    []),
-  (["status", "abc"], ["test-dm-status-1.xml", "test-dm-status-2.xml"], ["a", "A", "b", "B"]),
+  (["status"],
+   ["test-dm-status-1.xml", "test-dm-status-2.xml"],
+   ["a", "b"]
+  ),
+  (["foo"],
+   ["test-dm-status-1.xml", "test-dm-status-2.xml"],
+   []
+  ),
+  (["status", "abc"],
+   ["test-dm-status-1.xml", "test-dm-status-2.xml"],
+   ["a", "A", "b", "B"]
+  ),
 ])
 def test_multiple_files(props, xmlset, expected, testdir, tmpdir, capsys):
     """Checks multiple files to get the correct result
