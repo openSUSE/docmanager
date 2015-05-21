@@ -17,14 +17,17 @@
 # you may find current contact information at www.suse.com
 
 import sys
+import os
+import io
 import re
+from lxml import etree
+import random
+import string
 
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import prolog, VALIDROOTS
 from docmanager.core import NS
-import io
-from lxml import etree
 
 # -------------------------------------------------------------------
 # Regular Expressions
@@ -79,14 +82,30 @@ def recover_entities(text):
 
 # -------------------------------------------------------------------
 
-class XMLProxy:
+def randomword(length):
+    """Creates a random string of length
+
+    :param int length: Length of the random string to create
+    :return: random string
+    :rtype: str
+    """
+    allstring = string.ascii_lowercase + string.ascii_uppercase
+    return ''.join(random.choice(allstring)
+                   for i in range(length))
+
+
+# -------------------------------------------------------------------
+
+class Proxy:
     """Proxy base class; redirects everything to another object"""
-    def __init__(self, subject):
+    def __init__(self, subject, *args, **kwargs):
         """Constructor
 
         :param subject: Any object
         """
-        self.__subject = subject
+        self.__args = args
+        self.__kwargs = kwargs
+        self.__subject = subject(*args, **kwargs)
 
 
     def __getattr__(self, name):
@@ -94,32 +113,54 @@ class XMLProxy:
 
     See https://docs.python.org/3.4/reference/datamodel.html#object.__getattr__
 
-        :param str name: Name of the
+        :param str name: Name of the method
         """
         return getattr(self.__subject, name)
 
 
-class XMLProxyHandler(XMLProxy):
-    """Proxy class that stands for a XmlHandler class"""
+class XMLProxyHandler(Proxy):
+    """Proxy class for a XmlHandler class
+       Takes care of replacing entities back and forth
+    """
 
     def __init__(self, subject, source):
         """Constructor
 
         :param subject: non-instantiated object
-        :param source:  filename,
+        :param source:  filename, file-like object
         """
         self.__source = source
         self.__buffer = None
         self.__doctype = None
         self.__xml = None
 
-        if os.path.exists(source):
-            source = open(source, 'r')
-        # elif isinstance(source, io.TextIOWrapper):
-        self.__buffer = io.StringIO(source.read())
+        if hasattr(source, 'read'):
+            # We have a read() method, so it's a file-like object
+            self.__buffer = io.StringIO(source.read())
+        elif os.path.exists(source):
+            # path to a file
+            self.__buffer = io.StringIO(open(source, 'r').read())
+        else:
+            # We expect a string here
+            self.__buffer = io.StringIO(source)
+
+        # get XML declaration and DOCTYPE header (prolog) and save
+        # length, line of root element, and the header itself
         self.prologlen, self.sourceline, self.header = prolog(self.__buffer)
+
+        # log.debug("proglen=%i, sourcelen=%i", self.prologlen, self.sourceline)
+        # Skip header and start from the root element
         self.__buffer.seek(self.prologlen)
-        super().__init__(self, subject() )
+        #_ = [next(self.__buffer) for _ in range(self.sourceline)]
+
+        # Replace entities by using a temporary object
+        tmp = io.StringIO()
+        for line in self.__buffer:
+            print(line, end="")
+            line = preserve_entities(line)
+            tmp.write(line)
+        self.__buffer = tmp
+        super().__init__(subject, self.__buffer)
 
     def write(self, target):
         """Write XML tree to original filename
@@ -127,6 +168,11 @@ class XMLProxyHandler(XMLProxy):
         :param target: target filename, or file-like object
                        if None, use filename from property instead
         """
+        # Start from the beginning, this time to zero as the buffer
+        # doesn't have the header anymore
+        self.__buffer.seek(0)
+
+
 
 
 class XmlHandler(object):

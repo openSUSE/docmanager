@@ -141,7 +141,7 @@ def prolog(source, resolver=None):
     :type source: filename, file object, or file-like object
     :param etree.Resolver resolver: custom resolver
     :return: tuple of: length of header, sourceline, and header itself
-    :rtype: (int, str)
+    :rtype: (int, int, str)
     """
     rootnr, _ = root_sourceline(source, resolver)
     if hasattr(source, 'seek'):
