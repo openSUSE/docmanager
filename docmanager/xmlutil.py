@@ -70,7 +70,7 @@ def root_sourceline(source, resolver=None):
     """Gets the line number of the root element
 
     :param source:
-    :type source: file name/path, file object, file-like object, URL
+    :type source: filename, file object, or file-like object
     :param etree.Resolver resolver: custom resolver
     :return: line number, column
     :rtype: tuple
@@ -84,6 +84,8 @@ def root_sourceline(source, resolver=None):
                              load_dtd=False)
     if resolver is not None:
         parser.resolvers.add(resolver)
+
+    # Get first an "approximation" of where we could find it
     maxsourceline = etree.parse(source, parser).getroot().sourceline
 
     # HACK: lxml's .sourceline returns only the _end_ of the start tag.
@@ -99,7 +101,8 @@ def root_sourceline(source, resolver=None):
     # 8|          xmlns:xlink="http://www.w3.org/1999/xlink">
     #
     # In the above example, we need line 5, but .sourceline returns line 8
-    # which is wrong.
+    # which is "wrong".
+    # Therefor we need to go back until we find start-tag
     #
     # See thread in
     # https://mailman-mail5.webfaction.com/pipermail/lxml/2015-May/007518.html
@@ -109,12 +112,13 @@ def root_sourceline(source, resolver=None):
 
     if hasattr(source, 'seek'):
         # We have a seek() method, so it's a file-like object
+        # reset current position
         source.seek(0)
     elif os.path.exists(source):
-        # path to a file
+        # if the string exists as a file, it must be a path to a file
         source = io.StringIO(open(source, 'r').read())
     else:
-        # We expect a string here
+        # Anything else is a string
         source = io.StringIO(source)
 
     # Read lines until maxsourceline is reached
@@ -134,7 +138,7 @@ def prolog(source, resolver=None):
     """Extract prolog of source and change position of source
 
     :param source:
-    :type source: file name/path, file object, file-like object, URL
+    :type source: filename, file object, or file-like object
     :param etree.Resolver resolver: custom resolver
     :return: tuple of: length of header, sourceline, and header itself
     :rtype: (int, str)
@@ -142,10 +146,11 @@ def prolog(source, resolver=None):
     rootnr, _ = root_sourceline(source, resolver)
     if hasattr(source, 'seek'):
         # We have a seek() method, so it's a file-like object
-        # reset the pointer
+        # reset current position
         source.seek(0)
 
     header = "".join([next(source) for _ in range(rootnr)])
+
     if hasattr(source, 'seek'):
         return source.seek(len(header)), rootnr, header
     else:
