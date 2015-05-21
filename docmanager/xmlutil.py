@@ -18,6 +18,7 @@
 
 from lxml import etree
 import re
+import os
 
 # All elements which are valid as root (from 5.1CR3)
 VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
@@ -71,17 +72,62 @@ def root_sourceline(source, resolver=None):
     :param source:
     :type source: file name/path, file object, file-like object, URL
     :param etree.Resolver resolver: custom resolver
-    :return: line number
-    :rtype: int
+    :return: line number, column
+    :rtype: tuple
     """
+    # See https://gist.github.com/tomschr/6ecaaf69231dfbc9517a
+    # for an alternative implementation with SaX
+
     parser = etree.XMLParser(remove_blank_text=False,
                              resolve_entities=False,
                              dtd_validation=False,
                              load_dtd=False)
     if resolver is not None:
         parser.resolvers.add(resolver)
-    tree = etree.parse(source, parser)
-    return tree.getroot().sourceline
+    maxsourceline = etree.parse(source, parser).getroot().sourceline
+
+    # HACK: lxml's .sourceline returns only the _end_ of the start tag.
+    # For example:
+    #
+    # 1| <?xml version="1.0"?>
+    # 2| <!DOCTYPE article
+    # 3| [ ...
+    # 4| ]>
+    # 5| <article version="5.0" xml:lang="en"
+    # 6|          xmlns:dm="urn:x-suse:ns:docmanager"
+    # 7|          xmlns="http://docbook.org/ns/docbook"
+    # 8|          xmlns:xlink="http://www.w3.org/1999/xlink">
+    #
+    # In the above example, we need line 5, but .sourceline returns line 8
+    # which is wrong.
+    #
+    # See thread in
+    # https://mailman-mail5.webfaction.com/pipermail/lxml/2015-May/007518.html
+
+    # Find any start-tag which match this regex:
+    starttag = re.compile(r'<(?P<tag>(?:(?P<prefix>\w+):)?(?P<name>\w+))\s*')
+
+    if hasattr(source, 'seek'):
+        # We have a seek() method, so it's a file-like object
+        source.seek(0)
+    elif os.path.exists(source):
+        # path to a file
+        source = io.StringIO(open(source, 'r').read())
+    else:
+        # We expect a string here
+        source = io.StringIO(source)
+
+    # Read lines until maxsourceline is reached
+    header = [next(source) for _ in range(maxsourceline)]
+
+    checkline = []
+    # Iterate in reverse order to find a match for our start-tag
+    for i, line in enumerate(reversed(header)):
+        checkline.insert(0, line)
+        match = starttag.match("".join(checkline))
+        if match:
+            break
+    return maxsourceline - i, match.start()
 
 
 def prolog(source, resolver=None):
@@ -93,11 +139,13 @@ def prolog(source, resolver=None):
     :return: tuple of: length of header, sourceline, and header itself
     :rtype: (int, str)
     """
-    rootnr = root_sourceline(source, resolver)
+    rootnr, _ = root_sourceline(source, resolver)
+    if hasattr(source, 'seek'):
+        # We have a seek() method, so it's a file-like object
+        # reset the pointer
+        source.seek(0)
 
-    header = "".join([ line for nr, line in enumerate(source, 1)
-                       if nr < rootnr ]
-                    )
+    header = "".join([next(source) for _ in range(rootnr)])
     if hasattr(source, 'seek'):
         return source.seek(len(header)), rootnr, header
     else:
