@@ -99,6 +99,6 @@ def prolog(source, resolver=None):
                        if nr < rootnr ]
                     )
     if hasattr(source, 'seek'):
-        return source.seek(len(header)), header
+        return source.seek(len(header)), rootnr, header
     else:
         return len(header), rootnr, header
