@@ -85,6 +85,15 @@ def parsecli(cliargs=None):
         # metavar="COMMAND"
         )
 
+    # 'init' command for the initialization
+    pinit = subparsers.add_parser('init',
+                                  aliases=['i'],
+                                  help='Initializes an XML document with predefined properties.')
+    pinit.add_argument('--force',
+                       action='store_true'
+                      )
+    pinit.add_argument("files", **filesargs)
+
     # 'get' subparser
     pget = subparsers.add_parser('get',
                         aliases=['g'],
@@ -149,14 +158,16 @@ def parsecli(cliargs=None):
     args = parser.parse_args(args=cliargs)
 
     # Rewrite aliases
-    actions = { "g":   "get",
-                "get": "get",
-                "d":   "delete",
-                "del": "delete",
-                "s":   "set",
-                "set": "set",
-                "q":   "query",
-                "a":   "query",
+    actions = { "i":       "init",
+                "init":    "init",
+                "g":       "get",
+                "get":     "get",
+                "d":       "delete",
+                "del":     "delete",
+                "s":       "set",
+                "set":     "set",
+                "q":       "query",
+                "a":       "query",
                 "analyze": "query",
                }
     args.action = actions.get(args.action)
@@ -165,6 +176,9 @@ def parsecli(cliargs=None):
     if args.action is None:
         parser.print_help()
         sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
+
+    if args.action == "init":
+        args.properties = []
 
     # Fix properties
     # Handle the different styles with -p foo and -p foo,bar

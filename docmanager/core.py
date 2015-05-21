@@ -19,7 +19,16 @@
 NS = {
         "d":"http://docbook.org/ns/docbook",
         "dm":"urn:x-suse:ns:docmanager"
-     }
+}
+
+DefaultDocManagerProperties = [
+        "maintainer",
+        "status",
+        "deadline",
+        "priority",
+        "translation",
+        "languages"
+]
 
 class ReturnCodes():
     E_OK = 0

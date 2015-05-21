@@ -19,9 +19,10 @@
 import re
 import sys
 
+from docmanager.core import DefaultDocManagerProperties
+from docmanager.core import NS
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.core import NS
 from lxml import etree
 
 
@@ -89,6 +90,16 @@ class XmlHandler(object):
                                              namespaces=self.__namespace)
         if self.__docmanager is None:
             self.create_group()
+
+    def init_default_props(self, force):
+        ret = 0
+        for i in DefaultDocManagerProperties:
+            if (i not in self.get(i)) or (self.get(i)[i] is None) or (self.get(i)[i] is not None and force == True):
+                self.set(i, "")
+            else:
+                ret += 1
+        
+        return ret
 
     def check_root_element(self):
         """Checks if root element is valid"""
@@ -164,11 +175,25 @@ class XmlHandler(object):
         #check if the key has on of the given values
         element = self.__docmanager.find("./dm:"+key,
                                          namespaces=self.__namespace)
-        if element is not None and element.text in values:
+        if self.is_prop_set(key) is True and element.text in values:
             return True
-        else:
-            return False
 
+        return False
+
+    def is_prop_set(self, prop):
+        """
+        Checks if a property is set in an XML element
+        
+        :param str prop: the property
+        
+        :return: if property is set
+        :rtype: bool
+        """
+        element = self.__docmanager.find("./dm:{}".format(prop), namespaces=self.__namespace)
+        if element is not None:
+            return True
+        
+        return False
 
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element

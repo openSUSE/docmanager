@@ -50,6 +50,19 @@ class Actions(object):
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
 
+    def init(self, arguments):
+        file_values = self.__files.get(arguments)
+        for i in file_values:
+            log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(i))
+            handler = XmlHandler(i)
+            
+            if handler.init_default_props(self.__args.force) == 0:
+                print("Initialized default properties for '{}'.".format(i))
+            else:
+                print("Could not initialize all properties for '{}' because there are already some properties in the XML file " \
+                      "which would be overwritten after this operation has been finished. If you want to perform this operation and " \
+                      "overwrite the existing properties, you can add the '--force' option to your command.".format(i))
+
     def set(self, arguments):
         """Set key/value pairs from arguments
 
