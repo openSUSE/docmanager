@@ -14,7 +14,6 @@ def test_docmanager_init(tmp_valid_xml, capsys):
     # init without force
     clicmd = 'init {}'.format(tmp_valid_xml.strpath)
     a = Actions(parsecli(clicmd.split()))
-    out, err = capsys.readouterr()
     
     handler = XmlHandler(tmp_valid_xml.strpath)
     for i in DefaultDocManagerProperties:
