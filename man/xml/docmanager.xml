@@ -98,6 +98,12 @@
      <para>Display the version of &progname;.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term><option>--langlist</option></term>
+    <listitem>
+     <para>Displays a list with all supported language codes.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.commands">
