@@ -24,6 +24,7 @@ from docmanager import action
 from docmanager.languagecodes import SupportedLanguages
 from docmanager.logmanager import log
 from docmanager.core import ReturnCodes
+from prettytable import PrettyTable
 import logging
 import re
 import sys
@@ -77,6 +78,9 @@ def parsecli(cliargs=None):
                 action='count',
                 help="Increase verbosity level"
             )
+    parser.add_argument('--langlist',
+                       action=show_langlist()
+                       )
 
     # Create a subparser for all of our subcommands,
     # save the subcommand in 'dest'
@@ -211,6 +215,36 @@ def parsecli(cliargs=None):
     input_format_check(args)
 
     return args
+
+def show_langlist():
+    count = 0
+
+    tbl = PrettyTable(['', ' ', '  ', '   ', '    '])
+    tbl.padding_width = 1 # One space between column edges and contents (default)
+
+    items = list()
+    for i in SupportedLanguages.LanguageList:
+        if count == 5:
+            count = 0
+            tbl.add_row(items)
+
+            items = list()
+
+        items.append(i)
+        count += 1
+
+    if count < 5:
+        i = 0
+        while i < (5-count):
+            items.append("")
+            i += 1
+
+        tbl.add_row(items)
+    elif count == 5:
+        tbl.add_row(items)
+
+    print(tbl)
+    sys.exit(0)
 
 def input_format_check(args):
     if hasattr(args, 'status') and args.status is not None:
