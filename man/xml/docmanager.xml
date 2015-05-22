@@ -160,6 +160,12 @@
       <para>Get the value of a property.</para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--format</option> <replaceable>FORMAT</replaceable></term>
+     <listitem>
+      <para>Set the output format. Valid format types: <option>table</option>, <option>json</option></para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>
   <refsect2>
@@ -253,6 +259,18 @@
     <term><command>&progcmd;</command> get -p hello example.xml</term>
     <listitem>
      <para>Reads the value of the property "hello". If you followed the first example, the output would be "hello=world".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format json</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output format is JSON.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format table</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output will be shown as table.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
