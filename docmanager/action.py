@@ -16,13 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import json
+import sys
 from docmanager import filehandler
 from docmanager import table
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlhandler import XmlHandler, localname
 from docmanager.core import ReturnCodes
 from prettytable import PrettyTable
-import sys
 
 class Actions(object):
     """An Actions instance represents an action event
@@ -96,11 +97,14 @@ class Actions(object):
         files_count = len(file_values.items())
 
         if not len(arguments):
+            json_out = {}
+
             for i in file_values.keys():
                 count = 0
-                print("Properties in " + i + ":")
 
                 if self.__args.format == "table":
+                    print("Properties in " + i + ":")
+
                     tbl = PrettyTable(["Property", "Value"])
                     tbl.padding_width = 1 # One space between column edges and contents (default)
 
@@ -108,17 +112,30 @@ class Actions(object):
                     x = handler.get_all()
                     for k in x.keys():
                         prop = localname(k)
+
                         tbl.add_row([prop, x[k]])
                         count += 1
 
                     if count > 0:
                         print(tbl)
+                elif self.__args.format == "json":
+                    json_out[i] = {}
+                    handler = XmlHandler(i)
+                    x = handler.get_all()
+                    for k in x.keys():
+                        prop = localname(k)
+                        json_out[i][prop] = x[k]
                 else:
+                    print("Properties in " + i + ":")
+
                     handler = XmlHandler(i)
                     x = handler.get_all()
                     for k in x.keys():
                         prop = localname(k)
                         print(prop + ": " + x[k])
+
+            if self.__args.format == "json":
+                print(json.dumps(json_out))
         else:
             if self.__args.format == "table":
                 count = 0
@@ -133,6 +150,14 @@ class Actions(object):
 
                 if count > 0:
                     print(tbl)
+            elif self.__args.format == "json":
+                out = {}
+                for i in sorted(file_values.keys()):
+                    out[i] = {}
+                    for x in file_values[i]:
+                        out[i][x] = file_values[i][x]
+
+                print(json.dumps(out))
             else:
                 for i in sorted(file_values.keys()):
                     for x in file_values[i]:
