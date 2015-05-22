@@ -1,12 +1,9 @@
 #!/usr/bin/python3
 
 import pytest
-from argparse import Namespace
-from conftest import compare_pytest_version
 from docmanager import parsecli
 from docmanager.action import Actions
-from docmanager.core import DefaultDocManagerProperties, ReturnCodes
-from docmanager.xmlhandler import XmlHandler
+from docmanager.core import ReturnCodes
 
 @pytest.mark.parametrize("option,correct,wrong", [
     #('maintainer', 'SUSE', ''),
