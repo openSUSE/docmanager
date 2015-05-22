@@ -11,11 +11,11 @@ from docmanager.action import Actions
 @pytest.mark.parametrize("option,value", [
     # set section
     ('maintainer', 'SUSE'),
-    ('status', 'ok'),
-    ('deadline', '11-05-2015'),
-    ('priority', 'high'),
-    ('translation', 'DE'),
-    ('languages', 'EN'),
+    ('status', 'editing'),
+    ('deadline', '2015-05-11'),
+    ('priority', '2'),
+    ('translation', 'false'),
+    ('languages', 'en,de'),
 ])
 def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     """Check predefined property actions"""

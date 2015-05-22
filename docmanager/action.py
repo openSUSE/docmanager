@@ -72,17 +72,20 @@ class Actions(object):
         logmgr_flog()
 
         for argument in arguments:
-            #has the key an value?
-            #when not delete the element
             if argument.find("=") >= 0:
                 key, value = argument.split("=")
-                log.debug("Trying to set value for property '%s' to '%s'",
-                          key, value)
+
+                if key == "languages":
+                    values = value.split(",")
+                    if len(values) > 1:
+                        value = ",".join(self.remove_duplicate_langcodes(values))
+
+                log.debug("Trying to set value for property '{}' to '{}'".format(key, value))
                 self.__files.set(key, value)
+
                 print("Set value for property \"{}\" to \"{}\".".format(key, value))
             else:
-                log.error("Invalid usage. Set values "
-                          "with the following format: property=value")
+                log.error("Invalid usage. Set values with the following format: property=value")
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
     def get(self, arguments, output = None):
@@ -256,3 +259,11 @@ class Actions(object):
             return sort[0]
         else:
             return None
+
+    def remove_duplicate_langcodes(self, values):
+        new_list = []
+        for i in values:
+            if i not in new_list:
+                new_list.append(i)
+
+        return new_list
