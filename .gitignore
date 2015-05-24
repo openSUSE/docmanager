@@ -19,6 +19,7 @@ downloads/
 bin/
 include/
 eggs/
+.eggs/
 lib/
 lib64
 lib64/
@@ -28,6 +29,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.tmp/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
