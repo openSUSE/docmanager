@@ -79,7 +79,7 @@ def parsecli(cliargs=None):
                 help="Increase verbosity level"
             )
     parser.add_argument('--langlist',
-                       action=show_langlist()
+                       action='store_true'
                        )
 
     # Create a subparser for all of our subcommands,
@@ -176,6 +176,10 @@ def parsecli(cliargs=None):
                 "analyze": "query",
                }
     args.action = actions.get(args.action)
+    
+    # Display language list
+    if args.langlist is True:
+        show_langlist()
 
     # If docmanager is called without anything, print the help and exit
     if args.action is None:
