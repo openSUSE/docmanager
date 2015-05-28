@@ -20,9 +20,9 @@ import json
 import sys
 from docmanager import filehandler
 from docmanager import table
-from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlhandler import XmlHandler, localname
 from docmanager.core import ReturnCodes
+from docmanager.logmanager import log, logmgr_flog
+from docmanager.xmlhandler import localname, XmlHandler
 from prettytable import PrettyTable
 
 class Actions(object):

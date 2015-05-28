@@ -16,13 +16,13 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from docmanager import xmlhandler
-from docmanager.logmanager import log, logmgr_flog
-from docmanager.core import ReturnCodes
-from lxml import etree
 import os
 import subprocess
 import sys
+from docmanager import xmlhandler
+from docmanager.core import ReturnCodes
+from docmanager.logmanager import log, logmgr_flog
+from lxml import etree
 
 class Files(object):
     """TODO

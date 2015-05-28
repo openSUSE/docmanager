@@ -20,17 +20,16 @@ __author__="Rick Salevsky"
 __version__="3.0.0"
 
 import argparse
-from docmanager import action
-from docmanager.languagecodes import SupportedLanguages
-from docmanager.logmanager import log
-from docmanager.core import ReturnCodes
-from prettytable import PrettyTable
-from docmanager.tmpfile import clear_tmpdir
 import logging
 import os
 import re
 import sys
-
+from docmanager import action
+from docmanager.core import ReturnCodes
+from docmanager.languagecodes import SupportedLanguages
+from docmanager.logmanager import log
+from docmanager.tmpfile import clear_tmpdir
+from prettytable import PrettyTable
 
 def populate_properties(args):
     """Populate args.properties from "standard" options

@@ -16,7 +16,7 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-class SupportedLanguages(object):
+class SupportedLanguages():
     LanguageList = [
         'aa_DJ', 'aa', 'aa_ER', 'aa_ET', 'af_ZA', 'af', 'ak_GH', 'ak', 'am_ET', 'am',
         'an_ES', 'an', 'anp_IN', 'anp', 'ar_AE', 'ar', 'ar_BH', 'ar_DZ', 'ar_EG',
