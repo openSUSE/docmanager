@@ -25,7 +25,9 @@ from docmanager.languagecodes import SupportedLanguages
 from docmanager.logmanager import log
 from docmanager.core import ReturnCodes
 from prettytable import PrettyTable
+from docmanager.tmpfile import clear_tmpdir
 import logging
+import os
 import re
 import sys
 
@@ -215,6 +217,9 @@ def parsecli(cliargs=None):
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
     log.debug("Arguments: %s", args)
 
+    # clear old docmanager tmp files
+    clear_tmpdir()
+
     # check for input format
     input_format_check(args)
 
@@ -282,4 +287,5 @@ def main(cliargs=None):
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
+    
     action.Actions( parsecli(cliargs) )
