@@ -6,15 +6,18 @@ import pytest
 from docmanager.xmlutil import root_sourceline
 
 
-doctypeslist = [# doctype,columnstart,startline,span
+doctypeslist = [# xml,expected
   # 0
-  ("\n<!DOCTYPE book>\n<book/>", 0, 3, (0, 7),
+  ("\n<!DOCTYPE book>\n<book/>",
+    {'root': '<book/>', 'offset': 17, 'header': '\n<!DOCTYPE book>\n'}
   ),
   # 1
-  ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>", 0, 6, (1,9),
+  ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>",
+    {'root': '<!DOCTYPE  \tbook\n\n>\n\n<book\n/>', 'offset': 1, 'header': '\n'}
   ),
   # 2
-  ("""\n<!DOCTYPE book SYSTEM "book.dtd"><book/>""", 33, 2, (33, 40),
+  ("""\n<!DOCTYPE book SYSTEM "book.dtd"><book/>""",
+    {'root': '<book/>', 'offset': 34, 'header': '\n<!DOCTYPE book SYSTEM "book.dtd">'}
   ),
   ## 3
   ("""<!DOCTYPE article [
@@ -26,9 +29,11 @@ doctypeslist = [# doctype,columnstart,startline,span
         xmlns:dm="urn:x-suse:ns:docmanager"
         xmlns="http://docbook.org/ns/docbook"
         xmlns:xlink="http://www.w3.org/1999/xlink"
-/>""", 0, 6, (88,268),
+/>""",
+    {'root': '\n<article version="5.0" xml:lang="en"\n        xmlns:dm="urn:x-suse:ns:docmanager"\n        xmlns="http://docbook.org/ns/docbook"\n        xmlns:xlink="http://www.w3.org/1999/xlink"\n/>',
+     'offset': 88,
+     'header': '<!DOCTYPE article [\n  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">\n  %entity.ent;\n]>\n'}
   ),
-
   ## 4
   ("""<!DOCTYPE d:book
 []>
@@ -37,23 +42,23 @@ doctypeslist = [# doctype,columnstart,startline,span
 >
 </d:book>
 """,
-    0, 3, (21, 72),
+    {'root': '<d:book id="x"\n        xmlns:d="urn:x-example:ns"\n>\n',
+     'offset': 21,
+     'header': '<!DOCTYPE d:book\n[]>\n'}
   ),
 ]
 
-@pytest.mark.parametrize("doctype,columnstart,startline,span",
+@pytest.mark.parametrize("xml,expected",
                          doctypeslist,
                          ids=['normal', 'with_cr',
                               'with_systemid', 'complete',
                               'with_ns']
                         )
-def test_doctype_rootline(doctype, columnstart, startline, span):
+def test_doctype_rootline(xml, expected):
     """Checks if parsing of prolog works
     """
 
-    source = StringIO(doctype)
+    source = StringIO(xml)
     result =  root_sourceline(source)
 
-    assert columnstart == result.get('columnstart', -1)
-    assert startline == result.get('startline', -1)
-    assert span == result.get('span', (-1, -1))
+    assert result == expected

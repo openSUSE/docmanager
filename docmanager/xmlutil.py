@@ -252,7 +252,7 @@ def root_sourceline(source, resolver=None):
     # 8|          xmlns:xlink="http://www.w3.org/1999/xlink">
     #
     # In the above example, we need line 5, but .sourceline returns line 8
-    # which is "wrong". :-(
+    # which is "wrong". 
     # Therefor we need to go back from line 8 until we find the start-tag
     #
     # See thread in
@@ -266,19 +266,28 @@ def root_sourceline(source, resolver=None):
     # Read lines until maxsourceline is reached
     header = [next(buffer) for _ in range(maxsourceline)]
 
-    ll = []
-    # Iterate in reverse order to find a match for our start-tag
-    for i, line in enumerate(reversed(header)):
-        ll.insert(0, line)
-        match = starttag.search("".join(ll))
-        if match:
-            break
+    # Try to first check, if start tag appears on one line
+    i = maxsourceline - 1
+    match = starttag.search(header[i])
+    offset = 0
+    
+    if not match:
+        # We need to search for the beginning of the start tag
+        ll = []
+        # Iterate in reverse order to find a match for our start-tag
+        for i, line in enumerate(reversed(header)):
+            ll.insert(0, line)
+            match = starttag.search("".join(ll))
+            if match:
+                break
+    else:
+        offset = match.span()[0]
 
     # Variable 'i' contains now the (line) offset where you can find
     # the start tag inside the header
     #
     # offset is the number of character before the start tag
-    offset = len("".join(header[:i]))
+    offset += len("".join(header[:i]))
     # print("Match obj:", match, match.groupdict() )
 
     # The character offset
@@ -287,13 +296,7 @@ def root_sourceline(source, resolver=None):
     # span is the character offset and can be used to cut off the start tag
     # for example: "".join(result['header'])[slice(*result['span'])]
     s = match.span()
-    result['span'] = (s[0] + offset, s[1] + offset)
-    # The line where the start tag begins:
-    result['startline'] = maxsourceline - i
-    # The line where the start tag ends:
-    result['endline'] = maxsourceline
-    # The column where the start tag starts:
-    result['columnstart'] = match.start()
-    # The header including start tag:
-    result['header'] = header
+    result['header'] = "".join(header)[:offset]
+    result['root'] = "".join(header)[offset:]
+    
     return result

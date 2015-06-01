@@ -22,6 +22,7 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, NS, ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.tmpfile import TmpFile
+from docmanager.xmlutil import root_sourceline
 from lxml import etree
 
 def localname(tag):
