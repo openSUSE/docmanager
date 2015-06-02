@@ -54,11 +54,22 @@ doctypeslist = [# xml,expected
                               'with_systemid', 'complete',
                               'with_ns']
                         )
-def test_doctype_rootline(xml, expected):
-    """Checks if parsing of prolog works
+def test_prolog_with_stringio(xml, expected):
+    """Checks if parsing of prolog works with StringIO
     """
-
     source = StringIO(xml)
-    result =  root_sourceline(source)
+    result = root_sourceline(source)
+    assert result == expected
 
+
+@pytest.mark.parametrize("xml,expected",
+                         doctypeslist,
+                         ids=['normal', 'with_cr',
+                              'with_systemid', 'complete',
+                              'with_ns']
+                        )
+def test_prolog_with_string(xml, expected):
+    """Checks if parsing of prolog works with normal strings
+    """
+    result = root_sourceline(xml)
     assert result == expected
