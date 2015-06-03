@@ -48,7 +48,7 @@ class XmlHandler(object):
         # Replace any entities
         self._buffer.seek(self._offset)
         self._buffer = replaceinstream(self._buffer, preserve_entities)
-        
+
         # Register the namespace
         # etree.register_namespace("dm", "{dm}".format(**NS))
         self.__xmlparser = etree.XMLParser(remove_blank_text=False,
@@ -59,11 +59,12 @@ class XmlHandler(object):
         self.__root = self.__tree.getroot()
         self.__docmanager = self.__tree.find("//dm:docmanager",
                                              namespaces=NS)
+
         if self.__docmanager is None:
             self.create_group()
 
 
-    def init_default_props(self, force):
+    def init_default_props(self, force=False):
         ret = 0
         for i in DefaultDocManagerProperties:
             if (i not in self.get(i)) or \
@@ -267,9 +268,8 @@ class XmlHandler(object):
         :return: filename
         :rtype:  str
         """
-        logmgr_flog()
-
-        return self.__tree.docinfo.URL
+        # return self.__tree.docinfo.URL
+        return self._filename
 
     @filename.setter
     def filename(self, _):

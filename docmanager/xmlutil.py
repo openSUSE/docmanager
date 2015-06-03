@@ -235,7 +235,9 @@ def root_sourceline(source, resolver=None):
         parser.resolvers.add(resolver)
 
     buffer = ensurefileobj(source)
-    root = etree.parse(buffer, parser).getroot()
+    tree = etree.parse(buffer, parser)
+    root = tree.getroot()
+
     # Get first an "approximation" of where we could find it
     maxsourceline = root.sourceline
 

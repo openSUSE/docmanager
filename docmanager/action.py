@@ -47,17 +47,17 @@ class Actions(object):
         self.__files = filehandler.Files(files)
 
         if hasattr(self, action) and getattr(self, action) is not None:
+            log.debug("Action.__init__: {}".format(args))
             getattr(self, action)(arguments)
         else:
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
 
     def init(self, arguments):
-        file_values = self.__files.get(arguments)
-        for i in file_values:
+        log.debug("Arguments {}".format(arguments))
+        for i in self.__args.files:
             log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(i))
             handler = XmlHandler(i)
-            
             if handler.init_default_props(self.__args.force) == 0:
                 print("Initialized default properties for '{}'.".format(i))
             else:
