@@ -19,65 +19,19 @@
 import random
 import re
 import sys
-from docmanager.core import DefaultDocManagerProperties, NS, ReturnCodes
+from docmanager.core import DefaultDocManagerProperties, \
+    NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.tmpfile import TmpFile
-from docmanager.xmlutil import root_sourceline
+from docmanager.xmlutil import root_sourceline, \
+    replaceinstream, ensurefileobj, \
+    preserve_entities, recover_entities
+from io import StringIO
 from lxml import etree
-
-def localname(tag):
-    """Returns the local name of an element
-
-    :param str tag: Usually in the form of {http://docbook.org/ns/docbook}article
-    :return:  local name
-    :rtype:  str
-    """
-    m = re.search("\{(?P<ns>.*)\}(?P<local>[a-z]+)", tag)
-    if m:
-        return m.groupdict()['local']
-    else:
-        return tag
 
 
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
-    __namespace = {"d":"http://docbook.org/ns/docbook", "dm":"urn:x-suse:ns:docmanager"}
-    # All elements which are valid as root (from 5.1CR3)
-    validroots = ('abstract', 'address', 'annotation', 'audiodata',
-                   'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
-                   'bibliolist', 'blockquote', 'book', 'calloutlist',
-                   'calloutlist', 'caption', 'caution', 'classsynopsis',
-                   'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
-                   'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
-                   'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
-                   'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
-                   'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
-                   'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
-                   'important', 'index', 'indexdiv', 'informalequation',
-                   'informalequation', 'informalexample', 'informalfigure',
-                   'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
-                   'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
-                   'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
-                   'para', 'part', 'partintro', 'personblurb', 'procedure',
-                   'productionset', 'programlisting', 'programlistingco',
-                   'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
-                   'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
-                   'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
-                   'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
-                   'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
-                   'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
-                   'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
-                   'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
-                   'topic', 'variablelist', 'videodata', 'videoobject', 'warning')
-    
-    orig_filename = ""
-    
-    tmp_orig = None
-    tmp_updated = None
-    
-    entity_replacements = {}
-    entity_include_replacements = {}
 
     def __init__(self, filename):
         """Initializes the XmlHandler class
@@ -85,107 +39,44 @@ class XmlHandler(object):
         :param str filename: filename of XML file
         """
         logmgr_flog()
-        
-        self.orig_filename = filename
-        
-        # save the content into a tmp file
-        with open(filename, 'r') as f:
-            content = f.read()
-            
-            self.tmp_orig = TmpFile()
-            self.tmp_orig.write(content)
-            
-            log.debug("XmlHandler: Stored original content of {} in tmp file: {}".format(filename, self.tmp_orig.filename))
-            
-            self.tmp_updated = TmpFile()
-            self.tmp_updated.write(self.replace_entities(self.replace_entity_includes(content)))
-            
-            log.debug("XmlHandler: Stored modified content of {} in tmp file: {}".format(filename, self.tmp_updated.filename))
 
-        #register the namespace
-        etree.register_namespace("dm", "{dm}".format(**self.__namespace))
+        self._filename = filename
+        self._buffer = ensurefileobj(filename)
+        prolog = root_sourceline(self._buffer)
+        self._offset, self._header = prolog['offset'], prolog['header']
+
+        # Replace any entities
+        self._buffer.seek(self._offset)
+        self._buffer = replaceinstream(self._buffer, preserve_entities)
+        
+        # Register the namespace
+        # etree.register_namespace("dm", "{dm}".format(**NS))
         self.__xmlparser = etree.XMLParser(remove_blank_text=False,
                                            resolve_entities=False,
                                            dtd_validation=False)
-        #load the file and set a reference to the dm group
-        self.__tree = etree.parse(self.tmp_updated.filename, self.__xmlparser)
+        # Load the file and set a reference to the dm group
+        self.__tree = etree.parse(self._buffer, self.__xmlparser)
         self.__root = self.__tree.getroot()
         self.__docmanager = self.__tree.find("//dm:docmanager",
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
         if self.__docmanager is None:
             self.create_group()
 
-    def replace_entity_includes(self, content):
-        r = re.findall('%[a-zA-Z0-9\-_\.]+;', content)
-        if r is not None:
-            for i in r:
-                rstr = self.gen_entity_identifier()
-
-                self.entity_include_replacements["<!-- {} -->".format(i)] = i
-                content = content.replace(i, "<!-- {} -->".format(i))
-
-        return content
-
-    def replace_entities(self, content):
-        r = re.findall('&[a-zA-Z0-9\-_\.]+;', content)
-        if r is not None:
-            for i in r:
-                rstr = self.gen_entity_identifier()
-
-                self.entity_replacements["{}".format(rstr)] = i
-                content = content.replace(i, "{}".format(rstr))
-
-        return content
-    
-    def gen_entity_identifier(self):
-        string = ""
-        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        
-        i = 1
-        while i <= 16:
-            string += chars[random.randrange(0,len(chars))]
-            i += 1
-
-        return "{}".format(string)
-    
-    def convert_back(self, filename):
-        content = ""
-        
-        # convert the entities and the entity includes back
-        with open(filename, 'r') as f:
-            content = f.read()
-            if len(self.entity_replacements):
-                for key, value in self.entity_replacements.items():
-                    content = content.replace(key, value)
-            
-            if len(self.entity_include_replacements):
-                for key, value in self.entity_include_replacements.items():
-                    content = content.replace(key, value)
-            
-            # try to indent entity includes... (That is needed since lxml destroys the indentation in the DOCTYPE)
-            r = re.findall('%[a-zA-Z0-9\-_\.]+;\]>', content)
-            if r is not None:
-                for i in r:
-                    tmp = i.split("]")
-                    content = content.replace(i, "{}\n]{}".format(tmp[0], tmp[1]))
-        
-        # try to indent entity includes... (That is needed since lxml destroys the indentation in the DOCTYPE)
-        with open(filename, 'w') as f:
-            f.write(content)
 
     def init_default_props(self, force):
         ret = 0
         for i in DefaultDocManagerProperties:
-            if (i not in self.get(i)) or (self.get(i)[i] is None) or (self.get(i)[i] is not None and force == True):
+            if (i not in self.get(i)) or \
+               (self.get(i)[i] is None) or \
+               (self.get(i)[i] is not None and force == True):
                 self.set(i, "")
             else:
                 ret += 1
-        
         return ret
 
     def check_root_element(self):
         """Checks if root element is valid"""
-        if self._root.tag not in self.validroots:
+        if self._root.tag not in VALIDROOTS:
             raise ValueError("Cannot add info element to %s. "
                              "Not a valid root element." % self._root.tag)
 
@@ -194,7 +85,7 @@ class XmlHandler(object):
         logmgr_flog()
 
         #search the info-element if not exists raise an error
-        element = self.__tree.find("//d:info", namespaces=self.__namespace)
+        element = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if element is None:
             log.warn("Can't find the <info> element in '%s'. Adding one.",
@@ -213,7 +104,7 @@ class XmlHandler(object):
             element.tail = self.__root.getchildren()[idx-1].tail
 
         self.__docmanager = etree.SubElement(element,
-                                             "{{{dm}}}docmanager".format(**self.__namespace),
+                                             "{{{dm}}}docmanager".format(**NS),
                                             )
         #log.debug("docmanager?: %s" % etree.tostring(self.__tree).decode("UTF-8"))
         self.write()
@@ -230,15 +121,15 @@ class XmlHandler(object):
         """
         logmgr_flog()
         key_handler = self.__docmanager.find("./dm:"+key,
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
         #update the old key or create a new key
         if key_handler is not None:
             key_handler.text = value
         else:
             node = etree.SubElement(self.__docmanager,
                                     "{{{dm}}}{key}".format(key=key,
-                                                           **self.__namespace),
-                                    # nsmap=self.__namespace
+                                                           **NS),
+                                    # nsmap=NS
                                     )
             node.text = value
         self.write()
@@ -256,7 +147,7 @@ class XmlHandler(object):
 
         #check if the key has on of the given values
         element = self.__docmanager.find("./dm:"+key,
-                                         namespaces=self.__namespace)
+                                         namespaces=NS)
         if self.is_prop_set(key) is True and element.text in values:
             return True
 
@@ -271,7 +162,7 @@ class XmlHandler(object):
         :return: if property is set
         :rtype: bool
         """
-        element = self.__docmanager.find("./dm:{}".format(prop), namespaces=self.__namespace)
+        element = self.__docmanager.find("./dm:{}".format(prop), namespaces=NS)
         if element is not None:
             return True
         
@@ -317,7 +208,7 @@ class XmlHandler(object):
         """
         logmgr_flog()
         key_handler = self.__docmanager.find("./dm:"+key,
-                                             namespaces=self.__namespace)
+                                             namespaces=NS)
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
@@ -340,7 +231,7 @@ class XmlHandler(object):
         """Indents only dm:docmanager element and its children"""
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
-                              namespaces=self.__namespace)
+                              namespaces=NS)
         if dm is None:
             return
         log.debug("-----")
@@ -365,19 +256,9 @@ class XmlHandler(object):
         logmgr_flog()
         # Only indent docmanager child elements
         self.indent_dm()
-        self.__tree.write(self.tmp_orig.filename,
+        self.__tree.write(self._filename,
                           # pretty_print=True,
                           with_tail=True)
-        
-        self.convert_back(self.tmp_orig.filename)
-        
-        content = ""
-        with open(self.tmp_orig.filename, 'r') as f:
-            content = f.read()
-        
-        if len(content) > 0:
-            with open(self.orig_filename, 'w') as f:
-                f.write(content)
 
     @property
     def filename(self):

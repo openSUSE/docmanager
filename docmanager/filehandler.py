@@ -44,28 +44,13 @@ class Files(object):
                 log.error("File '%s' not found.", f)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
 
-            _, file_extension = os.path.splitext(f)
-            #check if the file is a normal XML or a DC file
-            if file_extension == ".xml":
-                try:
-                    self.__xml_handlers.append(xmlhandler.XmlHandler(f))
-                except etree.XMLSyntaxError as e:
-                    log.error("Error during parsing the file '%s': %s",
+            # is a valid xml file?
+            try:
+                self.__xml_handlers.append(xmlhandler.XmlHandler(f))
+            except etree.XMLSyntaxError as e:
+                log.error("Error during parsing the file '%s': %s",
                               f, str(e) )
-                    sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
-            else:
-                try:
-                    #run daps to get all files from a documentation
-                    cmd = "daps -d %s list-srcfiles --nodc --noent --noimg" % f
-                    daps_files = subprocess.check_output(cmd, shell=True)
-                    daps_files = daps_files.decode("utf-8")
-                    for daps_file in daps_files.split():
-                        self.__xml_handlers.append(xmlhandler.XmlHandler(daps_file))
-                except subprocess.CalledProcessError as e:
-                    sys.debug("Exception thrown: subprocess.CalledProcessError")
-                    log.error("An error occurred while running daps for file "
-                              "'%s': %s" % (f , str(e)) )
-                    sys.exit(ReturnCodes.E_DAPS_ERROR)
+                sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
     def get(self, keys):
         """TODO

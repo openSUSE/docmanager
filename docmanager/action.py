@@ -22,7 +22,8 @@ from docmanager import filehandler
 from docmanager import table
 from docmanager.core import ReturnCodes
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlhandler import localname, XmlHandler
+from docmanager.xmlhandler import XmlHandler
+from docmanager.xmlutil import localname
 from prettytable import PrettyTable
 
 class Actions(object):

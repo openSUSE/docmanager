@@ -1,10 +1,11 @@
 #
 
+import pytest
+import re
+from docmanager.xmlutil import compilestarttag, root_sourceline
 from io import StringIO
 
-import pytest
-from docmanager.xmlutil import root_sourceline
-
+IDS =['normal', 'with_cr', 'with_systemid', 'complete', 'with_ns', 'without_linebreak', 'without_linebreak_2']
 
 doctypeslist = [# xml,expected
   # 0
@@ -37,7 +38,7 @@ doctypeslist = [# xml,expected
   ## 4
   ("""<!DOCTYPE d:book
 []>
-<d:book id="x"
+<d:book id="x:q
         xmlns:d="urn:x-example:ns"
 >
 </d:book>
@@ -46,13 +47,25 @@ doctypeslist = [# xml,expected
      'offset': 21,
      'header': '<!DOCTYPE d:book\n[]>\n'}
   ),
+  ## 5
+  ("""<!DOCTYPE book
+[]><book id="bla">
+</book>""", {'header': '<!DOCTYPE book\n[]>',
+             'offset': 18,
+             'root': '<book id="bla">\n'}),
+  ## 6
+  ("""<!DOCTYPE article [
+]>
+
+<article id="bla">
+</article>""", {'header': '<!DOCTYPE article [\n]>\n\n',
+                'offset': 24,
+                'root': '<article id="bla">\n'})
 ]
 
 @pytest.mark.parametrize("xml,expected",
                          doctypeslist,
-                         ids=['normal', 'with_cr',
-                              'with_systemid', 'complete',
-                              'with_ns']
+                         ids=IDS
                         )
 def test_prolog_with_stringio(xml, expected):
     """Checks if parsing of prolog works with StringIO
@@ -64,12 +77,71 @@ def test_prolog_with_stringio(xml, expected):
 
 @pytest.mark.parametrize("xml,expected",
                          doctypeslist,
-                         ids=['normal', 'with_cr',
-                              'with_systemid', 'complete',
-                              'with_ns']
+                         ids=IDS
                         )
 def test_prolog_with_string(xml, expected):
     """Checks if parsing of prolog works with normal strings
     """
     result = root_sourceline(xml)
     assert result == expected
+
+@pytest.mark.parametrize("xml,expected",
+                         doctypeslist,
+                         ids=IDS
+                        )
+def test_prolog_with_filename(xml, expected, tmpdir):
+    tmp = tmpdir.join("test.xml").strpath
+    fh = open(tmp, 'w')
+    fh.write(xml)
+    fh.close()
+    
+    result = root_sourceline(tmp)
+    assert result == expected
+
+
+#################################################################################
+
+content_compilestarttag = [
+    ## 1
+    (
+        """<!DOCTYPE article [
+]>
+
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0" xml:lang="en">""",
+        (24, 146)
+    ),
+    ## 2
+    (
+        """<!DOCTYPE article []><article></article>""",
+        (21, 30)
+    )
+]
+@pytest.mark.parametrize("content,expected",
+                         content_compilestarttag)
+def test_compilestarttag(content, expected):
+    tag = compilestarttag()
+    result = tag.search(content)
+    assert result.span() == expected
+    
+content_compilestarttag_files = [
+    ## 1
+    (
+        "/home/manuel/GitHub/docmanager/example.xml",
+        (24, 146)
+    )
+]
+@pytest.mark.parametrize("filename,expected",
+                         content_compilestarttag_files)
+def test_compilestarttag(filename, expected):
+    content = open(filename, 'r').read()
+    
+    tag = compilestarttag()
+    result = tag.search(content)
+    assert result.span() == expected
+    
+###################################
+
+def test_ein_test():
+    result = root_sourceline("/home/manuel/GitHub/docmanager/eintest.xml")
+    assert result == {}
