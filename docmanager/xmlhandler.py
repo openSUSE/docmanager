@@ -257,9 +257,9 @@ class XmlHandler(object):
         logmgr_flog()
         # Only indent docmanager child elements
         self.indent_dm()
-        self.__tree.write(self._filename,
-                          # pretty_print=True,
-                          with_tail=True)
+        
+        with open(self._filename, 'w') as f:
+            f.write(recover_entities(etree.tostring(self.__tree, encoding='unicode', doctype=self._header.rstrip())))
 
     @property
     def filename(self):
