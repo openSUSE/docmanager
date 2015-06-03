@@ -5,7 +5,7 @@ import re
 from docmanager.xmlutil import compilestarttag, root_sourceline
 from io import StringIO
 
-IDS =['normal', 'with_cr', 'with_systemid', 'complete', 'with_ns', 'without_linebreak', 'without_linebreak_2']
+IDS =['normal', 'with_cr', 'with_systemid', 'complete', 'with_ns', 'without_linebreak', 'without_linebreak_2', 'everything_in_one_line']
 
 doctypeslist = [# xml,expected
   # 0
@@ -14,7 +14,7 @@ doctypeslist = [# xml,expected
   ),
   # 1
   ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>",
-    {'root': '<!DOCTYPE  \tbook\n\n>\n\n<book\n/>', 'offset': 1, 'header': '\n'}
+    {'root': '<book\n/>', 'offset': 22, 'header': '\n<!DOCTYPE  \tbook\n\n>\n\n'}
   ),
   # 2
   ("""\n<!DOCTYPE book SYSTEM "book.dtd"><book/>""",
@@ -31,19 +31,19 @@ doctypeslist = [# xml,expected
         xmlns="http://docbook.org/ns/docbook"
         xmlns:xlink="http://www.w3.org/1999/xlink"
 />""",
-    {'root': '\n<article version="5.0" xml:lang="en"\n        xmlns:dm="urn:x-suse:ns:docmanager"\n        xmlns="http://docbook.org/ns/docbook"\n        xmlns:xlink="http://www.w3.org/1999/xlink"\n/>',
-     'offset': 88,
-     'header': '<!DOCTYPE article [\n  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">\n  %entity.ent;\n]>\n'}
+    {'root': '<article version="5.0" xml:lang="en"\n        xmlns:dm="urn:x-suse:ns:docmanager"\n        xmlns="http://docbook.org/ns/docbook"\n        xmlns:xlink="http://www.w3.org/1999/xlink"\n/>',
+     'offset': 89,
+     'header': '<!DOCTYPE article [\n  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">\n  %entity.ent;\n]>\n\n'}
   ),
   ## 4
   ("""<!DOCTYPE d:book
 []>
-<d:book id="x:q
+<d:book id="x:q"
         xmlns:d="urn:x-example:ns"
 >
 </d:book>
 """,
-    {'root': '<d:book id="x"\n        xmlns:d="urn:x-example:ns"\n>\n',
+    {'root': '<d:book id="x:q"\n        xmlns:d="urn:x-example:ns"\n>\n',
      'offset': 21,
      'header': '<!DOCTYPE d:book\n[]>\n'}
   ),
@@ -60,7 +60,10 @@ doctypeslist = [# xml,expected
 <article id="bla">
 </article>""", {'header': '<!DOCTYPE article [\n]>\n\n',
                 'offset': 24,
-                'root': '<article id="bla">\n'})
+                'root': '<article id="bla">\n'}),
+  ## 7
+  ("""<!DOCTYPE article []><article/>""",
+   {'header': '<!DOCTYPE article []>', 'offset': 21, 'root': '<article/>'})
 ]
 
 @pytest.mark.parametrize("xml,expected",
@@ -84,6 +87,7 @@ def test_prolog_with_string(xml, expected):
     """
     result = root_sourceline(xml)
     assert result == expected
+
 
 @pytest.mark.parametrize("xml,expected",
                          doctypeslist,
@@ -123,25 +127,3 @@ def test_compilestarttag(content, expected):
     tag = compilestarttag()
     result = tag.search(content)
     assert result.span() == expected
-    
-content_compilestarttag_files = [
-    ## 1
-    (
-        "/home/manuel/GitHub/docmanager/example.xml",
-        (24, 146)
-    )
-]
-@pytest.mark.parametrize("filename,expected",
-                         content_compilestarttag_files)
-def test_compilestarttag(filename, expected):
-    content = open(filename, 'r').read()
-    
-    tag = compilestarttag()
-    result = tag.search(content)
-    assert result.span() == expected
-    
-###################################
-
-def test_ein_test():
-    result = root_sourceline("/home/manuel/GitHub/docmanager/eintest.xml")
-    assert result == {}

@@ -278,16 +278,22 @@ def root_sourceline(source, resolver=None):
         for i, line in enumerate(reversed(header)):
             ll.insert(0, line)
             match = starttag.search("".join(ll))
+            
             if match:
                 break
+        
+        length = len("".join(ll))
+        length -= match.span()[0]
+        offset = len("".join(header))-length
     else:
         offset = match.span()[0]
+        offset += len("".join(header[:i]))
 
     # Variable 'i' contains now the (line) offset where you can find
     # the start tag inside the header
     #
     # offset is the number of character before the start tag
-    offset += len("".join(header[:i]))
+    #offset += len("".join(header[:i]))
     # print("Match obj:", match, match.groupdict() )
 
     # The character offset
