@@ -90,7 +90,7 @@ class XmlHandler(object):
         # TODO: We need to check for a --force option
         if element is None:
             log.warn("Can't find the <info> element in '%s'. Adding one.",
-                     self.__tree.docinfo.URL)
+                     self.filename)
             
             if not self.__root.getchildren():
                 log.error("The \"%s\" file is not a valid DocBook 5 file.",
