@@ -5,8 +5,7 @@ import re
 from docmanager.xmlutil import findprolog
 from io import StringIO
 
-IDS =['normal',
-      #'with_cr',
+IDS =['normal', 'with_cr',
       'with_systemid', 'complete', 'with_ns',
       'without_linebreak', 'without_linebreak_2', 'everything_in_one_line']
 
@@ -18,11 +17,11 @@ doctypeslist = [# xml,expected
      'header': '\n<!DOCTYPE book>\n'}
   ),
   # 1
-#  ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>",
-#    {'root': '<book\n/>',
-#     'offset': 22,
-#     'header': '\n<!DOCTYPE  \tbook\n\n>\n\n'}
-#  ),
+  ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>",
+    {'root': '<book\n/>',
+     'offset': 22,
+     'header': '\n<!DOCTYPE  \tbook\n\n>\n\n'}
+  ),
   # 2
   ("""\n<!DOCTYPE book SYSTEM "book.dtd"><book/>""",
     {'root': '<book/>',
