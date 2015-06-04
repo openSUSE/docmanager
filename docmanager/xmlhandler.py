@@ -22,7 +22,7 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, \
     NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import root_sourceline, \
+from docmanager.xmlutil import findprolog, \
     replaceinstream, ensurefileobj, \
     preserve_entities, recover_entities
 from io import StringIO
@@ -42,7 +42,7 @@ class XmlHandler(object):
 
         self._filename = filename
         self._buffer = ensurefileobj(filename)
-        prolog = root_sourceline(self._buffer)
+        prolog = findprolog(self._buffer)
         self._offset, self._header = prolog['offset'], prolog['header']
 
         # Replace any entities
