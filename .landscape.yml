@@ -8,3 +8,7 @@ ignore-paths:
     - man/
     - test/
     - tests/
+
+pylint:
+    disable:
+        - super-on-old-class

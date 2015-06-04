@@ -207,20 +207,20 @@ class Handler(xml.sax.handler.ContentHandler):
         # We are only interested in the first two start tags
         if ctxlen < 2:
             current = self.locstm.where(self.loc)
-            p = self.pos(self.loc.getLineNumber(), \
+            pos = self.pos(self.loc.getLineNumber(), \
                          self.loc.getColumnNumber(), \
                          current)
-            self.context.append(["%s" % name, p])
+            self.context.append(["%s" % name, pos])
 
     def endElement(self, name):
         eline = self.loc.getLineNumber()
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
-        p = self.pos(line=eline, col=ecol, offset=last)
+        pos = self.pos(line=eline, col=ecol, offset=last)
 
         # save the position of an end tag and add '/' in front of the
         # name to distinguish it from a start tag
-        self.context.append(["/%s" % name, p])
+        self.context.append(["/%s" % name, pos])
 
 
 def findprolog(source, maxsize=5000):
@@ -244,7 +244,7 @@ def findprolog(source, maxsize=5000):
     try:
         buf = ensurefileobj(source)
         # We read in maxsize and hope this is enough...
-        XML = buf.read(maxsize)
+        xmlbuf = buf.read(maxsize)
         buf.seek(0)
         locstm = LocatingWrapper(buf)
         parser = xml.sax.make_parser()
@@ -262,7 +262,7 @@ def findprolog(source, maxsize=5000):
 
     first = context[0]
     soffset = first[1].offset
-    doctype = XML[:soffset]
+    doctype = xmlbuf[:soffset]
 
     # Check if we have reached the "end tag" (symbolized with '/' in
     # its first character).
@@ -275,7 +275,7 @@ def findprolog(source, maxsize=5000):
         last = context[1]
 
     eoffset = last[1].offset
-    starttag = XML[soffset:eoffset].rstrip(' ')
+    starttag = xmlbuf[soffset:eoffset].rstrip(' ')
 
     result['header'] = doctype
     result['root'] = starttag
