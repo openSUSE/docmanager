@@ -17,17 +17,17 @@
 # you may find current contact information at www.suse.com
 
 NS = {
-        "d":"http://docbook.org/ns/docbook",
-        "dm":"urn:x-suse:ns:docmanager"
+    "d":"http://docbook.org/ns/docbook",
+    "dm":"urn:x-suse:ns:docmanager"
 }
 
 DefaultDocManagerProperties = [
-        "maintainer",
-        "status",
-        "deadline",
-        "priority",
-        "translation",
-        "languages"
+    "maintainer",
+    "status",
+    "deadline",
+    "priority",
+    "translation",
+    "languages"
 ]
 
 class ReturnCodes():
@@ -43,32 +43,34 @@ class ReturnCodes():
     E_INVALID_XML_DOCUMENT = 9
     E_WRONG_INPUT_FORMAT = 10
 
-VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
-              'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
-              'bibliolist', 'blockquote', 'book', 'calloutlist',
-              'calloutlist', 'caption', 'caution', 'classsynopsis',
-              'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
-              'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
-              'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
-              'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
-              'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
-              'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
-              'important', 'index', 'indexdiv', 'informalequation',
-              'informalequation', 'informalexample', 'informalfigure',
-              'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
-              'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
-              'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
-              'para', 'part', 'partintro', 'personblurb', 'procedure',
-              'productionset', 'programlisting', 'programlistingco',
-              'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
-              'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
-              'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
-              'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
-              'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
-              'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
-              'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
-              'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
-              'topic', 'variablelist', 'videodata', 'videoobject', 'warning')
+VALIDROOTS = (
+    'abstract', 'address', 'annotation', 'audiodata',
+    'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
+    'bibliolist', 'blockquote', 'book', 'calloutlist',
+    'calloutlist', 'caption', 'caution', 'classsynopsis',
+    'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
+    'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
+    'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
+    'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
+    'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
+    'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
+    'important', 'index', 'indexdiv', 'informalequation',
+    'informalequation', 'informalexample', 'informalfigure',
+    'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
+    'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
+    'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
+    'para', 'part', 'partintro', 'personblurb', 'procedure',
+    'productionset', 'programlisting', 'programlistingco',
+    'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
+    'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
+    'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
+    'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
+    'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
+    'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
+    'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
+    'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
+    'topic', 'variablelist', 'videodata', 'videoobject', 'warning'
+    )
 
 LANGUAGES = (
     # A
