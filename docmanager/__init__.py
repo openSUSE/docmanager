@@ -25,8 +25,7 @@ import os
 import re
 import sys
 from docmanager import action
-from docmanager.core import ReturnCodes
-from docmanager.languagecodes import SupportedLanguages
+from docmanager.core import ReturnCodes, LANGUAGES
 from docmanager.logmanager import log
 from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
@@ -231,7 +230,7 @@ def show_langlist():
     tbl.padding_width = 1 # One space between column edges and contents (default)
 
     items = list()
-    for i in SupportedLanguages.LanguageList:
+    for i in LANGUAGES:
         if count == 5:
             count = 0
             tbl.add_row(items)
@@ -277,7 +276,7 @@ def input_format_check(args):
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
-            if i not in SupportedLanguages.LanguageList:
+            if i not in LANGUAGES:
                 print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
