@@ -25,7 +25,6 @@ import re
 import os
 import sys
 
-from lxml import etree
 import xml.sax
 from xml.sax._exceptions import SAXParseException
 
@@ -194,9 +193,6 @@ class Handler(xml.sax.handler.ContentHandler):
     def setDocumentLocator(self, loc):
         self.loc = loc
 
-    def startDocument(self):
-        current = self.locstm.where(self.loc)
-
     def startElement(self, name, attrs):
         ctxlen = len(self.context)
         if ctxlen < 2:
@@ -207,8 +203,6 @@ class Handler(xml.sax.handler.ContentHandler):
             self.context.append(["%s" % name, p])
 
     def endElement(self, name):
-        ctxlen = len(self.context)
-
         eline = self.loc.getLineNumber()
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
@@ -235,11 +229,11 @@ def findprolog(source, maxsize=5000):
     context = []
 
     try:
-        buffer = ensurefileobj(source)
+        buf = ensurefileobj(source)
         # We read in maxsize and save it
-        XML = buffer.read(maxsize)
-        buffer.seek(0)
-        locstm = LocatingWrapper(buffer)
+        XML = buf.read(maxsize)
+        buf.seek(0)
+        locstm = LocatingWrapper(buf)
         parser = xml.sax.make_parser()
 
         # Disable certain features
@@ -249,7 +243,7 @@ def findprolog(source, maxsize=5000):
 
         parser.setContentHandler(Handler(context, locstm))
         parser.parse(locstm)
-    except SAXParseException as err:
+    except SAXParseException:
         raise SystemExit(ReturnCodes.E_XML_PARSE_ERROR)
 
     first = context[0]
