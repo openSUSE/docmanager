@@ -124,7 +124,7 @@ def isXML(text):
 
 def ensurefileobj(source):
     """Return a file(-like) object, regardless if it's a another
-       file-object,a filename, or a string
+       file-object, a filename, or a string
 
        :param source: filename, file-like object, or string
        :return: StringIO or file-like object
@@ -132,8 +132,8 @@ def ensurefileobj(source):
 
     # StringIO support:
     if hasattr(source, 'getvalue') and hasattr(source, 'tell'):
-        # we return a copy
-        return copy.copy(source)
+        # we return the source
+        return source
     elif isinstance(source, (str, bytes)):
         if isXML(source):
             return StringIO(source)
@@ -165,6 +165,9 @@ def localname(tag):
 # -------------
 
 class LocatingWrapper(object):
+    """Holds a table which are used to transform line and column position
+       into offset
+    """
     def __init__(self, f):
         self.f = f
         self.offset = [0]
@@ -179,10 +182,16 @@ class LocatingWrapper(object):
         return self.offset[loc.getLineNumber() - 1] + loc.getColumnNumber()
 
     def close(self):
-        self.f.close()
+        # Normally, we would close our file(-alike) object and call
+        #   self.f.close()
+        # However, we need this object later, so do nothing
+        pass
 
 
 class Handler(xml.sax.handler.ContentHandler):
+    """ContentHandler to watch for start and end elements. Needed to
+       get the location of all the elements
+    """
     def __init__( self, context, locator):
         # handler.ContentHandler.__init__( self )
         super().__init__()
@@ -195,6 +204,7 @@ class Handler(xml.sax.handler.ContentHandler):
 
     def startElement(self, name, attrs):
         ctxlen = len(self.context)
+        # We are only interested in the first two start tags
         if ctxlen < 2:
             current = self.locstm.where(self.loc)
             p = self.pos(self.loc.getLineNumber(), \
@@ -207,6 +217,9 @@ class Handler(xml.sax.handler.ContentHandler):
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
         p = self.pos(line=eline, col=ecol, offset=last)
+
+        # save the position of an end tag and add '/' in front of the
+        # name to distinguish it from a start tag
         self.context.append(["/%s" % name, p])
 
 
@@ -225,18 +238,19 @@ def findprolog(source, maxsize=5000):
     """
     result = {}
 
-    # context is used to save everything
+    # context is used to save our locations
     context = []
 
     try:
         buf = ensurefileobj(source)
-        # We read in maxsize and save it
+        # We read in maxsize and hope this is enough...
         XML = buf.read(maxsize)
         buf.seek(0)
         locstm = LocatingWrapper(buf)
         parser = xml.sax.make_parser()
 
-        # Disable certain features
+        # Disable certain features:
+        # no validation, no external general and parameter entities
         parser.setFeature(xml.sax.handler.feature_validation, False)
         parser.setFeature(xml.sax.handler.feature_external_ges, False)
         parser.setFeature(xml.sax.handler.feature_external_pes, False)
@@ -250,6 +264,11 @@ def findprolog(source, maxsize=5000):
     soffset = first[1].offset
     doctype = XML[:soffset]
 
+    # Check if we have reached the "end tag" (symbolized with '/' in
+    # its first character).
+    # If yes, start and end tag is on the same line and we can use the
+    # last entry.
+    # If not, we need to look in the next entry
     if context[1][0][0] == '/':
         last = context[-1]
     else:
@@ -257,7 +276,6 @@ def findprolog(source, maxsize=5000):
 
     eoffset = last[1].offset
     starttag = XML[soffset:eoffset].rstrip(' ')
-
 
     result['header'] = doctype
     result['root'] = starttag
