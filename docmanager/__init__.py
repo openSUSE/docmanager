@@ -25,7 +25,7 @@ import os
 import re
 import sys
 from docmanager import action
-from docmanager.core import ReturnCodes, LANGUAGES
+from docmanager.core import ReturnCodes, LANGUAGES, DEFAULTSTATUS
 from docmanager.logmanager import log
 from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
@@ -223,6 +223,7 @@ def parsecli(cliargs=None):
 
     return args
 
+
 def show_langlist():
     count = 0
 
@@ -253,32 +254,47 @@ def show_langlist():
     print(tbl)
     sys.exit(0)
 
+
 def input_format_check(args):
     if hasattr(args, 'status') and args.status is not None:
-        values = [ 'editing', 'edited', 'proofing', 'proofed', 'comment', 'ready' ]
-        if args.status not in values:
-            print("Value of 'status' is incorrect. Expecting one of these values: editing, edited, proofing, proofed, comment, or ready")
+        if args.status not in DEFAULTSTATUS:
+            log.error("Value of 'status' is incorrect. "
+                      "Expecting one of these values: %s" % \
+                      ", ".join(DEFAULTSTATUS)
+                     )
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
     elif hasattr(args, 'deadline') and args.deadline is not None:
         r = re.match("^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$", args.deadline)
         if r is None:
-            print("Value of 'deadline' is incorrect. Use this date format: YYYY-MM-DD")
+            log.error("Value of 'deadline' is incorrect. "
+                      "Use this date format: YYYY-MM-DD"
+                     )
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
     elif hasattr(args, 'priority') and args.priority is not None:
         args.priority = int(args.priority)
         if args.priority < 1 or args.priority > 10:
-            print("Value of 'priority' is incorrect. Expecting a value between 1 and 10.")
+            log.error("Value of 'priority' is incorrect. "
+                      "Expecting a value between 1 and 10.")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
     elif hasattr(args, 'translation') and args.translation is not None:
         values = [ 'true', 'false' ]
         if args.translation not in values:
-            print("Value of 'translation' is incorrect. Expecting one of these values: true or false")
+            log.error("Value of 'translation' is incorrect. "
+                      "Expecting one of these values: true or false")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
     elif hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
             if i not in LANGUAGES:
-                print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
+                log.error("Value of 'languages' is incorrect. "
+                          "Language code '{}' is not supported. "
+                          "Type 'docmanager --langlist' to see "
+                          "all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
 
 def main(cliargs=None):
     """Entry point for the application script
