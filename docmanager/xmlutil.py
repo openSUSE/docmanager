@@ -16,52 +16,23 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import copy
+from collections import namedtuple
+from docmanager.core import ReturnCodes
 from io import StringIO
+from itertools import accumulate
 import re
 import os
 import sys
 
-from lxml import etree
-
-# All elements which are valid as root (from 5.1CR3)
-VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
-              'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
-              'bibliolist', 'blockquote', 'book', 'calloutlist',
-              'calloutlist', 'caption', 'caution', 'classsynopsis',
-              'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
-              'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
-              'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
-              'figure', 'formalpara', 'funcsynopsis', 'funcsynopsisinfo',
-              'glossary', 'glossary', 'glossdiv', 'glosslist', 'glosslist',
-              'imagedata', 'imageobject', 'imageobjectco', 'imageobjectco',
-              'important', 'index', 'indexdiv', 'informalequation',
-              'informalequation', 'informalexample', 'informalfigure',
-              'informaltable', 'inlinemediaobject', 'itemizedlist',
-              'legalnotice', 'literallayout', 'mediaobject', 'methodsynopsis',
-              'msg', 'msgexplan', 'msgmain', 'msgrel', 'msgset', 'msgsub',
-              'note', 'orderedlist', 'para', 'part', 'partintro',
-              'personblurb', 'procedure', 'productionset', 'programlisting',
-              'programlistingco', 'programlistingco', 'qandadiv',
-              'qandaentry', 'qandaset', 'qandaset', 'refentry',
-              'refsect1', 'refsect2', 'refsect3',
-              'refsection', 'refsynopsisdiv', 'revhistory', 'screen',
-              'screenco', 'screenco', 'screenshot',
-              'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
-              'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
-              'simpara', 'simplelist', 'simplesect',
-              'step', 'stepalternatives', 'synopsis',
-              'table', 'task', 'taskprerequisites', 'taskrelated',
-              'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',
-              'topic', 'variablelist', 'videodata', 'videoobject', 'warning'
-             )
-
+import xml.sax
+from xml.sax._exceptions import SAXParseException
 
 # -------------------------------------------------------------------
 # Regular Expressions
 
 ENTS = re.compile("(&([\w_.]+);)")
 STEN = re.compile("(\[\[\[(\#?[\w_.]+)\]\]\])")
-
 
 
 def ent2txt(match, start="[[[", end="]]]"):
@@ -161,17 +132,16 @@ def ensurefileobj(source):
 
     # StringIO support:
     if hasattr(source, 'getvalue') and hasattr(source, 'tell'):
-        # we do nothing
-        pass
+        # we return a copy
+        return copy.copy(source)
     elif isinstance(source, (str, bytes)):
         if isXML(source):
-            source = StringIO(source)
+            return StringIO(source)
         else:
             # source isn't a file-like object nor starts with XML structure
             # so it has to be a filename
-            source = StringIO(open(source, 'r').read())
+            return StringIO(open(source, 'r').read())
     # TODO: Check if source is an URL; should we allow this?
-    return source
 
 
 # -------------------------------------------------------------------
@@ -190,121 +160,106 @@ def localname(tag):
     else:
         return tag
 
-def compilestarttag():
-    """Compile a regular expression for start tags like <article> or
-       <d:book> with or without any  attributes
-
-       :return: a pattern object
-       :rtype: _sre.SRE_Pattern
-    """
-# Taken from the xmllib.py
-# http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
-    _S = '[ \t\r\n]+'                       # white space
-    _opS = '[ \t\r\n]*'                     # optional white space
-    _Name = '[a-zA-Z_:][-a-zA-Z0-9._:]*'    # valid XML name
-    _QStr = "(?:'[^']*'|\"[^\"]*\")"        # quoted XML string
-    attrfind = re.compile(
-        _S + '(?P<name>' + _Name + ')'
-        '(' + _opS + '=' + _opS +
-        '(?P<value>' + _QStr + '|[-a-zA-Z0-9.:+*%?!\(\)_#=~]+))?')
-    starttagend = re.compile(_opS + '(?P<slash>/?)>')
-    return re.compile('<(?P<tagname>' + _Name + ')'
-                      '(?P<attrs>(?:' + attrfind.pattern + ')*)' +
-                      starttagend.pattern)
 
 
-def root_sourceline(source, resolver=None):
-    """Returns a dictionary with essential information about the root element
+# -------------
+
+class LocatingWrapper(object):
+    def __init__(self, f):
+        self.f = f
+        self.offset = [0]
+        self.curoffs = 0
+
+    def read(self, *a):
+        data = self.f.read(*a)
+        self.offset.extend(accumulate(len(m)+1 for m in data.split('\n')))
+        return data
+
+    def where(self, loc):
+        return self.offset[loc.getLineNumber() - 1] + loc.getColumnNumber()
+
+    def close(self):
+        self.f.close()
+
+
+class Handler(xml.sax.handler.ContentHandler):
+    def __init__( self, context, locator):
+        # handler.ContentHandler.__init__( self )
+        super().__init__()
+        self.context = context
+        self.locstm = locator
+        self.pos = namedtuple('Position', ['line', 'col', 'offset'])
+
+    def setDocumentLocator(self, loc):
+        self.loc = loc
+
+    def startElement(self, name, attrs):
+        ctxlen = len(self.context)
+        if ctxlen < 2:
+            current = self.locstm.where(self.loc)
+            p = self.pos(self.loc.getLineNumber(), \
+                         self.loc.getColumnNumber(), \
+                         current)
+            self.context.append(["%s" % name, p])
+
+    def endElement(self, name):
+        eline = self.loc.getLineNumber()
+        ecol = self.loc.getColumnNumber()
+        last = self.locstm.where(self.loc)
+        p = self.pos(line=eline, col=ecol, offset=last)
+        self.context.append(["/%s" % name, p])
+
+
+def findprolog(source, maxsize=5000):
+    """Returns a dictionary with essential information about the prolog
 
     :param source:
-    :type source: filename, file object, or file-like object
+    :type source: source, file object, or file-like object
                   expected to be well-formed
-    :param etree.Resolver resolver: custom resolver
-    :return: line number, column
-    :rtype: tuple
+    :param int maxize: Maximum size of bytes to read into XML buffer
+    :return: { 'header': '...', # str everything before the start tag
+               'root':   '...', # str: start tag from '<' til '>'
+               'offset:  1,     # Integer
+             }
+    :rtype: dict
     """
-    # See https://gist.github.com/tomschr/6ecaaf69231dfbc9517a
-    # for an alternative implementation with SaX
-
     result = {}
-    parser = etree.XMLParser(remove_blank_text=False,
-                             resolve_entities=False,
-                             dtd_validation=False,
-                             load_dtd=False)
-    if resolver is not None:
-        parser.resolvers.add(resolver)
 
-    buffer = ensurefileobj(source)
-    tree = etree.parse(buffer, parser)
-    root = tree.getroot()
+    # context is used to save everything
+    context = []
 
-    # Get first an "approximation" of where we could find it
-    maxsourceline = root.sourceline
+    try:
+        buf = ensurefileobj(source)
+        # We read in maxsize and save it
+        XML = buf.read(maxsize)
+        buf.seek(0)
+        locstm = LocatingWrapper(buf)
+        parser = xml.sax.make_parser()
 
-    # HACK: lxml's .sourceline returns only the _end_ of the start tag.
-    # For example:
-    #
-    # 1| <?xml version="1.0"?>
-    # 2| <!DOCTYPE article
-    # 3| [ ...
-    # 4| ]>
-    # 5| <article version="5.0" xml:lang="en"
-    # 6|          xmlns:dm="urn:x-suse:ns:docmanager"
-    # 7|          xmlns="http://docbook.org/ns/docbook"
-    # 8|          xmlns:xlink="http://www.w3.org/1999/xlink">
-    #
-    # In the above example, we need line 5, but .sourceline returns line 8
-    # which is "wrong". 
-    # Therefor we need to go back from line 8 until we find the start-tag
-    #
-    # See thread in
-    # https://mailman-mail5.webfaction.com/pipermail/lxml/2015-May/007518.html
+        # Disable certain features
+        parser.setFeature(xml.sax.handler.feature_validation, False)
+        parser.setFeature(xml.sax.handler.feature_external_ges, False)
+        parser.setFeature(xml.sax.handler.feature_external_pes, False)
 
-    # Find any start-tag which match this regex:
+        parser.setContentHandler(Handler(context, locstm))
+        parser.parse(locstm)
+    except SAXParseException:
+        raise SystemExit(ReturnCodes.E_XML_PARSE_ERROR)
 
-    prefix = root.prefix if root.prefix else ""
-    starttag = compilestarttag()
+    first = context[0]
+    soffset = first[1].offset
+    doctype = XML[:soffset]
 
-    # Read lines until maxsourceline is reached
-    header = [next(buffer) for _ in range(maxsourceline)]
-
-    # Try to first check, if start tag appears on one line
-    i = maxsourceline - 1
-    match = starttag.search(header[i])
-    offset = 0
-    
-    if not match:
-        # We need to search for the beginning of the start tag
-        ll = []
-        # Iterate in reverse order to find a match for our start-tag
-        for i, line in enumerate(reversed(header)):
-            ll.insert(0, line)
-            match = starttag.search("".join(ll))
-            
-            if match:
-                break
-        
-        length = len("".join(ll))
-        length -= match.span()[0]
-        offset = len("".join(header))-length
+    if context[1][0][0] == '/':
+        last = context[-1]
     else:
-        offset = match.span()[0]
-        offset += len("".join(header[:i]))
+        last = context[1]
 
-    # Variable 'i' contains now the (line) offset where you can find
-    # the start tag inside the header
-    #
-    # offset is the number of character before the start tag
-    #offset += len("".join(header[:i]))
-    # print("Match obj:", match, match.groupdict() )
+    eoffset = last[1].offset
+    starttag = XML[soffset:eoffset].rstrip(' ')
 
-    # The character offset
-    result['offset'] = offset
 
-    # span is the character offset and can be used to cut off the start tag
-    # for example: "".join(result['header'])[slice(*result['span'])]
-    s = match.span()
-    result['header'] = "".join(header)[:offset]
-    result['root'] = "".join(header)[offset:]
-    
+    result['header'] = doctype
+    result['root'] = starttag
+    result['offset'] = len(doctype)
     return result

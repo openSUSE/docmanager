@@ -2,7 +2,8 @@
 
 import pytest
 from docmanager.xmlhandler import XmlHandler
-from lxml.etree import XMLSyntaxError
+# from lxml.etree import XMLSyntaxError
+from xml.sax._exceptions import SAXParseException
 
 def test_brokenxml(tmp_broken_xml):
     """Checks the behavior of the XML handler if an exception will be
@@ -11,5 +12,5 @@ def test_brokenxml(tmp_broken_xml):
     :param py.path.local tmp_broken_xml: Fixture, pointing to a temporary
                                          XML file
     """
-    with pytest.raises(XMLSyntaxError):
+    with pytest.raises(SystemExit) as err:
         handler = XmlHandler(tmp_broken_xml.strpath)

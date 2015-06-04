@@ -4,6 +4,7 @@ import pytest
 from docmanager import parsecli
 from docmanager.action import Actions
 from docmanager.core import ReturnCodes
+from xml.sax._exceptions import SAXParseException
 
 def test_exitcodes_0(tmp_broken_xml):
     """ call docmanager without params """
