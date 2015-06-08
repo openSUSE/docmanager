@@ -161,6 +161,32 @@ def localname(tag):
         return tag
 
 
+def compilestarttag(roottag=None):
+    """Compile a regular expression for start tags like <article> or
+       <d:book> with or without any  attributes
+
+       :param str roottag: Name of roottag or None, for a general tag
+       :return: a pattern object
+       :rtype: _sre.SRE_Pattern
+    """
+# Taken from the xmllib.py
+# http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
+    _S = '[ \t\r\n]+'                       # white space
+    _opS = '[ \t\r\n]*'                     # optional white space
+    _Name = '[a-zA-Z_:][-a-zA-Z0-9._:]*'    # valid XML name
+    _QStr = "(?:'[^']*'|\"[^\"]*\")"        # quoted XML string
+    attrfind = re.compile(
+        _S + '(?P<name>' + _Name + ')'
+        '(' + _opS + '=' + _opS +
+        '(?P<value>' + _QStr + '|[-a-zA-Z0-9.:+*%?!\(\)_#=~]+))?')
+    starttagend = re.compile(_opS + '(?P<slash>/?)>')
+    if roottag:
+        root = '<(?P<tagname>' + roottag + ')'
+    else:
+        root = '<(?P<tagname>' + _Name + ')'
+    return re.compile(root + '(?P<attrs>(?:' + attrfind.pattern + ')*)' +
+                      starttagend.pattern)
+
 
 # -------------
 
@@ -318,4 +344,5 @@ def findprolog(source, maxsize=5000):
     result['header'] = doctype
     result['root'] = starttag
     result['offset'] = len(doctype)
+    result['roottag'] = context[0][0]
     return result
