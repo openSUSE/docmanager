@@ -231,12 +231,12 @@ class Handler(xml.sax.handler.ContentHandler):
         """XML Comment"""
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
-        #if ctxlen < 2:
-        current = self.locstm.where(self.loc)
-        pos = self.pos(self.loc.getLineNumber(), \
-                        self.loc.getColumnNumber(), \
-                        current)
-        self.context.append(["-- comment", pos])
+        if ctxlen:
+            current = self.locstm.where(self.loc)
+            pos = self.pos(self.loc.getLineNumber(), \
+                            self.loc.getColumnNumber(), \
+                            current)
+            self.context.append(["-- comment", pos])
 
     def startCDATA(self):
         pass

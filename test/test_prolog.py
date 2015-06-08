@@ -8,7 +8,7 @@ from io import StringIO
 IDS =['normal', 'with_cr',
       'with_systemid', 'complete', 'with_ns',
       'without_linebreak', 'without_linebreak_2', 'everything_in_one_line',
-      'with_comment', 'with_pi', 'with_pi_before_dt',
+      'with_comment', 'with_pi', 'with_pi_before_dt', 'with_comment_before_dt',
      ]
 
 doctypeslist = [# xml,expected
@@ -117,6 +117,22 @@ doctypeslist = [# xml,expected
      'root':    '<book id="os-user-guide" lang="en">\n',
      'roottag': 'book'
     }
+  ),
+  ## 11
+  ("""<?xml version="1.0"?>
+<!-- bla -->
+<!DOCTYPE book []>
+<!-- blabla -->
+
+<book id="foo">
+  <title/>
+</book>
+""",
+   {'header':  '<?xml version="1.0"?>\n<!-- bla -->\n<!DOCTYPE book []>\n<!-- blabla -->\n\n',
+    'offset':  71,
+    'root':    '<book id="foo">\n',
+    'roottag': 'book'
+   }
   ),
 ]
 
