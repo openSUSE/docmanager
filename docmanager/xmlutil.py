@@ -26,7 +26,6 @@ import os
 import sys
 
 import xml.sax
-from xml.sax._exceptions import SAXParseException
 
 # -------------------------------------------------------------------
 # Regular Expressions
@@ -300,27 +299,24 @@ def findprolog(source, maxsize=5000):
     # context is used to save our locations
     context = []
 
-    try:
-        buf = ensurefileobj(source)
-        # We read in maxsize and hope this is enough...
-        xmlbuf = buf.read(maxsize)
-        buf.seek(0)
-        locstm = LocatingWrapper(buf)
-        parser = xml.sax.make_parser()
+    buf = ensurefileobj(source)
+    # We read in maxsize and hope this is enough...
+    xmlbuf = buf.read(maxsize)
+    buf.seek(0)
+    locstm = LocatingWrapper(buf)
+    parser = xml.sax.make_parser()
 
-        # Disable certain features:
-        # no validation, no external general and parameter entities
-        parser.setFeature(xml.sax.handler.feature_validation, False)
-        parser.setFeature(xml.sax.handler.feature_external_ges, False)
-        parser.setFeature(xml.sax.handler.feature_external_pes, False)
+    # Disable certain features:
+    # no validation, no external general and parameter entities
+    parser.setFeature(xml.sax.handler.feature_validation, False)
+    parser.setFeature(xml.sax.handler.feature_external_ges, False)
+    parser.setFeature(xml.sax.handler.feature_external_pes, False)
 
-        handler = Handler(context, locstm)
-        parser.setProperty(xml.sax.handler.property_lexical_handler, handler);
+    handler = Handler(context, locstm)
+    parser.setProperty(xml.sax.handler.property_lexical_handler, handler);
 
-        parser.setContentHandler(handler)
-        parser.parse(locstm)
-    except SAXParseException:
-        raise SystemExit(ReturnCodes.E_XML_PARSE_ERROR)
+    parser.setContentHandler(handler)
+    parser.parse(locstm)
 
     first = context[0]
     soffset = first[1].offset

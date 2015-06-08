@@ -27,7 +27,7 @@ from docmanager.xmlutil import findprolog, compilestarttag, \
     preserve_entities, recover_entities
 from io import StringIO
 from lxml import etree
-
+from xml.sax._exceptions import SAXParseException
 
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
@@ -42,7 +42,15 @@ class XmlHandler(object):
 
         self._filename = filename
         self._buffer = ensurefileobj(filename)
-        prolog = findprolog(self._buffer)
+        try:
+            prolog = findprolog(self._buffer)
+        except SAXParseException as err:
+            log.error("<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
+                                      err.getColumnNumber(), \
+                                      err.getMessage(), \
+                                      self.filename,))
+            sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+
         self._offset, self._header, self._root, self._roottag = prolog['offset'], \
             prolog['header'], \
             prolog['root'], \

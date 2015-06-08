@@ -42,6 +42,7 @@ class ReturnCodes():
     E_CALL_WITHOUT_PARAMS = 8
     E_INVALID_XML_DOCUMENT = 9
     E_WRONG_INPUT_FORMAT = 10
+    E_PERMISSION_DENIED = 11
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
