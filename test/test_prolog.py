@@ -8,7 +8,7 @@ from io import StringIO
 IDS =['normal', 'with_cr',
       'with_systemid', 'complete', 'with_ns',
       'without_linebreak', 'without_linebreak_2', 'everything_in_one_line',
-      'with_comment', 'with_pi',
+      'with_comment', 'with_pi', 'with_pi_before_dt',
      ]
 
 doctypeslist = [# xml,expected
@@ -101,6 +101,21 @@ doctypeslist = [# xml,expected
      'offset': 22,
      'root':   '<article id="a">\n',
      'roottag': 'article'
+    }
+  ),
+  ## 10
+  ("""<?xml-stylesheet href="x"?>
+<!DOCTYPE book PUBLIC "-//Novell//DTD NovDoc XML V1.0//EN" "novdocx.dtd"
+[
+]>
+
+<book id="os-user-guide" lang="en">
+  <bookinfo/>
+</book>""",
+   {'header':   '<?xml-stylesheet href="x"?>\n<!DOCTYPE book PUBLIC "-//Novell//DTD NovDoc XML V1.0//EN" "novdocx.dtd"\n[\n]>\n\n',
+     'offset':  107,
+     'root':    '<book id="os-user-guide" lang="en">\n',
+     'roottag': 'book'
     }
   ),
 ]

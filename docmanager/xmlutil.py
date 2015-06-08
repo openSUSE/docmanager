@@ -237,7 +237,6 @@ class Handler(xml.sax.handler.ContentHandler):
                         self.loc.getColumnNumber(), \
                         current)
         self.context.append(["-- comment", pos])
-        # print("*** Kommentar:", text, self.context)
 
     def startCDATA(self):
         pass
@@ -272,13 +271,13 @@ class Handler(xml.sax.handler.ContentHandler):
 
     def processingInstruction(self, target, data):
         ctxlen = len(self.context)
-        # We are only interested in the first two start tags
-        #if ctxlen < 2:
-        current = self.locstm.where(self.loc)
-        pos = self.pos(self.loc.getLineNumber(), \
-                        self.loc.getColumnNumber(), \
-                        current)
-        self.context.append(["?%s" % target, pos])
+        # Only append PIs when it's NOT before start-tag
+        if ctxlen:
+            current = self.locstm.where(self.loc)
+            pos = self.pos(self.loc.getLineNumber(), \
+                            self.loc.getColumnNumber(), \
+                            current)
+            self.context.append(["?%s" % target, pos])
 
 
 def findprolog(source, maxsize=5000):
