@@ -7,7 +7,9 @@ from io import StringIO
 
 IDS =['normal', 'with_cr',
       'with_systemid', 'complete', 'with_ns',
-      'without_linebreak', 'without_linebreak_2', 'everything_in_one_line']
+      'without_linebreak', 'without_linebreak_2', 'everything_in_one_line',
+      'with_comment', 'with_pi',
+     ]
 
 doctypeslist = [# xml,expected
   # 0
@@ -73,7 +75,21 @@ doctypeslist = [# xml,expected
   ("""<!DOCTYPE article []><article/>""",
    {'header': '<!DOCTYPE article []>',
     'offset': 21,
-    'root': '<article/>'})
+    'root': '<article/>'}),
+  ## 8
+  ("""<!DOCTYPE article []>\n<article id="a">\n<!-- bla -->\n  <title/></article>""",
+    {'header': '<!DOCTYPE article []>\n',
+     'offset': 22,
+     'root':   '<article id="a">\n'
+    }
+  ),
+  ## 9
+  ("""<!DOCTYPE article []>\n<article id="a">\n<?dbfoo abc?>\n  <title/></article>""",
+    {'header': '<!DOCTYPE article []>\n',
+     'offset': 22,
+     'root':   '<article id="a">\n'
+    }
+  ),
 ]
 
 @pytest.mark.parametrize("xml,expected",
