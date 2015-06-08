@@ -16,19 +16,23 @@ doctypeslist = [# xml,expected
   ("\n<!DOCTYPE book>\n<book/>",
     {'root': '<book/>',
      'offset': 17,
-     'header': '\n<!DOCTYPE book>\n'}
+     'header': '\n<!DOCTYPE book>\n',
+     'roottag': 'book'
+    }
   ),
   # 1
   ("\n<!DOCTYPE  \tbook\n\n>\n\n<book\n/>",
     {'root': '<book\n/>',
      'offset': 22,
-     'header': '\n<!DOCTYPE  \tbook\n\n>\n\n'}
+     'header': '\n<!DOCTYPE  \tbook\n\n>\n\n',
+     'roottag': 'book'}
   ),
   # 2
   ("""\n<!DOCTYPE book SYSTEM "book.dtd"><book/>""",
     {'root': '<book/>',
      'offset': 34,
-     'header': '\n<!DOCTYPE book SYSTEM "book.dtd">'}
+     'header': '\n<!DOCTYPE book SYSTEM "book.dtd">',
+     'roottag': 'book'}
   ),
   ## 3
   ("""<!DOCTYPE article [
@@ -43,7 +47,8 @@ doctypeslist = [# xml,expected
 />""",
     {'root': '<article version="5.0" xml:lang="en"\n        xmlns:dm="urn:x-suse:ns:docmanager"\n        xmlns="http://docbook.org/ns/docbook"\n        xmlns:xlink="http://www.w3.org/1999/xlink"\n/>',
      'offset': 89,
-     'header': '<!DOCTYPE article [\n  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">\n  %entity.ent;\n]>\n\n'}
+     'header': '<!DOCTYPE article [\n  <!ENTITY % entity.ent SYSTEM "entity-decl.ent">\n  %entity.ent;\n]>\n\n',
+     'roottag': 'article'}
   ),
   ## 4
   ("""<!DOCTYPE d:book
@@ -55,39 +60,47 @@ doctypeslist = [# xml,expected
 """,
     {'root': '<d:book id="x:q"\n        xmlns:d="urn:x-example:ns"\n>\n',
      'offset': 21,
-     'header': '<!DOCTYPE d:book\n[]>\n'}
+     'header': '<!DOCTYPE d:book\n[]>\n',
+     'roottag': 'd:book'}
   ),
   ## 5
   ("""<!DOCTYPE book
 []><book id="bla">
-</book>""", {'header': '<!DOCTYPE book\n[]>',
-             'offset': 18,
-             'root': '<book id="bla">\n'}),
+</book>""",
+    {'header': '<!DOCTYPE book\n[]>',
+     'offset': 18,
+     'root': '<book id="bla">\n',
+     'roottag': 'book'}),
   ## 6
   ("""<!DOCTYPE article [
 ]>
 
 <article id="bla">
-</article>""", {'header': '<!DOCTYPE article [\n]>\n\n',
-                'offset': 24,
-                'root': '<article id="bla">\n'}),
+</article>""",
+    {'header': '<!DOCTYPE article [\n]>\n\n',
+     'offset': 24,
+     'root': '<article id="bla">\n',
+     'roottag': 'article'}),
   ## 7
   ("""<!DOCTYPE article []><article/>""",
    {'header': '<!DOCTYPE article []>',
     'offset': 21,
-    'root': '<article/>'}),
+    'root': '<article/>',
+     'roottag': 'article'}),
   ## 8
   ("""<!DOCTYPE article []>\n<article id="a">\n<!-- bla -->\n  <title/></article>""",
     {'header': '<!DOCTYPE article []>\n',
      'offset': 22,
-     'root':   '<article id="a">\n'
+     'root':   '<article id="a">\n',
+     'roottag': 'article'
     }
   ),
   ## 9
   ("""<!DOCTYPE article []>\n<article id="a">\n<?dbfoo abc?>\n  <title/></article>""",
     {'header': '<!DOCTYPE article []>\n',
      'offset': 22,
-     'root':   '<article id="a">\n'
+     'root':   '<article id="a">\n',
+     'roottag': 'article'
     }
   ),
 ]
