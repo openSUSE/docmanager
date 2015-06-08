@@ -30,8 +30,8 @@ import xml.sax
 # -------------------------------------------------------------------
 # Regular Expressions
 
-ENTS = re.compile("(&([\w_.]+);)")
-STEN = re.compile("(\[\[\[(\#?[\w_.]+)\]\]\])")
+ENTS = re.compile("(&([\w_\.-]+);)")
+STEN = re.compile("(\[\[\[(\#?[\w_\.-]+)\]\]\])")
 
 
 def ent2txt(match, start="[[[", end="]]]"):
