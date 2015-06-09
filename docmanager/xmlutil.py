@@ -26,13 +26,12 @@ import os
 import sys
 
 import xml.sax
-from xml.sax._exceptions import SAXParseException
 
 # -------------------------------------------------------------------
 # Regular Expressions
 
-ENTS = re.compile("(&([\w_.]+);)")
-STEN = re.compile("(\[\[\[(\#?[\w_.]+)\]\]\])")
+ENTS = re.compile("(&([\w_\.-]+);)")
+STEN = re.compile("(\[\[\[(\#?[\w_\.-]+)\]\]\])")
 
 
 def ent2txt(match, start="[[[", end="]]]"):
@@ -161,6 +160,32 @@ def localname(tag):
         return tag
 
 
+def compilestarttag(roottag=None):
+    """Compile a regular expression for start tags like <article> or
+       <d:book> with or without any  attributes
+
+       :param str roottag: Name of roottag or None, for a general tag
+       :return: a pattern object
+       :rtype: _sre.SRE_Pattern
+    """
+# Taken from the xmllib.py
+# http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
+    _S = '[ \t\r\n]+'                       # white space
+    _opS = '[ \t\r\n]*'                     # optional white space
+    _Name = '[a-zA-Z_:][-a-zA-Z0-9._:]*'    # valid XML name
+    _QStr = "(?:'[^']*'|\"[^\"]*\")"        # quoted XML string
+    attrfind = re.compile(
+        _S + '(?P<name>' + _Name + ')'
+        '(' + _opS + '=' + _opS +
+        '(?P<value>' + _QStr + '|[-a-zA-Z0-9.:+*%?!\(\)_#=~]+))?')
+    starttagend = re.compile(_opS + '(?P<slash>/?)>')
+    if roottag:
+        root = '<(?P<tagname>' + roottag + ')'
+    else:
+        root = '<(?P<tagname>' + _Name + ')'
+    return re.compile(root + '(?P<attrs>(?:' + attrfind.pattern + ')*)' +
+                      starttagend.pattern)
+
 
 # -------------
 
@@ -206,13 +231,12 @@ class Handler(xml.sax.handler.ContentHandler):
         """XML Comment"""
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
-        #if ctxlen < 2:
-        current = self.locstm.where(self.loc)
-        pos = self.pos(self.loc.getLineNumber(), \
-                        self.loc.getColumnNumber(), \
-                        current)
-        self.context.append(["-- comment", pos])
-        # print("*** Kommentar:", text, self.context)
+        if ctxlen:
+            current = self.locstm.where(self.loc)
+            pos = self.pos(self.loc.getLineNumber(), \
+                            self.loc.getColumnNumber(), \
+                            current)
+            self.context.append(["-- comment", pos])
 
     def startCDATA(self):
         pass
@@ -247,13 +271,13 @@ class Handler(xml.sax.handler.ContentHandler):
 
     def processingInstruction(self, target, data):
         ctxlen = len(self.context)
-        # We are only interested in the first two start tags
-        #if ctxlen < 2:
-        current = self.locstm.where(self.loc)
-        pos = self.pos(self.loc.getLineNumber(), \
-                        self.loc.getColumnNumber(), \
-                        current)
-        self.context.append(["?%s" % target, pos])
+        # Only append PIs when it's NOT before start-tag
+        if ctxlen:
+            current = self.locstm.where(self.loc)
+            pos = self.pos(self.loc.getLineNumber(), \
+                            self.loc.getColumnNumber(), \
+                            current)
+            self.context.append(["?%s" % target, pos])
 
 
 def findprolog(source, maxsize=5000):
@@ -274,27 +298,24 @@ def findprolog(source, maxsize=5000):
     # context is used to save our locations
     context = []
 
-    try:
-        buf = ensurefileobj(source)
-        # We read in maxsize and hope this is enough...
-        xmlbuf = buf.read(maxsize)
-        buf.seek(0)
-        locstm = LocatingWrapper(buf)
-        parser = xml.sax.make_parser()
+    buf = ensurefileobj(source)
+    # We read in maxsize and hope this is enough...
+    xmlbuf = buf.read(maxsize)
+    buf.seek(0)
+    locstm = LocatingWrapper(buf)
+    parser = xml.sax.make_parser()
 
-        # Disable certain features:
-        # no validation, no external general and parameter entities
-        parser.setFeature(xml.sax.handler.feature_validation, False)
-        parser.setFeature(xml.sax.handler.feature_external_ges, False)
-        parser.setFeature(xml.sax.handler.feature_external_pes, False)
+    # Disable certain features:
+    # no validation, no external general and parameter entities
+    parser.setFeature(xml.sax.handler.feature_validation, False)
+    parser.setFeature(xml.sax.handler.feature_external_ges, False)
+    parser.setFeature(xml.sax.handler.feature_external_pes, False)
 
-        handler = Handler(context, locstm)
-        parser.setProperty(xml.sax.handler.property_lexical_handler, handler);
+    handler = Handler(context, locstm)
+    parser.setProperty(xml.sax.handler.property_lexical_handler, handler);
 
-        parser.setContentHandler(handler)
-        parser.parse(locstm)
-    except SAXParseException:
-        raise SystemExit(ReturnCodes.E_XML_PARSE_ERROR)
+    parser.setContentHandler(handler)
+    parser.parse(locstm)
 
     first = context[0]
     soffset = first[1].offset
@@ -318,4 +339,5 @@ def findprolog(source, maxsize=5000):
     result['header'] = doctype
     result['root'] = starttag
     result['offset'] = len(doctype)
+    result['roottag'] = context[0][0]
     return result

@@ -12,6 +12,7 @@ END="]]]"
 
 @pytest.mark.parametrize("text, expected", [
   ("a &welt; b",        "a {s}welt{e} b"),
+  ("a &we-lt; b",        "a {s}we-lt{e} b"),
   ("a &#xa0; b",        "a &#xa0; b"),
   ("a &w.e.lt; b",      "a {s}w.e.lt{e} b"),
   ("a &w_e.lt; b",      "a {s}w_e.lt{e} b"),
@@ -26,6 +27,7 @@ def test_preserve_entities(text, expected):
 
 @pytest.mark.parametrize("text, expected", [
   ("a {s}welt{e} b",            "a &welt; b"),
+  ("a {s}we-lt{e} b",            "a &we-lt; b"),
   ("a &#xa0; b",                "a &#xa0; b", ),
   ("a {s}w.e.lt{e} b",          "a &w.e.lt; b"),
   ("a {s}w_e.lt{e} b",          "a &w_e.lt; b"),
@@ -40,6 +42,7 @@ def test_restore_entities(text, expected):
 
 @pytest.mark.parametrize("textio, expected", [
   (StringIO("a &welt; b"),        "a {s}welt{e} b"),
+  (StringIO("a &we-lt; b"),        "a {s}we-lt{e} b"),
   (StringIO("a &#xa0; b"),        "a &#xa0; b"),
   (StringIO("a &w.e.lt; b"),      "a {s}w.e.lt{e} b"),
   (StringIO("a &w_e.lt; b"),      "a {s}w_e.lt{e} b"),
@@ -54,6 +57,7 @@ def test_replaceinstream_preserve(textio, expected):
 
 @pytest.mark.parametrize("text, expected", [
   ("a {s}welt{e} b",            "a &welt; b"),
+  ("a {s}we-lt{e} b",            "a &we-lt; b"),
   ("a &#xa0; b",                "a &#xa0; b", ),
   ("a {s}w.e.lt{e} b",          "a &w.e.lt; b"),
   ("a {s}w_e.lt{e} b",          "a &w_e.lt; b"),

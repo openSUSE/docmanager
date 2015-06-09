@@ -22,12 +22,12 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, \
     NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import findprolog, \
+from docmanager.xmlutil import findprolog, compilestarttag, \
     replaceinstream, ensurefileobj, \
     preserve_entities, recover_entities
 from io import StringIO
 from lxml import etree
-
+from xml.sax._exceptions import SAXParseException
 
 class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
@@ -42,8 +42,20 @@ class XmlHandler(object):
 
         self._filename = filename
         self._buffer = ensurefileobj(filename)
-        prolog = findprolog(self._buffer)
-        self._offset, self._header = prolog['offset'], prolog['header']
+        try:
+            prolog = findprolog(self._buffer)
+        except SAXParseException as err:
+            log.error("<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
+                                      err.getColumnNumber(), \
+                                      err.getMessage(), \
+                                      self.filename,))
+            sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+
+        self._offset, self._header, self._root, self._roottag = prolog['offset'], \
+            prolog['header'], \
+            prolog['root'], \
+            prolog['roottag']
+
 
         # Replace any entities
         self._buffer.seek(self._offset)
@@ -257,9 +269,19 @@ class XmlHandler(object):
         logmgr_flog()
         # Only indent docmanager child elements
         self.indent_dm()
-        
+
+        log.debug("root: %s", repr(self._root))
         with open(self._filename, 'w') as f:
-            f.write(recover_entities(etree.tostring(self.__tree, encoding='unicode', doctype=self._header.rstrip())))
+            content = recover_entities(etree.tostring(self.__tree, \
+                           encoding='unicode', \
+                           # doctype=self._header.rstrip())
+                      ))
+            # self._offset, self._header, self._root, self._roottag
+            starttag = compilestarttag(self._roottag)
+            content = starttag.sub(lambda _: self._root.rstrip(), content, 1)
+
+            log.debug("content: %s", repr(content))
+            f.write(self._header.rstrip()+"\n" + content)
 
     @property
     def filename(self):

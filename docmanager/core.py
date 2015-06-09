@@ -42,6 +42,7 @@ class ReturnCodes():
     E_CALL_WITHOUT_PARAMS = 8
     E_INVALID_XML_DOCUMENT = 9
     E_WRONG_INPUT_FORMAT = 10
+    E_PERMISSION_DENIED = 11
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
@@ -64,7 +65,7 @@ VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
               'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
               'refsection', 'refsynopsisdiv', 'revhistory', 'screen', 'screenco',
               'screenco', 'screenshot', 'sect1', 'sect2', 'sect3', 'sect4', 'sect5',
-              'section', 'segmentedlist', 'set', 'set', 'setindex', 'sidebar',
+              'section', 'segmentedlist', 'set', 'setindex', 'sidebar',
               'simpara', 'simplelist', 'simplesect', 'step', 'stepalternatives',
               'synopsis', 'table', 'task', 'taskprerequisites', 'taskrelated',
               'tasksummary', 'textdata', 'textobject', 'tip', 'toc', 'tocdiv',

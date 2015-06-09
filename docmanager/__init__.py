@@ -30,6 +30,7 @@ from docmanager.languagecodes import SupportedLanguages
 from docmanager.logmanager import log
 from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
+from xml.sax._exceptions import SAXParseException
 
 def populate_properties(args):
     """Populate args.properties from "standard" options
@@ -286,5 +287,8 @@ def main(cliargs=None):
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
-    
-    action.Actions( parsecli(cliargs) )
+    try:
+        action.Actions(parsecli(cliargs))
+    except PermissionError as err:
+        log.error("{} on file {!r}.".format(err.args[1], err.filename))
+        sys.exit(ReturnCodes.E_PERMISSION_DENIED)
