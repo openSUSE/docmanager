@@ -9,6 +9,7 @@ IDS =['normal', 'with_cr',
       'with_systemid', 'complete', 'with_ns',
       'without_linebreak', 'without_linebreak_2', 'everything_in_one_line',
       'with_comment', 'with_pi', 'with_pi_before_dt', 'with_comment_before_dt',
+      'with_all'
      ]
 
 doctypeslist = [# xml,expected
@@ -133,6 +134,14 @@ doctypeslist = [# xml,expected
     'root':    '<book id="foo">\n',
     'roottag': 'book'
    }
+  ),
+  ## 12
+  ('<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet\n href="urn:x-daps:xslt:profiling:docbook50-profile.xsl"\n type="text/xml"\n title="Profiling step"?>\n<!DOCTYPE set \n[\n  <!ENTITY % entities SYSTEM "entity-decl.ent">\n  %entities;\n]>\n<!-- Converted by suse-upgrade version 1.1 -->\n<set xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">\n</set>\n',
+    {'header': '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet\n href="urn:x-daps:xslt:profiling:docbook50-profile.xsl"\n type="text/xml"\n title="Profiling step"?>\n<!DOCTYPE set \n[\n  <!ENTITY % entities SYSTEM "entity-decl.ent">\n  %entities;\n]>\n<!-- Converted by suse-upgrade version 1.1 -->\n',
+     'offset': 283,
+     'root':  '<set xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">\n',
+     'roottag': 'set'
+    }
   ),
 ]
 

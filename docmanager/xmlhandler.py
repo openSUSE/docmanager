@@ -43,6 +43,7 @@ class XmlHandler(object):
         self._buffer = ensurefileobj(filename)
         try:
             prolog = findprolog(self._buffer)
+            print("***************")
         except SAXParseException as err:
             log.error("<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
                                       err.getColumnNumber(), \
@@ -105,29 +106,28 @@ class XmlHandler(object):
         logmgr_flog()
 
         #search the info-element if not exists raise an error
-        element = self.__tree.find("//d:info", namespaces=NS)
+        info = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
-        if element is None:
-            log.warn("Can't find the <info> element in '%s'. Adding one.",
-                     self.filename)
-            
-            if not self.__root.getchildren():
-                log.error("The \"%s\" file is not a valid DocBook 5 file.",
-                          self.__tree.docinfo.URL)
-                sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
-            
-            title = self.__root.getchildren()[0]
-            
-            idx = self.__root.index(title) + 1
-            self.__root.insert(idx, etree.Element("{%s}info" % NS["d"]))
-            element = self.__root.getchildren()[idx]
-            element.tail = self.__root.getchildren()[idx-1].tail
+        if info is None:
+            idx = 0
+            pos = 0
+            for idx, e in enumerate(self.__root.iterchildren(), 2):
+                if e.tag in ("title", "subtitle", "titleabbrev"):
+                    pos = idx
+                else:
+                    break
 
-        self.__docmanager = etree.SubElement(element,
+            info = etree.Element("{%s}info" % NS["d"])
+            info.tail = '\n'
+            self.__root.insert(pos, info)
+
+            log.info("Adding <info> element in '%s'", self.filename)
+
+        self.__docmanager = etree.SubElement(info,
                                              "{{{dm}}}docmanager".format(**NS),
                                             )
-        #log.debug("docmanager?: %s" % etree.tostring(self.__tree).decode("UTF-8"))
-        self.write()
+        print("docmanager?: %s" % etree.tostring(self.__tree, encoding="unicode"))
+        #self.write()
 
     def set(self, key, value):
         """Sets the key as element and value as content
@@ -152,7 +152,7 @@ class XmlHandler(object):
                                     # nsmap=NS
                                     )
             node.text = value
-        self.write()
+        #self.write()
 
     def is_set(self, key, values):
         """Checks if element 'key' exists with 'values'
@@ -232,7 +232,7 @@ class XmlHandler(object):
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
-            self.write()
+            # self.write()
 
     def get_indendation(self, node, indendation=""):
         """Calculates indendation level
@@ -252,11 +252,14 @@ class XmlHandler(object):
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=NS)
+        log.debug("dm is %s", dm)
         if dm is None:
             return
         log.debug("-----")
-        info = dm.getparent().getprevious()
-        #log.info("info: %s", info)
+        info = dm.getparent() #.getprevious()
+        log.info("info: %s", info)
+        # info.getprevious()
+
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()
         #log.info("prev: %s", prev)
