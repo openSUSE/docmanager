@@ -43,7 +43,6 @@ class XmlHandler(object):
         self._buffer = ensurefileobj(filename)
         try:
             prolog = findprolog(self._buffer)
-            print("***************")
         except SAXParseException as err:
             log.error("<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
                                       err.getColumnNumber(), \
@@ -55,7 +54,6 @@ class XmlHandler(object):
             prolog['header'], \
             prolog['root'], \
             prolog['roottag']
-
 
         # Replace any entities
         self._buffer.seek(self._offset)
@@ -109,25 +107,26 @@ class XmlHandler(object):
         info = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if info is None:
-            idx = 0
-            pos = 0
+            idx, pos = (0, 0)
             for idx, e in enumerate(self.__root.iterchildren(), 2):
                 if e.tag in ("title", "subtitle", "titleabbrev"):
                     pos = idx
                 else:
                     break
 
-            info = etree.Element("{%s}info" % NS["d"])
+            info = etree.Element("{%s}info" % NS["d"], nsmap=NS)
             info.tail = '\n'
+            info.text = '\n'
             self.__root.insert(pos, info)
 
             log.info("Adding <info> element in '%s'", self.filename)
 
         self.__docmanager = etree.SubElement(info,
                                              "{{{dm}}}docmanager".format(**NS),
+                                             nsmap={'dm': NS['dm']},
                                             )
-        print("docmanager?: %s" % etree.tostring(self.__tree, encoding="unicode"))
-        #self.write()
+        #print("docmanager?: %s" % etree.tostring(self.__tree, encoding="unicode"))
+        self.write()
 
     def set(self, key, value):
         """Sets the key as element and value as content
@@ -152,7 +151,7 @@ class XmlHandler(object):
                                     # nsmap=NS
                                     )
             node.text = value
-        #self.write()
+        self.write()
 
     def is_set(self, key, values):
         """Checks if element 'key' exists with 'values'
@@ -258,7 +257,11 @@ class XmlHandler(object):
         log.debug("-----")
         info = dm.getparent() #.getprevious()
         log.info("info: %s", info)
-        # info.getprevious()
+        prev = info.getprevious()
+        log.info("prev: %s", prev)
+        parent = info.getparent()
+        log.info("parent of info: %s", parent)
+        log.info("child of info: %s", info.getchildren())
 
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()
@@ -290,7 +293,7 @@ class XmlHandler(object):
             starttag = compilestarttag(self._roottag)
             content = starttag.sub(lambda _: self._root.rstrip(), content, 1)
 
-            log.debug("content: %s", repr(content))
+            # log.debug("content: %s", repr(content))
             f.write(self._header.rstrip()+"\n" + content)
 
     @property
