@@ -244,6 +244,27 @@
      <para>&progname; was called without any arguments.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>9</term>
+    <listitem>
+     <para>One of the given XML documents is not valid.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>10</term>
+    <listitem>
+     <para>
+      The format for the given option of the <command>set</command> subcommand is not correct. (Wrong usage of <option>--status</option>
+      for example: &progcmd; set --status bla example.xml)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>11</term>
+    <listitem>
+     <para>File permission error. (For example: Could not write into the given XML file)</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.examples">
