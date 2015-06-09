@@ -79,7 +79,10 @@ class XmlHandler(object):
                                              namespaces=NS)
 
         if self.__docmanager is None:
+            log.info("No docmanager element found")
             self.create_group()
+        else:
+            log.info("Found docmanager element %s", self.__docmanager.getparent() )
 
 
     def init_default_props(self, force=False):
@@ -99,6 +102,20 @@ class XmlHandler(object):
             raise ValueError("Cannot add info element to %s. "
                              "Not a valid root element." % self._root.tag)
 
+    def _find_pos(self):
+        """
+        """
+        # We are only interested in the first three elements
+        nodes = ( e for i, e in enumerate(self.__root.iterchildren()) if i < 3 )
+        pos = 0
+        for node in nodes:
+            tag = etree.QName(node.tag)
+            if tag.localname in ("title", "subtitle", "titleabbrev"):
+                pos += 1
+            else:
+                break
+        return pos
+
     def create_group(self):
         """Creates the docmanager group element"""
         logmgr_flog()
@@ -107,20 +124,19 @@ class XmlHandler(object):
         info = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if info is None:
-            idx, pos = (0, 0)
-            for idx, e in enumerate(self.__root.iterchildren(), 2):
-                if e.tag in ("title", "subtitle", "titleabbrev"):
-                    pos = idx
-                else:
-                    break
-
-            info = etree.Element("{%s}info" % NS["d"], nsmap=NS)
+            log.info("No <info> element found!")
+            pos = self._find_pos()
+            log.info("Using position %d", pos)
+            info = etree.Element("{%s}info" % NS["d"])
             info.tail = '\n'
             info.text = '\n'
             self.__root.insert(pos, info)
 
             log.info("Adding <info> element in '%s'", self.filename)
 
+        log.info("Adding <dm:docmanager> to <info>")
+        # dm = etree.Element("{%s}docmanager" % NS["dm"])
+        # self.__docmanager = info.insert(0, dm)
         self.__docmanager = etree.SubElement(info,
                                              "{{{dm}}}docmanager".format(**NS),
                                              nsmap={'dm': NS['dm']},
