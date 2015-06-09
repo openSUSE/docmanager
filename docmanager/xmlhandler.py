@@ -20,11 +20,10 @@ import random
 import re
 import sys
 from docmanager.core import DefaultDocManagerProperties, \
-    NS, ReturnCodes, VALIDROOTS
+     NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import findprolog, compilestarttag, \
-    replaceinstream, ensurefileobj, \
-    preserve_entities, recover_entities
+from docmanager.xmlutil import compilestarttag, ensurefileobj, findprolog, \
+     get_namespace, recover_entities, replaceinstream, preserve_entities
 from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
@@ -69,6 +68,14 @@ class XmlHandler(object):
         # Load the file and set a reference to the dm group
         self.__tree = etree.parse(self._buffer, self.__xmlparser)
         self.__root = self.__tree.getroot()
+        
+        # check for DocBook 5 namespace in start tag
+        rootns = get_namespace(self.__root.tag)
+        if rootns != NS['d']:
+            log.error("{} is not a DocBook 5 XML document. The start tag of the document has to be in the official " \
+                      "DocBook 5 namespace: {}".format(self._filename, NS['d']))
+            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
+        
         self.__docmanager = self.__tree.find("//dm:docmanager",
                                              namespaces=NS)
 

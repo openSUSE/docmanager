@@ -32,6 +32,7 @@ import xml.sax
 
 ENTS = re.compile("(&([\w_\.-]+);)")
 STEN = re.compile("(\[\[\[(\#?[\w_\.-]+)\]\]\])")
+NAMESPACE_REGEX = re.compile("\{(?P<ns>.*)\}(?P<local>[\w]+)")
 
 
 def ent2txt(match, start="[[[", end="]]]"):
@@ -153,12 +154,24 @@ def localname(tag):
     :return:  local name
     :rtype:  str
     """
-    m = re.search("\{(?P<ns>.*)\}(?P<local>[\w]+)", tag)
+    m = NAMESPACE_REGEX.search(tag)
     if m:
         return m.groupdict()['local']
     else:
         return tag
 
+def get_namespace(tag):
+    """Returns the namespace of an element
+
+    :param str tag: Usually in the form of {http://docbook.org/ns/docbook}article
+    :return:        namespace of the element
+    :rtype:         str
+    """
+    m = NAMESPACE_REGEX.search(tag)
+    if m:
+        return m.groupdict()['ns']
+    else:
+        return tag
 
 def compilestarttag(roottag=None):
     """Compile a regular expression for start tags like <article> or

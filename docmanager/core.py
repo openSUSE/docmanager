@@ -43,6 +43,7 @@ class ReturnCodes():
     E_INVALID_XML_DOCUMENT = 9
     E_WRONG_INPUT_FORMAT = 10
     E_PERMISSION_DENIED = 11
+    E_NOT_DOCBOOK5_FILE = 12
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

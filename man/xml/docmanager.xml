@@ -265,6 +265,12 @@
      <para>File permission error. (For example: Could not write into the given XML file)</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>12</term>
+    <listitem>
+     <para>The given XML document is not a DocBook 5 document. The start tag has to be in the official DocBook 5 namespace.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.examples">
