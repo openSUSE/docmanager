@@ -32,7 +32,7 @@ import xml.sax
 
 ENTS = re.compile("(&([\w_\.-]+);)")
 STEN = re.compile("(\[\[\[(\#?[\w_\.-]+)\]\]\])")
-NAMESPACE_REGEX = re.compile("\{(?P<ns>.*)\}(?P<local>[\w]+)")
+NAMESPACE_REGEX = re.compile("\{(?P<ns>.*)\}(?P<local>[-a-zA-Z0-9._]+)")
 
 
 def ent2txt(match, start="[[[", end="]]]"):
@@ -171,7 +171,7 @@ def get_namespace(tag):
     if m:
         return m.groupdict()['ns']
     else:
-        return tag
+        return ''
 
 def compilestarttag(roottag=None):
     """Compile a regular expression for start tags like <article> or

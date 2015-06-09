@@ -5,6 +5,7 @@ import pytest
 from io import StringIO
 from docmanager.xmlutil import preserve_entities, recover_entities, \
                                isXML, \
+                               get_namespace, localname, \
                                replaceinstream
 
 START="[[["
@@ -86,4 +87,32 @@ def test_replaceinstream_recover(text, expected):
 ])
 def test_isxml(text, expected):
     result = isXML(text)
+    assert result == expected
+
+
+@pytest.mark.parametrize("text, expected", [
+   ("book",                                "book"),
+   ("abc123",                              "abc123"),
+   ("ab-123",                              "ab-123"),
+   # Hmn, not sure what we should do with colons. Shouldn't be available
+   ("ab:123",                              "ab:123"),
+   ("{http://docbook.org/ns/docbook}book", "book"),
+   ("{http://www.w3.org/1999/xlink}href",  "href"),
+])
+def test_localname(text, expected):
+    result = localname(text)
+    assert result == expected
+
+
+@pytest.mark.parametrize("text, expected", [
+   ("book",                                ""),
+   ("abc123",                              ""),
+   ("ab-123",                              ""),
+   # Hmn, not sure what we should do with colons. Shouldn't be available
+   ("ab:123",                              ""),
+   ("{http://docbook.org/ns/docbook}book", "http://docbook.org/ns/docbook"),
+   ("{http://www.w3.org/1999/xlink}href",  "http://www.w3.org/1999/xlink"),
+])
+def test_get_namespace(text, expected):
+    result = get_namespace(text)
     assert result == expected
