@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY progname "DocManager">
+<!ENTITY version "3.0.0-RC1">
+<!ENTITY progcmd "docmanager">
+<!ENTITY release "06/10/2015">
+]>
+<refentry lang="en" id="docmanager">
+ <refentryinfo>
+  <authorgroup>
+   <author>
+    <contrib>Developer</contrib>
+    <firstname>Rick</firstname>
+    <surname>Salvesky</surname>
+    <email>rsalevsky@suse.de</email>
+   </author>
+   <author>
+    <contrib>Packager and Developer</contrib>
+    <firstname>Manuel</firstname>
+    <surname>Schnitzer</surname>
+    <email>mschnitzer@suse.de</email>
+   </author>
+   <author>
+    <contrib>Developer</contrib>
+    <firstname>Thomas</firstname>
+    <surname>Schraitle</surname>
+    <email>toms@opensuse.org</email>
+   </author>
+  </authorgroup>
+ </refentryinfo>
+ <refmeta>
+  <refentrytitle>&progname;</refentrytitle>
+  <manvolnum>1</manvolnum>
+  <refmiscinfo class="date">&release;</refmiscinfo>
+  <refmiscinfo class="version">&version;</refmiscinfo>
+  <refmiscinfo class="manual">The &progname;</refmiscinfo>
+ </refmeta>
+ <refnamediv>
+  <refname>&progcmd;</refname>
+  <refpurpose>
+   The &progname; is a tool to manage meta-information within DocBook5 documents.
+  </refpurpose>
+ </refnamediv>
+ <refsynopsisdiv id="docmanager.synopsis">
+  <title>Synopsis</title>
+  <cmdsynopsis>
+   <command>&progcmd;</command>
+   <arg choice="opt">GLOBAL OPTIONS</arg>
+   <arg>SUBCOMMAND</arg>
+   <arg choice="opt">OPTIONS</arg>
+   <arg choice="req">FILES...</arg>
+  </cmdsynopsis>
+ </refsynopsisdiv>
+ <refsect1 id="docmanager.description">
+  <title>Description</title>
+  <para>
+   The &progname; is a tool to manage meta-information within DocBook5 documents. It
+   is possible to add new information as well as editing and deleting. The main advantage
+   of this tool is the analyze feature. This feature creates a table with all wanted
+   information. You can restrict the information with a lightweight SQL syntax.
+  </para>
+  <para>
+   Here is an example of what an XML file can look like after being edited with &progname;:
+  </para>
+  <screen>&lt;info>
+   &lt;dm:docmanager xmlns:dm="urn:x-suse:ns:docmanager">
+     &lt;dm:test1>value1&lt;/dm:property>
+     &lt;dm:test2>value2&lt;/dm:maintainer>
+   &lt;/dm:docmanager>
+&lt;/info></screen>
+  <para>
+   In this example, we used these commands:
+   <screen>$ &progcmd; set -p test1=value1 example.xml</screen>
+   <screen>$ &progcmd; set -p test2=value2 example.xml</screen>
+  </para>
+ </refsect1>
+ <refsect1 id="docmanager.optionaloptions">
+  <title>Optional Options</title>
+  <variablelist>
+   <varlistentry>
+    <term><option>-h</option> or <option>--help</option></term>
+    <listitem>
+     <para>Show a help dialog. You can also use <option>-h</option> with subcommands to get help about a specific subcommand. Example: <command>&progcmd;</command> set <option>-h</option></para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>-v</option></term>
+    <listitem>
+     <para>Be more verbose. The verbosity level can be increased by adding more "v" behind the option. (Example: -vv and so on. Maximum: -vvv)</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>--version</option></term>
+    <listitem>
+     <para>Display the version of &progname;.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><option>--langlist</option></term>
+    <listitem>
+     <para>Displays a list with all supported language codes.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ <refsect1 id="docmanager.commands">
+  <title>Commands</title>
+  <refsect2>
+   <title><command>set</command></title>
+   <para>Setting one or more properties.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;property&gt;value&lt;/property&gt;</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority then <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--status</option> <replaceable>STATUS</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority then <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--deadline</option> <replaceable>DEADLINE</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority then <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--priority</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority then <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--translation</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
+       then <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--languages</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the languages for the given XML files. Note: If you use <option>-p</option> languages=FOO, <option>--languages</option> has a higher priority then
+       <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>
+  <refsect2>
+   <title><command>get</command></title>
+   <para>Getting one or more property values.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>-p</option> <replaceable>PROPERTY</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>Get the value of a property.</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--format</option> <replaceable>FORMAT</replaceable></term>
+     <listitem>
+      <para>Set the output format. Valid format types: <option>table</option>, <option>json</option></para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>
+  <refsect2>
+   <title><command>del</command></title>
+   <para>Deleting one or more existing properties.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>-p</option> <replaceable>PROPERTY</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>Delete a property in an XML file.</para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>
+ </refsect1>
+ <refsect1 id="docmanager.exitcodes">
+  <title>Exit Codes</title>
+  <variablelist>
+   <varlistentry>
+    <term>0</term>
+    <listitem>
+     <para>Everything went fine.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>1</term>
+    <listitem>
+     <para>A file could not be found.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>2</term>
+    <listitem>
+     <para>Could not set the given value for a property.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>3</term>
+    <listitem>
+     <para>Error during parsing an XML file.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>4</term>
+    <listitem>
+     <para>An error occurred while running daps.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>5</term>
+    <listitem>
+     <para>Invalid usage of key=value in --set</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>6</term>
+    <listitem>
+     <para>(For development only): Method "..." is not implemented.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>7</term>
+    <listitem>
+     <para>The info element could not be found in one of the given XML files.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>8</term>
+    <listitem>
+     <para>&progname; was called without any arguments.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>9</term>
+    <listitem>
+     <para>One of the given XML documents is not valid.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>10</term>
+    <listitem>
+     <para>
+      The format for the given option of the <command>set</command> subcommand is not correct. (Wrong usage of <option>--status</option>
+      for example: &progcmd; set --status bla example.xml)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>11</term>
+    <listitem>
+     <para>File permission error. (For example: Could not write into the given XML file)</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>12</term>
+    <listitem>
+     <para>The given XML document is not a DocBook 5 document. The start tag has to be in the official DocBook 5 namespace.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ <refsect1 id="docmanager.examples">
+  <title>Examples</title>
+  <variablelist>
+   <varlistentry>
+    <term><command>&progcmd;</command> set -p hello=world example.xml</term>
+    <listitem>
+     <para>Set the information value "world" in the property "hello".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> set --maintainer mschnitzer example.xml</term>
+    <listitem>
+     <para>Set the maintainer element in the example.xml file to "mschnitzer".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml</term>
+    <listitem>
+     <para>Reads the value of the property "hello". If you followed the first example, the output would be "hello=world".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format json</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output format is JSON.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format table</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output will be shown as table.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> del -p hello example.xml</term>
+    <listitem>
+     <para>Deletes the "hello" in example.xml.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -vv <replaceable>set --maintainer mschnitzer example.xml</replaceable></term>
+    <listitem>
+     <para>Increase the "verbosity level" for the "set" command. You can increase the "verbosity level" if you add more "v" behind the dash.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+</refentry>

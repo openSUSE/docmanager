@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 #
 # Copyright (c) 2014-2015 SUSE Linux GmbH
 #
@@ -17,28 +16,39 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from docmanager import prettytable
+import prettytable
 
-class Table:
-
+class Table(object):
+    """A Table instance represents the result of the search
+    """
     def __init__(self):
+        """Initialize Table class"""
         self.__table = prettytable.PrettyTable()
         self.__header = []
 
     def add_row(self, name, values):
+        """Add row into table
+
+        :param str name:
+        :param dict values:
+        """
         row = [name]
         for key in self.__header:
             #ignore the Files item we have the name already
             if key != "Files":
                 value = (values.get(key))
                 #has the file this value?
-                if value != None:
+                if value is not None:
                     row.append(value)
                 else:
                     row.append("-")
         self.__table.add_row(row)
 
     def set_header(self, keys):
+        """Set header of table
+
+        :param str keys:
+        """
         #prepare header first column is filename + keys
         header = ["Files"]
         header = header + list(keys)
@@ -46,6 +56,10 @@ class Table:
         self.__header = header
 
     def add_by_list(self, file_list):
+        """TODO:
+
+        :param list file_list:
+        """
         #first gather all header items
         keys = set()
         for filename, values in file_list.items():
@@ -57,7 +71,12 @@ class Table:
             self.add_row(filename, values)
 
     def sort(self, sortby):
+        """Sort table
+
+        :param sortby:
+        """
         self.__table.sortby = sortby
 
-    def print(self):
-        print(self.__table)
+    def __str__(self):
+        """Return formatted table"""
+        return self.__table
