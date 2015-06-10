@@ -115,43 +115,57 @@
     <varlistentry>
      <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the value of a property.</para>
+      <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;property&gt;value&lt;/property&gt;</para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the maintainer for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --status or --deadline</para>
+      <para>
+       Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority then <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--status</option> <replaceable>STATUS</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the status for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --maintainer or --deadline</para>
+      <para>
+       Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority then <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--deadline</option> <replaceable>DEADLINE</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the deadline for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --maintainer or --status</para>
+      <para>
+       Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority then <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--priority</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the priority for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --maintainer or --deadline</para>
+      <para>
+       Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority then <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--translation</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the translation element for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --maintainer or --deadline</para>
+      <para>
+       Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
+       then <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>--languages</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
-      <para>Set the languages for the given XML files. Note: This option overwrites <option>-p</option> and other "set options" like --maintainer or --deadline</para>
+      <para>
+       Set the languages for the given XML files. Note: If you use <option>-p</option> languages=FOO, <option>--languages</option> has a higher priority then
+       <option>-p</option>
+      </para>
      </listitem>
     </varlistentry>
    </variablelist>
