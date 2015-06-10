@@ -4,9 +4,9 @@
 "http://www.docbook.org/xml/4.5/docbookx.dtd"
 [
 <!ENTITY progname "DocManager">
-<!ENTITY version "3.0.0">
+<!ENTITY version "3.0.0-RC1">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "05/11/2015">
+<!ENTITY release "06/10/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
