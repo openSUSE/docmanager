@@ -11,7 +11,7 @@ table with all wanted information. You can restrict the information with a
 lightweight SQL syntax.
 
 ## Repositories
-  1. Stable Repository: not yet available
+  1. Stable Repository: https://build.opensuse.org/package/show/Documentation:Tools/docmanager
   2. Unstable Repository: https://build.opensuse.org/package/show/Documentation:Tools:Develop/docmanager
 
 ## Usage
