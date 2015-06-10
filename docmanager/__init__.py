@@ -21,12 +21,10 @@ __version__="3.0.0-RC1"
 
 import argparse
 import logging
-import os
 import re
 import sys
 from docmanager import action
-from docmanager.core import ReturnCodes
-from docmanager.languagecodes import SupportedLanguages
+from docmanager.core import ReturnCodes, LANGUAGES
 from docmanager.logmanager import log
 from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
@@ -225,35 +223,41 @@ def parsecli(cliargs=None):
 
     return args
 
-def show_langlist():
-    count = 0
+def show_langlist(columns=None):
+    """Prints the language table
 
-    tbl = PrettyTable(['', ' ', '  ', '   ', '    '])
-    tbl.padding_width = 1 # One space between column edges and contents (default)
+    :param int columns: Maximum number of characters in a column;
+                        None to fill the current terminal window
+    """
+    try:
+        import os
+        from shutil import get_terminal_size
+    except ImportError:
+        def get_terminal_size(fallback=(80, 24)):
+            return os.terminal_size(fallback)
 
-    items = list()
-    for i in SupportedLanguages.LanguageList:
-        if count == 5:
-            count = 0
-            tbl.add_row(items)
+    maxl = max([len(i) for i in LANGUAGES])
 
-            items = list()
+    if columns is None or columns < maxl:
+        columns = get_terminal_size().columns
+    length = len(LANGUAGES)
+    padding = 2
+    rowwidth = maxl + padding + 1
+    divisor = columns // rowwidth
+    maxline = divisor * rowwidth
 
-        items.append(i)
-        count += 1
-
-    if count < 5:
-        i = 0
-        while i < (5-count):
-            items.append("")
-            i += 1
-
-        tbl.add_row(items)
-    elif count == 5:
-        tbl.add_row(items)
-
-    print(tbl)
-    sys.exit(0)
+    fmt="".join([ "{{:^{}}}|".format(maxl + padding) for _ in range(divisor)])
+    line = "-"*maxline
+    print(line)
+    for start, stop in zip(range(0, length, divisor),
+                           range(divisor, length+divisor, divisor)):
+        x = list(LANGUAGES[start:stop])
+        if len(x) < divisor:
+            for i in range(divisor - len(x)):
+                x.append("")
+        print(fmt.format(*x))
+    print(line)
+    sys.exit(ReturnCodes.E_OK)
 
 def input_format_check(args):
     if hasattr(args, 'status') and args.status is not None:
@@ -278,7 +282,7 @@ def input_format_check(args):
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
-            if i not in SupportedLanguages.LanguageList:
+            if i not in LANGUAGES:
                 print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 

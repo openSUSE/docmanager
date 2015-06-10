@@ -16,15 +16,12 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-import random
-import re
 import sys
 from docmanager.core import DefaultDocManagerProperties, \
      NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import compilestarttag, ensurefileobj, findprolog, \
      get_namespace, recover_entities, replaceinstream, preserve_entities
-from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -90,7 +87,7 @@ class XmlHandler(object):
         for i in DefaultDocManagerProperties:
             if (i not in self.get(i)) or \
                (self.get(i)[i] is None) or \
-               (self.get(i)[i] is not None and force == True):
+               (self.get(i)[i] is not None and force):
                 self.set(i, "")
             else:
                 ret += 1

@@ -92,7 +92,7 @@ class Actions(object):
                 log.error("Invalid usage. Set values with the following format: property=value")
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
-    def get(self, arguments, output = None):
+    def get(self, arguments):
         """Lists all properties
 
         :param list arguments
@@ -101,7 +101,7 @@ class Actions(object):
 
         #get the key=value pairs and print them file by file
         file_values = self.__files.get(arguments)
-        files_count = len(file_values.items())
+        # files_count = len(file_values.items())
 
         if not len(arguments):
             json_out = {}
@@ -190,9 +190,9 @@ class Actions(object):
         #if the file has no key=value match remove the file
         #from the list
         is_set = self.__files.is_set(where)
-        for file, boolean in is_set.items():
+        for fileobj, boolean in is_set.items():
             if boolean is False:
-                values.pop(file)
+                values.pop(fileobj)
 
         #create the table, add content, sort and print
         tbl = table.Table()
