@@ -21,8 +21,6 @@ from docmanager.core import ReturnCodes
 from io import StringIO
 from itertools import accumulate
 import re
-import os
-import sys
 
 import xml.sax
 

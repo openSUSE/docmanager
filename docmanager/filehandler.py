@@ -17,7 +17,6 @@
 # you may find current contact information at www.suse.com
 
 import os
-import subprocess
 import sys
 from docmanager import xmlhandler
 from docmanager.core import ReturnCodes

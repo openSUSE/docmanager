@@ -30,7 +30,7 @@ DefaultDocManagerProperties = [
         "languages"
 ]
 
-class ReturnCodes():
+class ReturnCodes(object):
     E_OK = 0
     E_FILE_NOT_FOUND = 1
     E_COULD_NOT_SET_VALUE = 2
