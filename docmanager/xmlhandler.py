@@ -98,9 +98,10 @@ class XmlHandler(object):
 
     def check_root_element(self):
         """Checks if root element is valid"""
-        if self._root.tag not in VALIDROOTS:
+        tag = etree.QName(self._root.tag)
+        if tag.localname not in VALIDROOTS:
             raise ValueError("Cannot add info element to %s. "
-                             "Not a valid root element." % self._root.tag)
+                             "Not a valid root element." % tag.localname)
 
     def _find_pos(self):
         """Find the position where to insert the <info> element
