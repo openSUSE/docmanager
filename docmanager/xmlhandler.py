@@ -103,13 +103,17 @@ class XmlHandler(object):
                              "Not a valid root element." % self._root.tag)
 
     def _find_pos(self):
-        """
+        """Find the position where to insert the <info> element
+
+        :return: position where to insert <info>
+        :rtype: int
         """
         # We are only interested in the first three elements
-        nodes = ( e for i, e in enumerate(self.__root.iterchildren()) if i < 3 )
+        nodes = ( n for i, n in enumerate(self.__root.iterchildren()) if i < 3 )
         pos = 0
         for node in nodes:
             tag = etree.QName(node.tag)
+            # DocBook allows these tags before any info element
             if tag.localname in ("title", "subtitle", "titleabbrev"):
                 pos += 1
             else:
