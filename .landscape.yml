@@ -8,3 +8,10 @@ ignore-paths:
     - man/
     - test/
     - tests/
+
+pylint:
+    disable:
+        # W1202
+        - logging-format-interpolation
+        # C1001
+        - old-style-class
