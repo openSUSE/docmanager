@@ -61,9 +61,12 @@ class Actions(object):
             if handler.init_default_props(self.__args.force) == 0:
                 print("Initialized default properties for '{}'.".format(i))
             else:
-                print("Could not initialize all properties for '{}' because there are already some properties in the XML file " \
-                      "which would be overwritten after this operation has been finished. If you want to perform this operation and " \
-                      "overwrite the existing properties, you can add the '--force' option to your command.".format(i))
+                print("Could not initialize all properties for '{}' because "
+                      "there are already some properties in the XML file "
+                      "which would be overwritten after this operation has been "
+                      "finished. If you want to perform this operation and "
+                      "overwrite the existing properties, you can add the "
+                      "'--force' option to your command.".format(i))
 
     def set(self, arguments):
         """Set key/value pairs from arguments

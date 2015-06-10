@@ -240,28 +240,6 @@ class Handler(xml.sax.handler.ContentHandler):
     def setDocumentLocator(self, loc):
         self.loc = loc
 
-    def comment(self, text):
-        """XML Comment"""
-        ctxlen = len(self.context)
-        # We are only interested in the first two start tags
-        if ctxlen:
-            current = self.locstm.where(self.loc)
-            pos = self.pos(self.loc.getLineNumber(), \
-                            self.loc.getColumnNumber(), \
-                            current)
-            self.context.append(["-- comment", pos])
-
-    def startCDATA(self):
-        pass
-    endCDATA = startCDATA
-
-    def startDTD(self,  doctype, publicID, systemID):
-        pass
-    def endDTD(self):
-        pass
-    def startEntity(self, name):
-        pass
-
     def startElement(self, name, attrs):
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
@@ -291,6 +269,29 @@ class Handler(xml.sax.handler.ContentHandler):
                             self.loc.getColumnNumber(), \
                             current)
             self.context.append(["?%s" % target, pos])
+
+    def comment(self, text):
+        """XML Comment"""
+        ctxlen = len(self.context)
+        # We are only interested in the first two start tags
+        if ctxlen:
+            current = self.locstm.where(self.loc)
+            pos = self.pos(self.loc.getLineNumber(), \
+                            self.loc.getColumnNumber(), \
+                            current)
+            self.context.append(["-- comment", pos])
+
+    # From LexicalParser
+    def startCDATA(self):
+        pass
+    endCDATA = startCDATA
+
+    def startDTD(self,  doctype, publicID, systemID):
+        pass
+    def endDTD(self):
+        pass
+    def startEntity(self, name):
+        pass
 
 
 def findprolog(source, maxsize=5000):
