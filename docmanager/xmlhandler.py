@@ -66,6 +66,7 @@ class XmlHandler(object):
         # Load the file and set a reference to the dm group
         self.__tree = etree.parse(self._buffer, self.__xmlparser)
         self.__root = self.__tree.getroot()
+        self.check_root_element()
         
         # check for DocBook 5 namespace in start tag
         rootns = get_namespace(self.__root.tag)
@@ -97,7 +98,7 @@ class XmlHandler(object):
 
     def check_root_element(self):
         """Checks if root element is valid"""
-        tag = etree.QName(self._root.tag)
+        tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
             raise ValueError("Cannot add info element to %s. "
                              "Not a valid root element." % tag.localname)

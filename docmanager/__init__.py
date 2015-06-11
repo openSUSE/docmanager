@@ -296,3 +296,6 @@ def main(cliargs=None):
     except PermissionError as err:
         log.error("{} on file {!r}.".format(err.args[1], err.filename))
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
+    except ValueError as err:
+        log.error(err)
+        sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
