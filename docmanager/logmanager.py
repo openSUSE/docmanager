@@ -33,6 +33,8 @@ log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
 def logmgr_flog():
+    """Prints debug information about the last called function.
+    """
     stack = traceback.extract_stack()
     filename, line, func, _ = stack[-2]
 
