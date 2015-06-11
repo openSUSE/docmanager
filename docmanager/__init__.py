@@ -274,9 +274,15 @@ def input_format_check(args):
             print("Value of 'deadline' is incorrect. Use this date format: YYYY-MM-DD")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'priority') and args.priority is not None:
+        errmsg = "Value of 'priority' is incorrect. Expecting a value between 1 and 10."
+
+        if args.priority.isnumeric() == False:
+            print(errmsg)
+            sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
         args.priority = int(args.priority)
         if args.priority < 1 or args.priority > 10:
-            print("Value of 'priority' is incorrect. Expecting a value between 1 and 10.")
+            print(errmsg)
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'translation') and args.translation is not None:
         values = [ 'yes', 'no' ]
