@@ -239,7 +239,7 @@ class XmlHandler(object):
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
-            # self.write()
+            self.write()
 
     def get_indendation(self, node, indendation=""):
         """Calculates indendation level

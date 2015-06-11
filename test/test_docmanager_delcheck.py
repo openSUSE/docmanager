@@ -9,32 +9,16 @@ from docmanager.core import DefaultDocManagerProperties, NS
 from docmanager.xmlhandler import XmlHandler
 from docmanager.xmlutil import localname
 
+def test_docmanager_delcheck(tmp_valid_xml):
+    ustr = 'Uf4C56WL'
+    handler = XmlHandler(tmp_valid_xml.strpath)
+    handler.set(ustr, 'blub')
+    handler.delete(ustr)
 
-#@pytest.mark.skipif(compare_pytest_version((2,6,4)),
-#                    reason="Need 2.6.4 to execute this test")
-def __test_docmanager_delcheck(capsys, tmp_valid_xml):
-    """This test checks, if we can delete a property in an xml file"""
-    expected="world"
-    clicmd = shlex.split("set -p hello={} {}".format(expected, tmp_valid_xml))
-    a = Actions(parsecli(clicmd))
-    out, err = capsys.readouterr()
+    with open(tmp_valid_xml.strpath, 'r') as f:
+        content = f.read()
     
-    clicmd = shlex.split("get -p hello {}".format(tmp_valid_xml))
-    a = Actions(parsecli(clicmd))
-    out, err = capsys.readouterr()
-    
-    assert out[:-1] == expected, "Expected \"get\" output is not \"world\". What I got: \"{}\"".format(out[:-1])
-    
-    clicmd = shlex.split("del -p {} {}".format(expected, tmp_valid_xml))
-    a = Actions(parsecli(clicmd))
-    out, err = capsys.readouterr()
-    
-    clicmd = shlex.split("get -p {} {}".format(expected, tmp_valid_xml))
-    a = Actions(parsecli(clicmd))
-    out, err = capsys.readouterr()
-    
-    assert out[:-1] == "", "Expected empty output but got: {}".format(out[:-1])
-
+    assert ustr not in content, 'It seems that the content could not be deleted. Something seems to be wrong in the delete method of the XmlHandler.'
 
 def test_docmanager_delcheck2(tmp_valid_xml):
     handler = XmlHandler(tmp_valid_xml.strpath)
