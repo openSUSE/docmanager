@@ -14,7 +14,7 @@ from docmanager.action import Actions
     ('status', 'editing'),
     ('deadline', '2015-05-11'),
     ('priority', '2'),
-    ('translation', 'false'),
+    ('translation', 'no'),
     ('languages', 'en,de'),
 ])
 def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):

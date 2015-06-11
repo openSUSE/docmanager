@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky"
-__version__="3.0.0-RC1.1"
+__version__="3.0.0-RC2"
 
 import argparse
 import logging
@@ -276,9 +276,9 @@ def input_format_check(args):
             print("Value of 'priority' is incorrect. Expecting a value between 1 and 10.")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'translation') and args.translation is not None:
-        values = [ 'true', 'false' ]
+        values = [ 'yes', 'no' ]
         if args.translation not in values:
-            print("Value of 'translation' is incorrect. Expecting one of these values: true or false")
+            print("Value of 'translation' is incorrect. Expecting one of these values: yes or no")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
