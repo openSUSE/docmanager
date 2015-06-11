@@ -246,7 +246,7 @@ def show_langlist(columns=None):
     divisor = columns // rowwidth
     maxline = divisor * rowwidth
 
-    fmt="".join([ "{{:^{}}}|".format(maxl + padding) for _ in range(divisor)])
+    fmt="".join([ "{{:<{}}}|".format(maxl + padding) for _ in range(divisor)])
     line = "-"*maxline
     print(line)
     for start, stop in zip(range(0, length, divisor),
