@@ -21,14 +21,14 @@ NS = {
         "dm":"urn:x-suse:ns:docmanager"
 }
 
-DefaultDocManagerProperties = [
+DefaultDocManagerProperties = (
         "maintainer",
         "status",
         "deadline",
         "priority",
         "translation",
         "languages"
-]
+)
 
 class ReturnCodes(object):
     E_OK = 0
