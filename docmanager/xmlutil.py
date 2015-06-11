@@ -18,7 +18,7 @@
 
 import copy
 from collections import namedtuple
-from docmanager.core import ReturnCodes
+from docmanager.core import ReturnCodes, NS
 from io import StringIO
 from itertools import accumulate
 import re
@@ -121,6 +121,23 @@ def isXML(text):
             break
     return result
 
+
+def findinfo_pos(root):
+    """Find the position where to insert the <info> element
+
+    :return: position where to insert <info>
+    :rtype: int
+    """
+    titles = root.xpath("(d:title|d:subtitle|d:titleabbrev)[last()]",
+                                namespaces=NS)
+    if not titles:
+        # Just in case we didn't find any titles at all, return null
+        return 0
+
+    return root.index(titles[0]) + 1
+
+
+# -------------------------------------------------------------------
 
 def ensurefileobj(source):
     """Return a file(-like) object, regardless if it's a another

@@ -23,7 +23,8 @@ from docmanager.core import DefaultDocManagerProperties, \
      NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import compilestarttag, ensurefileobj, findprolog, \
-     get_namespace, recover_entities, replaceinstream, preserve_entities
+     get_namespace, recover_entities, replaceinstream, preserve_entities, \
+     findinfo_pos
 from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
@@ -98,27 +99,11 @@ class XmlHandler(object):
 
     def check_root_element(self):
         """Checks if root element is valid"""
-        if self._root.tag not in VALIDROOTS:
+        tag = etree.QName(self._root.tag)
+        if tag.localname not in VALIDROOTS:
             raise ValueError("Cannot add info element to %s. "
-                             "Not a valid root element." % self._root.tag)
+                             "Not a valid root element." % tag.localname)
 
-    def _find_pos(self):
-        """Find the position where to insert the <info> element
-
-        :return: position where to insert <info>
-        :rtype: int
-        """
-        # We are only interested in the first three elements
-        nodes = ( n for i, n in enumerate(self.__root.iterchildren()) if i < 3 )
-        pos = 0
-        for node in nodes:
-            tag = etree.QName(node.tag)
-            # DocBook allows these tags before any info element
-            if tag.localname in ("title", "subtitle", "titleabbrev"):
-                pos += 1
-            else:
-                break
-        return pos
 
     def create_group(self):
         """Creates the docmanager group element"""
@@ -129,7 +114,7 @@ class XmlHandler(object):
         # TODO: We need to check for a --force option
         if info is None:
             log.info("No <info> element found!")
-            pos = self._find_pos()
+            pos = findinfo_pos(self.__root)
             log.info("Using position %d", pos)
             info = etree.Element("{%s}info" % NS["d"])
             info.tail = '\n'
