@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky"
-__version__="3.0.0-RC2"
+__version__="3.0.0-RC3"
 
 import argparse
 import logging
