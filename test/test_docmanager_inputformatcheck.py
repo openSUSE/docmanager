@@ -10,7 +10,7 @@ from docmanager.core import ReturnCodes
     ('status', 'proofing', 'bla'),
     ('deadline', '2015-05-22', 'bla'),
     ('priority', 2, 11),
-    ('translation', 'true', 'bla'),
+    ('translation', 'yes', 'bla'),
     ('languages', 'en_US,en,de', 'bla')
 ])
 def test_docmanager_inputformatcheck(option, correct, wrong, tmp_valid_xml, capsys):

@@ -4,9 +4,9 @@
 "http://www.docbook.org/xml/4.5/docbookx.dtd"
 [
 <!ENTITY progname "DocManager">
-<!ENTITY version "3.0.0-RC1">
+<!ENTITY version "3.0.0-RC2">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "06/10/2015">
+<!ENTITY release "06/11/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
@@ -36,12 +36,12 @@
   <manvolnum>1</manvolnum>
   <refmiscinfo class="date">&release;</refmiscinfo>
   <refmiscinfo class="version">&version;</refmiscinfo>
-  <refmiscinfo class="manual">The &progname;</refmiscinfo>
+  <refmiscinfo class="manual">&progname;</refmiscinfo>
  </refmeta>
  <refnamediv>
   <refname>&progcmd;</refname>
   <refpurpose>
-   The &progname; is a tool to manage meta-information within DocBook5 documents.
+   &progname; is a tool to manage meta-information within DocBook5 documents.
   </refpurpose>
  </refnamediv>
  <refsynopsisdiv id="docmanager.synopsis">
@@ -57,7 +57,7 @@
  <refsect1 id="docmanager.description">
   <title>Description</title>
   <para>
-   The &progname; is a tool to manage meta-information within DocBook5 documents. It
+   &progname; is a tool to manage meta-information within DocBook5 documents. It
    is possible to add new information as well as editing and deleting. The main advantage
    of this tool is the analyze feature. This feature creates a table with all wanted
    information. You can restrict the information with a lightweight SQL syntax.
@@ -109,6 +109,18 @@
  <refsect1 id="docmanager.commands">
   <title>Commands</title>
   <refsect2>
+   <title><command>init</command></title>
+   <para>Initializes an XML document with all relevant properties. Property is the name of an XML tag.</para>
+   <variablelist>
+    <varlistentry>
+     <term><replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>Initializes all given files with all relevant properties.</para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>
+  <refsect2>
    <title><command>set</command></title>
    <para>Setting one or more properties.</para>
    <variablelist>
@@ -122,48 +134,49 @@
      <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
-       Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority then <option>-p</option>
+       Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--status</option> <replaceable>STATUS</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
-       Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority then <option>-p</option>
+       Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--deadline</option> <replaceable>DEADLINE</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--deadline</option> <replaceable>YYYY-MM-DD</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
-       Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority then <option>-p</option>
+       Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--priority</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--priority</option> <replaceable>1-10</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
-       Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority then <option>-p</option>
+       Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--translation</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--translation</option> <replaceable>yes|no</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
        Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
-       then <option>-p</option>
+       than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--languages</option> <replaceable>PRIORITY</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--languages</option> <replaceable>LANGUAGE_CODE</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>
-       Set the languages for the given XML files. Note: If you use <option>-p</option> languages=FOO, <option>--languages</option> has a higher priority then
+       Set the languages for the given XML files. You can get a list of language codes if you call <command>&progcmd; </command> <option>--langlist</option>
+       Note: If you use <option>-p</option> languages=FOO, <option>--languages</option> has a higher priority than
        <option>-p</option>
       </para>
      </listitem>
