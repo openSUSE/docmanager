@@ -24,7 +24,7 @@ import logging
 import re
 import sys
 from docmanager import action
-from docmanager.core import ReturnCodes, LANGUAGES
+from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
 from docmanager.logmanager import log
 from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
@@ -39,8 +39,7 @@ def populate_properties(args):
     """
     result=[]
 
-    for prop in ('maintainer', 'status', 'deadline',
-                 'priority', 'translation', 'languages'):
+    for prop in DefaultDocManagerProperties:
         if hasattr(args, prop) and getattr(args, prop) is not None:
             result.append( "{}={}".format(prop, getattr(args, prop)) )
     return result
@@ -118,22 +117,22 @@ def parsecli(cliargs=None):
                              'delete the key let the value blank.'
                     )
     pset.add_argument('-p', '--properties', **propargs)
-    pset.add_argument('--maintainer',
+    pset.add_argument('-M', '--maintainer',
                       help='Set the property "maintainer" for the given documents.'
                     )
-    pset.add_argument('--status',
+    pset.add_argument('-S', '--status',
                       help='Set the property "status" for the given documents.'
                     )
-    pset.add_argument('--deadline',
+    pset.add_argument('-D', '--deadline',
                       help='Set the property "deadline" for the given documents.'
                     )
-    pset.add_argument('--priority',
+    pset.add_argument('-P', '--priority',
                       help='Set the property "priority" for the given documents.'
                     )
-    pset.add_argument('--translation',
+    pset.add_argument('-T', '--translation',
                       help='Set the property "translation" for the given documents.'
                     )
-    pset.add_argument('--languages',
+    pset.add_argument('-L', '--languages',
                       help='Set the property "languages" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
