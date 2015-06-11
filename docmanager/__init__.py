@@ -260,6 +260,10 @@ def show_langlist(columns=None):
     sys.exit(ReturnCodes.E_OK)
 
 def input_format_check(args):
+    """Checks if the given arguments have a correct value
+
+    :param object args: Arguments object from argparser
+    """
     if hasattr(args, 'status') and args.status is not None:
         values = [ 'editing', 'edited', 'proofing', 'proofed', 'comment', 'ready' ]
         if args.status not in values:

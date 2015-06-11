@@ -86,6 +86,10 @@ class XmlHandler(object):
 
 
     def init_default_props(self, force=False):
+        """Initializes the default properties for the given XML files
+    
+        :param bool force: Ignorie if there are already properties in an XML - just overwrite them
+        """
         ret = 0
         for i in DefaultDocManagerProperties:
             if (i not in self.get(i)) or \
