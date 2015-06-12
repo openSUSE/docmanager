@@ -26,7 +26,6 @@ import sys
 from docmanager import action
 from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
 from docmanager.logmanager import log
-from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
 from xml.sax._exceptions import SAXParseException
 
@@ -213,9 +212,6 @@ def parsecli(cliargs=None):
 
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
     log.debug("Arguments: %s", args)
-
-    # clear old docmanager tmp files
-    clear_tmpdir()
 
     # check for input format
     input_format_check(args)
