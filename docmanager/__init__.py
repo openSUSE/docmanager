@@ -16,7 +16,7 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-__author__="Rick Salevsky"
+__author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
 __version__="3.0.0-RC3"
 
 import argparse
@@ -68,14 +68,14 @@ def parsecli(cliargs=None):
         prog="docmanager",
         usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]",
         description="Docmanager sets, gets, delets, or queries "
-                    "meta-information for DocBook5 XML files")
+                    "meta-information for DocBook5 XML files.")
     parser.add_argument('--version',
                         action='version',
                         version='%(prog)s ' + __version__
                         )
     parser.add_argument('-v', '--verbose',
                 action='count',
-                help="increase verbosity level"
+                help="Increase verbosity level"
             )
     parser.add_argument('--langlist',
                        action='store_true'
@@ -92,7 +92,7 @@ def parsecli(cliargs=None):
     # 'init' command for the initialization
     pinit = subparsers.add_parser('init',
                                   aliases=['i'],
-                                  help='initialize one or more XML files with predefined properties')
+                                  help='Initializes an XML document with predefined properties.')
     pinit.add_argument('--force',
                        action='store_true'
                       )
@@ -101,45 +101,46 @@ def parsecli(cliargs=None):
     # 'get' subparser
     pget = subparsers.add_parser('get',
                         aliases=['g'],
-                        help='get key and returns value'
+                        help='Get key and returns value'
                     )
     pget.add_argument('-p', '--properties', **propargs)
     pget.add_argument('-f', '--format',
                       choices=['table','json'],
-                      help='set the output format'
+                      help='Set the output format.'
                     )
     pget.add_argument("files", **filesargs)
 
     # 'set' subparser
     pset = subparsers.add_parser('set',
                         aliases=['s'],
-                        help='set key=value property (one or more)'
+                        help='Set key=value property (one or more) to '
+                             'delete the key let the value blank.'
                     )
     pset.add_argument('-p', '--properties', **propargs)
     pset.add_argument('-M', '--maintainer',
-                      help='set the property "maintainer" for the given files'
+                      help='Set the property "maintainer" for the given documents.'
                     )
     pset.add_argument('-S', '--status',
-                      help='set the property "status" for the given files'
+                      help='Set the property "status" for the given documents.'
                     )
     pset.add_argument('-D', '--deadline',
-                      help='set the property "deadline" for the given files'
+                      help='Set the property "deadline" for the given documents.'
                     )
     pset.add_argument('-P', '--priority',
-                      help='set the property "priority" for the given files'
+                      help='Set the property "priority" for the given documents.'
                     )
     pset.add_argument('-T', '--translation',
-                      help='set the property "translation" for the given files'
+                      help='Set the property "translation" for the given documents.'
                     )
     pset.add_argument('-L', '--languages',
-                      help='set the property "languages" for the given files'
+                      help='Set the property "languages" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
 
     # 'del' subparser
     pdel = subparsers.add_parser('del',
                         aliases=['d'],
-                        help='delete properties from XML files'
+                        help='Delete properties from XML documents'
                     )
     pdel.add_argument('-p', '--properties', **propargs)
     pdel.add_argument("files", **filesargs)
@@ -147,12 +148,14 @@ def parsecli(cliargs=None):
     # analyze subparser
     panalyze = subparsers.add_parser('query',
                                      aliases=['q', 'analyze'],
-                                     help='similar to get (NOT IMPLEMENTED YET)'
+                                     help='Similar to get, but query can be given as pseudo SQL syntax. '  \
+                                        'allowed keywords are SELECT, WHERE, and SORTBY. ' \
+                                        'Output is formatted as table.'
                                     )
     panalyze.add_argument("files",
                 nargs='+',
                 metavar="FILES",
-                help='one or more DocBook XML or DC files'
+                help='One or more DocBook XML or DC files.'
                 )
 
     ## -----
