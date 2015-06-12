@@ -16,17 +16,16 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-__author__="Rick Salevsky"
-__version__="3.0.0-RC2"
+__author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
+__version__="3.0.0-RC3"
 
 import argparse
 import logging
 import re
 import sys
 from docmanager import action
-from docmanager.core import ReturnCodes, LANGUAGES
+from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
 from docmanager.logmanager import log
-from docmanager.tmpfile import clear_tmpdir
 from prettytable import PrettyTable
 from xml.sax._exceptions import SAXParseException
 
@@ -39,8 +38,7 @@ def populate_properties(args):
     """
     result=[]
 
-    for prop in ('maintainer', 'status', 'deadline',
-                 'priority', 'translation', 'languages'):
+    for prop in DefaultDocManagerProperties:
         if hasattr(args, prop) and getattr(args, prop) is not None:
             result.append( "{}={}".format(prop, getattr(args, prop)) )
     return result
@@ -118,22 +116,22 @@ def parsecli(cliargs=None):
                              'delete the key let the value blank.'
                     )
     pset.add_argument('-p', '--properties', **propargs)
-    pset.add_argument('--maintainer',
+    pset.add_argument('-M', '--maintainer',
                       help='Set the property "maintainer" for the given documents.'
                     )
-    pset.add_argument('--status',
+    pset.add_argument('-S', '--status',
                       help='Set the property "status" for the given documents.'
                     )
-    pset.add_argument('--deadline',
+    pset.add_argument('-D', '--deadline',
                       help='Set the property "deadline" for the given documents.'
                     )
-    pset.add_argument('--priority',
+    pset.add_argument('-P', '--priority',
                       help='Set the property "priority" for the given documents.'
                     )
-    pset.add_argument('--translation',
+    pset.add_argument('-T', '--translation',
                       help='Set the property "translation" for the given documents.'
                     )
-    pset.add_argument('--languages',
+    pset.add_argument('-L', '--languages',
                       help='Set the property "languages" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
@@ -215,9 +213,6 @@ def parsecli(cliargs=None):
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
     log.debug("Arguments: %s", args)
 
-    # clear old docmanager tmp files
-    clear_tmpdir()
-
     # check for input format
     input_format_check(args)
 
@@ -260,6 +255,10 @@ def show_langlist(columns=None):
     sys.exit(ReturnCodes.E_OK)
 
 def input_format_check(args):
+    """Checks if the given arguments have a correct value
+
+    :param object args: Arguments object from argparser
+    """
     if hasattr(args, 'status') and args.status is not None:
         values = [ 'editing', 'edited', 'proofing', 'proofed', 'comment', 'ready' ]
         if args.status not in values:
@@ -271,9 +270,15 @@ def input_format_check(args):
             print("Value of 'deadline' is incorrect. Use this date format: YYYY-MM-DD")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'priority') and args.priority is not None:
+        errmsg = "Value of 'priority' is incorrect. Expecting a value between 1 and 10."
+
+        if args.priority.isnumeric() == False:
+            print(errmsg)
+            sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+
         args.priority = int(args.priority)
         if args.priority < 1 or args.priority > 10:
-            print("Value of 'priority' is incorrect. Expecting a value between 1 and 10.")
+            print(errmsg)
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
     elif hasattr(args, 'translation') and args.translation is not None:
         values = [ 'yes', 'no' ]
@@ -296,3 +301,6 @@ def main(cliargs=None):
     except PermissionError as err:
         log.error("{} on file {!r}.".format(err.args[1], err.filename))
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
+    except ValueError as err:
+        log.error(err)
+        sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)

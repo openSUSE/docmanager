@@ -21,14 +21,14 @@ NS = {
         "dm":"urn:x-suse:ns:docmanager"
 }
 
-DefaultDocManagerProperties = [
+DefaultDocManagerProperties = (
         "maintainer",
         "status",
         "deadline",
         "priority",
         "translation",
         "languages"
-]
+)
 
 class ReturnCodes(object):
     E_OK = 0
@@ -45,7 +45,7 @@ class ReturnCodes(object):
     E_PERMISSION_DENIED = 11
     E_NOT_DOCBOOK5_FILE = 12
 
-VALIDROOTS = ('abstract', 'address', 'annotation', 'audiodata',
+VALIDROOTS = ('abstract', 'address', 'annotation', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
               'bibliolist', 'blockquote', 'book', 'calloutlist',
               'calloutlist', 'caption', 'caution', 'classsynopsis',

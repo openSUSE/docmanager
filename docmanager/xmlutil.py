@@ -226,14 +226,22 @@ class LocatingWrapper(object):
         self.curoffs = 0
 
     def read(self, *a):
+        """Read data"""
         data = self.f.read(*a)
         self.offset.extend(accumulate(len(m)+1 for m in data.split('\n')))
         return data
 
-    def where(self, loc):
-        return self.offset[loc.getLineNumber() - 1] + loc.getColumnNumber()
+    def where(self, locator):
+        """Returns the offset from line and column
+
+        :param locator: locator object
+        :return: offset
+        :rtype:  int
+        """
+        return self.offset[locator.getLineNumber() - 1] + locator.getColumnNumber()
 
     def close(self):
+        """Close the locator"""
         # Normally, we would close our file(-alike) object and call
         #   self.f.close()
         # However, we need this object later, so do nothing
@@ -251,10 +259,20 @@ class Handler(xml.sax.handler.ContentHandler):
         self.locstm = locator
         self.pos = namedtuple('Position', ['line', 'col', 'offset'])
 
-    def setDocumentLocator(self, loc):
-        self.loc = loc
+    def setDocumentLocator(self, locator):
+        """Called by the parser to give the application a locator for
+           locating the origin of document events.
+
+        :param LocatingWrapper loc: LocatingWrapper object
+        """
+        self.loc = locator
 
     def startElement(self, name, attrs):
+        """Signals the start of an element in non-namespace mode
+
+        :param str name:  XML 1.0 Name of the element
+        :param Attributes attrs: attributes of the current element
+        """
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen < 2:
@@ -265,6 +283,10 @@ class Handler(xml.sax.handler.ContentHandler):
             self.context.append(["%s" % name, pos])
 
     def endElement(self, name):
+        """Signals the end of an element in non-namespace mode
+
+        :param str name:  XML 1.0 Name of the element
+        """
         eline = self.loc.getLineNumber()
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
@@ -275,6 +297,11 @@ class Handler(xml.sax.handler.ContentHandler):
         self.context.append(["/%s" % name, pos])
 
     def processingInstruction(self, target, data):
+        """Receive notification of a processing instruction (PI)
+
+        :param str target: the target of the PI
+        :param str data:   the data of the PI
+        """
         ctxlen = len(self.context)
         # Only append PIs when it's NOT before start-tag
         if ctxlen:
@@ -285,26 +312,40 @@ class Handler(xml.sax.handler.ContentHandler):
             self.context.append(["?%s" % target, pos])
 
     def comment(self, text):
-        """XML Comment"""
+        """Signals an XML comment
+
+        :param str text: text content of the XML comment
+        """
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen:
             current = self.locstm.where(self.loc)
             pos = self.pos(self.loc.getLineNumber(), \
-                            self.loc.getColumnNumber(), \
-                            current)
+                           self.loc.getColumnNumber(), \
+                           current)
             self.context.append(["-- comment", pos])
 
     # From LexicalParser
     def startCDATA(self):
+        """Signals a CDATA section"""
         pass
     endCDATA = startCDATA
 
     def startDTD(self,  doctype, publicID, systemID):
+        """Signals the start of an DTD declaration
+
+        :param  doctype: name of the root element
+        :param publicID: public identifier (or empty)
+        :param systemID: system identifier (or empty)
+        """
         pass
+
     def endDTD(self):
+        """Reports the end of a DTD declaration"""
         pass
+
     def startEntity(self, name):
+        """Reports the start of an entity"""
         pass
 
 
