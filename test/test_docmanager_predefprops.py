@@ -3,8 +3,8 @@
 import pytest
 from argparse import Namespace
 from conftest import compare_pytest_version
-from docmanager import parsecli
 from docmanager.action import Actions
+from docmanager.cli import parsecli
 
 @pytest.mark.skipif(compare_pytest_version((2,6,4)),
                     reason="Need 2.6.4 to execute this test")

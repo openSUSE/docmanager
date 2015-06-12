@@ -3,7 +3,7 @@
 import pytest
 import shlex
 
-from docmanager import parsecli
+from docmanager.cli import parsecli
 from docmanager.action import Actions
 from docmanager.core import DefaultDocManagerProperties, NS
 from docmanager.xmlhandler import XmlHandler

@@ -3,7 +3,7 @@
 import pytest
 from argparse import Namespace
 
-from docmanager import parsecli
+from docmanager.cli import parsecli
 from docmanager.action import Actions
 from docmanager.core import DefaultDocManagerProperties
 from docmanager.xmlhandler import XmlHandler

@@ -2,7 +2,7 @@
 
 import json
 import pytest
-from docmanager import parsecli
+from docmanager.cli import parsecli
 from docmanager.action import Actions
 
 def test_docmanager_jsonout(tmp_valid_xml, capsys):

@@ -2,7 +2,7 @@
 
 import pytest
 import shlex
-from docmanager import parsecli
+from docmanager.cli import parsecli
 
 @pytest.mark.parametrize("source,expected", [
     ("get -p hello -p world {}", ['hello', 'world']),
