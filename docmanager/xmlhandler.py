@@ -20,9 +20,8 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, \
      NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import compilestarttag, ensurefileobj, findprolog, \
-     get_namespace, recover_entities, replaceinstream, preserve_entities, \
-     findinfo_pos
+from docmanager.xmlutil import compilestarttag, ensurefileobj, findinfo_pos, findprolog, \
+     get_namespace, localname, recover_entities, replaceinstream, preserve_entities
 from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
@@ -104,9 +103,8 @@ class XmlHandler(object):
         """Checks if root element is valid"""
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
-            raise ValueError("Cannot add info element to %s. "
-                             "Not a valid root element." % tag.localname)
-
+            raise ValueError("Cannot add info element to file '{}'. '{}' is not a valid root "
+                             "element.".format(self._filename, localname(self.__root.tag)))
 
     def create_group(self):
         """Creates the docmanager group element"""
