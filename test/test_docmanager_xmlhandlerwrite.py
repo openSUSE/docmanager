@@ -20,7 +20,7 @@ COMMANDS = [
                         )
 def test_docmanager_xmlhandlerwrite(command,expected,tmp_valid_xml):
     """Check if the write() function of the XmlHandler will be called properly
-    if we execute DocManager with options
+    by the Actions class
     """
 
     testfile = tmp_valid_xml.strpath
