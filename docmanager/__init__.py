@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.0.0-RC3"
+__version__="3.0.0-RC4"
 
 from docmanager.action import Actions
 from docmanager.cli import parsecli
