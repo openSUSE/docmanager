@@ -107,6 +107,7 @@ class Actions(object):
         :rtype: list
         """
         logmgr_flog()
+        
         return [ (xh.filename, xh.get(arguments)) for xh in self.__xml ]
 
 

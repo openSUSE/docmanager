@@ -17,8 +17,8 @@
 # you may find current contact information at www.suse.com
 
 import json
+from collections import OrderedDict
 from prettytable import PrettyTable
-
 
 def textrenderer(data, **kwargs):
     """Normal text output
@@ -44,7 +44,12 @@ def tablerenderer(data, **kwargs):
     raise NotImplementedError
 
 def jsonrenderer(data, **kwargs):
-    raise NotImplementedError
+    json_out = OrderedDict()
+    for i in data:
+        json_out[i[0]] = {}
+        json_out[i[0]] = i[1]
+    
+    print(json.dumps(json_out))
 
 def xmlrenderer(data, **kwargs):
     raise NotImplementedError

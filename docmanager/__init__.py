@@ -25,7 +25,6 @@ from docmanager.display import getrenderer
 from docmanager.logmanager import log
 import sys
 
-
 def main(cliargs=None):
     """Entry point for the application script
 
@@ -34,7 +33,13 @@ def main(cliargs=None):
     try:
         a = Actions(parsecli(cliargs))
         res = a.parse()
-        renderer = getrenderer(a.args.format)
+        renderer = None
+
+        if hasattr(a.args, 'format') is False:
+            renderer = getrenderer('default')
+        else:
+            renderer = getrenderer(a.args.format)
+        
         renderer(res)
     except PermissionError as err:
         log.error("{} on file {!r}.".format(err.args[1], err.filename))

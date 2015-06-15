@@ -20,9 +20,8 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, \
      NS, ReturnCodes, VALIDROOTS
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import compilestarttag, ensurefileobj, findprolog, \
-     get_namespace, recover_entities, replaceinstream, preserve_entities, \
-     findinfo_pos
+from docmanager.xmlutil import compilestarttag, ensurefileobj, findinfo_pos, findprolog, \
+     get_namespace, localname, recover_entities, replaceinstream, preserve_entities
 from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
@@ -205,6 +204,9 @@ class XmlHandler(object):
         """
         logmgr_flog()
 
+        if len(keys) == 0:
+            return self.get_all()
+        
         values = {}
         for child in self.__docmanager.iterchildren():
             tag = etree.QName(child)
@@ -224,7 +226,7 @@ class XmlHandler(object):
 
         ret = dict()
         for i in self.__docmanager.iterchildren():
-            ret[i.tag] = i.text
+            ret[localname(i.tag)] = i.text
 
         return ret
 

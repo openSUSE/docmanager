@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 from collections import namedtuple
-from docmanager.core import ReturnCodes, NS
+from docmanager.core import NS, ReturnCodes, VALIDROOTS
 from io import StringIO
 from itertools import accumulate
 import re
@@ -94,6 +94,16 @@ def replaceinstream(stream, func):
 
     result.seek(0)
     return result
+
+def check_root_element(rootelem, etree):
+    """Checks if root element is valid
+    
+    :param object: root element (object)
+    :param object: etree element (etree object)"""
+    tag = etree.QName(rootelem.tag)
+    if tag.localname not in VALIDROOTS:
+        raise ValueError("Cannot add info element to %s. "
+                         "Not a valid root element." % tag.localname)
 
 # -------------------------------------------------------------------
 
