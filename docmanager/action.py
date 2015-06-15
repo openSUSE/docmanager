@@ -87,7 +87,7 @@ class Actions(object):
                 log.debug("Trying to set value for property '{}' to '{}'".format(key, value))
                 for xh in self.__files:
                     xml = XmlHandler(xh)
-                    xml.set(key, value)
+                    xml.set({key: value})
                     xml.write()
 
                 print("Set value for property \"{}\" to \"{}\".".format(key, value))
