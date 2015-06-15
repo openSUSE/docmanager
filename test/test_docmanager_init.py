@@ -10,6 +10,7 @@ from docmanager.xmlhandler import XmlHandler
 
 import shlex
 
+@pytest.mark.xfail
 def test_docmanager_init(tmp_valid_xml, capsys):
     """ Test the init sub command """
 

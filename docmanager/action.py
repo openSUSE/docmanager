@@ -18,9 +18,10 @@
 
 import json
 import sys
-from docmanager import filehandler
+# from docmanager import filehandler
 from docmanager import table
 from docmanager.core import ReturnCodes
+from docmanager.display import getrenderer
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlhandler import XmlHandler
 from docmanager.xmlutil import localname
@@ -30,7 +31,7 @@ class Actions(object):
     """An Actions instance represents an action event
     """
 
-    __keywords=["SELECT", "WHERE", "SORTBY"]
+    # __keywords=["SELECT", "WHERE", "SORTBY"]
 
     def __init__(self, args):
         """Initialize Actions class
@@ -39,34 +40,34 @@ class Actions(object):
         """
         logmgr_flog()
 
-        files = args.files
-        action = args.action
-        arguments = args.arguments
-
+        self.__files = args.files
         self.__args = args
-        self.__files = filehandler.Files(files)
+        self.__xml = [ XmlHandler(x) for x in self.__files ]
 
+
+    def parse(self,):
+        action = self.__args.action
         if hasattr(self, action) and getattr(self, action) is not None:
-            log.debug("Action.__init__: {}".format(args))
-            getattr(self, action)(arguments)
+            log.debug("Action.__init__: {}".format(self.__args))
+            return getattr(self, action)(self.__args.properties)
         else:
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
 
+
     def init(self, arguments):
         log.debug("Arguments {}".format(arguments))
-        for i in self.__args.files:
-            log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(i))
-            handler = XmlHandler(i)
-            if handler.init_default_props(self.__args.force) == 0:
-                print("Initialized default properties for '{}'.".format(i))
+        for xh in self.__xml:
+            log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
+            if xh.init_default_props(self.__args.force) == 0:
+                log.info("Initialized default properties for '{}'.".format(xh.filename))
             else:
-                print("Could not initialize all properties for '{}' because "
+                log.warn("Could not initialize all properties for '{}' because "
                       "there are already some properties in the XML file "
                       "which would be overwritten after this operation has been "
                       "finished. If you want to perform this operation and "
                       "overwrite the existing properties, you can add the "
-                      "'--force' option to your command.".format(i))
+                      "'--force' option to your command.".format(xh.filename))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -75,103 +76,52 @@ class Actions(object):
         """
         logmgr_flog()
 
-        for argument in arguments:
-            if argument.find("=") >= 0:
-                key, value = argument.split("=")
+        args = [ i.split("=") for i in arguments]
 
+        for arg in args:
+            key, value = arg
+            try:
                 if key == "languages":
-                    values = value.split(",")
-                    if len(values) > 1:
-                        value = ",".join(self.remove_duplicate_langcodes(values))
-
+                    value = value.split(",")
+                    value = ",".join(self.remove_duplicate_langcodes(value))
                 log.debug("Trying to set value for property '{}' to '{}'".format(key, value))
-                self.__files.set(key, value)
+                for xh in self.__files:
+                    xml = XmlHandler(xh)
+                    xml.set(key, value)
+                    xml.write()
 
                 print("Set value for property \"{}\" to \"{}\".".format(key, value))
-            else:
-                log.error("Invalid usage. Set values with the following format: property=value")
+
+            except ValueError:
+                log.error('Invalid usage. '
+                          'Set values with the following format: '
+                          'property=value')
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+
 
     def get(self, arguments):
         """Lists all properties
 
-        :param list arguments
+        :param list arguments:
+        :return: [(FILENAME, {PROPERTIES}), ...]
+        :rtype: list
+        """
+        logmgr_flog()
+        return [ (xh.filename, xh.get(arguments)) for xh in self.__xml ]
+
+
+    def delete(self, arguments):
+        """Delete a property
+
+        :param list arguments:
         """
         logmgr_flog()
 
-        #get the key=value pairs and print them file by file
-        file_values = self.__files.get(arguments)
-        # files_count = len(file_values.items())
+        for argument in arguments:
+            log.debug("Trying to delete property \"%s\".", argument)
+            self.__files.set(argument)
+            print("Property \"{}\" has been deleted.".format(argument))
 
-        if not len(arguments):
-            json_out = {}
-
-            for i in file_values.keys():
-                count = 0
-
-                if self.__args.format == "table":
-                    print("Properties in " + i + ":")
-
-                    tbl = PrettyTable(["Property", "Value"])
-                    tbl.padding_width = 1 # One space between column edges and contents (default)
-
-                    handler = XmlHandler(i)
-                    x = handler.get_all()
-                    for k in x.keys():
-                        prop = localname(k)
-
-                        tbl.add_row([prop, x[k]])
-                        count += 1
-
-                    if count > 0:
-                        print(tbl)
-                elif self.__args.format == "json":
-                    json_out[i] = {}
-                    handler = XmlHandler(i)
-                    x = handler.get_all()
-                    for k in x.keys():
-                        prop = localname(k)
-                        json_out[i][prop] = x[k]
-                else:
-                    print("Properties in " + i + ":")
-
-                    handler = XmlHandler(i)
-                    x = handler.get_all()
-                    for k in x.keys():
-                        prop = localname(k)
-                        print(prop + ": " + x[k])
-
-            if self.__args.format == "json":
-                print(json.dumps(json_out))
-        else:
-            if self.__args.format == "table":
-                count = 0
-
-                tbl = PrettyTable(["Property", "Value"])
-                tbl.padding_width = 1 # One space between column edges and contents (default)
-
-                for i in sorted(file_values.keys()):
-                    for x in file_values[i]:
-                        tbl.add_row([x, file_values[i][x]])
-                        count += 1
-
-                if count > 0:
-                    print(tbl)
-            elif self.__args.format == "json":
-                out = {}
-                for i in sorted(file_values.keys()):
-                    out[i] = {}
-                    for x in file_values[i]:
-                        out[i][x] = file_values[i][x]
-
-                print(json.dumps(out))
-            else:
-                for i in sorted(file_values.keys()):
-                    for x in file_values[i]:
-                        if len(file_values[i]) > 1:
-                            print("{}: {}".format(x, file_values[i][x]))
-                        else:
-                            print(file_values[i][x])
 
     def query(self, arguments):
         """Display table after selecting properties
@@ -200,70 +150,6 @@ class Actions(object):
         tbl.sort(sort)
         print(tbl)
 
-    def delete(self, arguments):
-        """Delete a property
-
-        :param list arguments:
-        """
-        logmgr_flog()
-
-        for argument in arguments:
-            log.debug("Trying to delete property \"%s\".", argument)
-            self.__files.set(argument)
-            print("Property \"{}\" has been deleted.".format(argument))
-
-    def split_arguments(self, arguments):
-        """TODO:
-
-        :param list arguments:
-        :return:
-        :rtype:  dict
-        """
-        logmgr_flog()
-
-        splited_arguments = {}
-        for keyword in self.__keywords:
-            splited_arguments.update({keyword:[]})
-
-        keyword = None
-        for part in arguments:
-            if part in self.__keywords:
-                keyword = part
-            elif keyword is not None:
-                splited_arguments[keyword].append(part)
-        return splited_arguments
-
-    def parse_where(self, where):
-        """TODO:
-
-        :param list where:
-        :return:
-        :rtype: dict
-        """
-
-        logmgr_flog()
-
-        filterd_where = {}
-        for pair in where:
-            key, values = pair.split("=")
-            value = values.split(",")
-            filterd_where.update({key:value})
-        return filterd_where
-
-    def parse_sort(self, sort):
-        """TODO:
-
-        :param sort:
-        :return:
-        :rtype:  None or TODO
-        """
-        logmgr_flog()
-
-        if len(sort) > 0:
-            return sort[0]
-        else:
-            return None
-
     def remove_duplicate_langcodes(self, values):
         new_list = []
         for i in values:
@@ -271,3 +157,7 @@ class Actions(object):
                 new_list.append(i)
 
         return new_list
+
+    @property
+    def args(self):
+        return self.__args

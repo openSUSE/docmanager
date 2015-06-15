@@ -198,7 +198,7 @@ def parsecli(cliargs=None):
     if args.action in ("s", "set"):
         args.properties.extend(populate_properties(args))
 
-    args.arguments = args.properties
+    # args.arguments = args.properties
     loglevel = {
         None: logging.NOTSET,
         1: logging.INFO,

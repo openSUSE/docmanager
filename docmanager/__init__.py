@@ -19,8 +19,9 @@
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
 __version__="3.0.0-RC3"
 
-from docmanager import action
+from docmanager.action import Actions
 from docmanager.cli import parsecli
+from docmanager.display import getrenderer
 from docmanager.logmanager import log
 import sys
 
@@ -31,7 +32,10 @@ def main(cliargs=None):
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
     try:
-        action.Actions(parsecli(cliargs))
+        a = Actions(parsecli(cliargs))
+        res = a.parse()
+        renderer = getrenderer(a.args.format)
+        renderer(res)
     except PermissionError as err:
         log.error("{} on file {!r}.".format(err.args[1], err.filename))
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
