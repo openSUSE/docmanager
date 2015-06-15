@@ -2,8 +2,11 @@
 
 import json
 import pytest
-from docmanager import parsecli
+import shlex
+from docmanager import main
 from docmanager.action import Actions
+from docmanager.cli import parsecli
+from docmanager.display import getrenderer
 
 def test_docmanager_jsonout(tmp_valid_xml, capsys):
     """ Test the json output format """
@@ -11,12 +14,17 @@ def test_docmanager_jsonout(tmp_valid_xml, capsys):
 
     # set some test values
     clicmd = 'set -p hello=world -p suse=green -p json=test {}'.format(tmp_file)
-    Actions(parsecli(clicmd.split()))
+    a = Actions(parsecli(shlex.split(clicmd)))
+    a.parse()
     out, err = capsys.readouterr()
 
     # read only 2 properties
     clicmd = 'get -p hello -p suse {} --format json'.format(tmp_file)
-    a = Actions(parsecli(clicmd.split()))
+    a = Actions(parsecli(shlex.split(clicmd)))
+    res = a.parse()
+    renderer = getrenderer('json')
+    renderer(res)
+
     out, err = capsys.readouterr()
 
     not_json = False
@@ -34,7 +42,11 @@ def test_docmanager_jsonout(tmp_valid_xml, capsys):
 
     # read all properties
     clicmd = 'get {} --format json'.format(tmp_file)
-    a = Actions(parsecli(clicmd.split()))
+    a = Actions(parsecli(shlex.split(clicmd)))
+    res = a.parse()
+    renderer = getrenderer('json')
+    renderer(res)
+
     out, err = capsys.readouterr()
 
     not_json = False

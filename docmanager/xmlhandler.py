@@ -203,6 +203,9 @@ class XmlHandler(object):
         """
         logmgr_flog()
 
+        if len(keys) == 0:
+            return self.get_all()
+        
         values = {}
         for child in self.__docmanager.iterchildren():
             tag = etree.QName(child)
@@ -222,7 +225,7 @@ class XmlHandler(object):
 
         ret = dict()
         for i in self.__docmanager.iterchildren():
-            ret[i.tag] = i.text
+            ret[localname(i.tag)] = i.text
 
         return ret
 

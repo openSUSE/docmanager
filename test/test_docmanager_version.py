@@ -2,7 +2,7 @@
 
 import pytest
 from docmanager import __version__
-from docmanager import parsecli
+from docmanager.cli import parsecli
 
 def test_version():
     """Check if version is available and set"""
