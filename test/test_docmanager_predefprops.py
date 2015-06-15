@@ -5,9 +5,9 @@ from argparse import Namespace
 from conftest import compare_pytest_version
 from docmanager.action import Actions
 from docmanager.cli import parsecli
+from docmanager.display import getrenderer
 import shlex
 
-@pytest.mark.xfail
 @pytest.mark.skipif(compare_pytest_version((2,6,4)),
                     reason="Need 2.6.4 to execute this test")
 @pytest.mark.parametrize("option,value", [
@@ -24,10 +24,16 @@ def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     # write test
     clicmd = shlex.split('set --{} {} {}'.format(option, value, tmp_valid_xml))
     a = Actions(parsecli(clicmd))
+    a.parse()
+    out, err = capsys.readouterr()
 
     # read test
     clicmd = shlex.split('get -p {} {}'.format(option, tmp_valid_xml))
     a = Actions(parsecli(clicmd))
+    res = a.parse()
+    renderer = getrenderer('default')
+    renderer(res)
+
     out, err = capsys.readouterr()
 
     expected = value

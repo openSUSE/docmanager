@@ -32,6 +32,14 @@ def textrenderer(data, **kwargs):
     if data is None:
         return
 
+    # print only the value of the given property if only one property and only one file are given
+    if len(data) == 1:
+        if len(data[0][1]) == 1:
+            for v in data[0][1]:
+                print(data[0][1][v])
+                return
+    
+    # if there are more than one file or one property
     for d in data:
         props = d[1]
         props = " ".join([ "%s=%s" % (key, value) for key, value in props.items()])

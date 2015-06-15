@@ -10,13 +10,13 @@ from docmanager.xmlhandler import XmlHandler
 
 import shlex
 
-@pytest.mark.xfail
 def test_docmanager_init(tmp_valid_xml, capsys):
     """ Test the init sub command """
 
     # init without force
     clicmd = 'init {}'.format(tmp_valid_xml.strpath)
     a = Actions(parsecli(shlex.split(clicmd)))
+    a.parse()
 
     handler = XmlHandler(tmp_valid_xml.strpath)
     for i in DefaultDocManagerProperties:

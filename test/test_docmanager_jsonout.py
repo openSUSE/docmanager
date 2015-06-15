@@ -8,7 +8,6 @@ from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.display import getrenderer
 
-#@pytest.mark.xfail
 def test_docmanager_jsonout(tmp_valid_xml, capsys):
     """ Test the json output format """
     tmp_file = tmp_valid_xml.strpath
