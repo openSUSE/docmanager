@@ -45,10 +45,10 @@ class ReturnCodes(object):
     E_PERMISSION_DENIED = 11
     E_NOT_DOCBOOK5_FILE = 12
 
-VALIDROOTS = ('abstract', 'address', 'annotation', 'article', 'audiodata',
+VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
               'bibliolist', 'blockquote', 'book', 'calloutlist',
-              'calloutlist', 'caption', 'caution', 'classsynopsis',
+              'calloutlist', 'caption', 'caution', 'chapter', 'classsynopsis',
               'classsynopsisinfo', 'cmdsynopsis', 'cmdsynopsis', 'components',
               'constraintdef', 'constructorsynopsis', 'destructorsynopsis',
               'epigraph', 'equation', 'equation', 'example', 'fieldsynopsis',
@@ -60,7 +60,7 @@ VALIDROOTS = ('abstract', 'address', 'annotation', 'article', 'audiodata',
               'informaltable', 'inlinemediaobject', 'itemizedlist', 'legalnotice',
               'literallayout', 'mediaobject', 'methodsynopsis', 'msg', 'msgexplan',
               'msgmain', 'msgrel', 'msgset', 'msgsub', 'note', 'orderedlist',
-              'para', 'part', 'partintro', 'personblurb', 'procedure',
+              'para', 'part', 'partintro', 'personblurb', 'preface', 'procedure',
               'productionset', 'programlisting', 'programlistingco',
               'programlistingco', 'qandadiv', 'qandaentry', 'qandaset',
               'qandaset', 'refentry', 'refsect1', 'refsect2', 'refsect3',
