@@ -14,6 +14,7 @@ def test_XmlHandler_set(tmp_valid_xml):
     xml = XmlHandler(tmp_valid_xml.strpath)
     assert xml, "No XmlHandler could be instantiated"
     xml.set({"foo": "2"})
+    xml.write()
     dm = xml.tree.find("//dm:docmanager", namespaces=NS)
     assert len(dm), "expected child elements in docmanager"
 

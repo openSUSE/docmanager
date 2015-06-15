@@ -175,8 +175,6 @@ class XmlHandler(object):
                                              "{{{dm}}}docmanager".format(**NS),
                                              nsmap={'dm': NS['dm']},
                                             )
-        #print("docmanager?: %s" % etree.tostring(self.__tree, encoding="unicode"))
-        self.write()
 
     def set(self, pairs):
         """Sets the key as element and value as content
@@ -203,8 +201,6 @@ class XmlHandler(object):
                                         # nsmap=NS
                                         )
                 node.text = pairs[i]
-        
-        self.write()
 
     def is_set(self, key, values):
         """Checks if element 'key' exists with 'values'
@@ -287,7 +283,6 @@ class XmlHandler(object):
 
         if key_handler is not None:
             key_handler.getparent().remove(key_handler)
-            self.write()
 
     def get_indendation(self, node, indendation=""):
         """Calculates indendation level

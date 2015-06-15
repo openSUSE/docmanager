@@ -68,6 +68,8 @@ class Actions(object):
                       "finished. If you want to perform this operation and "
                       "overwrite the existing properties, you can add the "
                       "'--force' option to your command.".format(xh.filename))
+            
+            xh.write()
 
     def set(self, arguments):
         """Set key/value pairs from arguments
