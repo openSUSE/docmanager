@@ -103,9 +103,8 @@ class XmlHandler(object):
         """Checks if root element is valid"""
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
-            raise ValueError("Cannot add info element to %s. "
-                             "Not a valid root element." % tag.localname)
-
+            raise ValueError("Cannot add info element to file '{}'. '{}' is not a valid root "
+                             "element.".format(self._filename, localname(self.__root.tag)))
 
     def create_group(self):
         """Creates the docmanager group element"""
