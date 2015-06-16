@@ -139,19 +139,6 @@ def parsecli(cliargs=None):
     pdel.add_argument('-p', '--properties', **propargs)
     pdel.add_argument("files", **filesargs)
 
-    # analyze subparser
-    panalyze = subparsers.add_parser('query',
-                                     aliases=['q', 'analyze'],
-                                     help='Similar to get, but query can be given as pseudo SQL syntax. '  \
-                                        'allowed keywords are SELECT, WHERE, and SORTBY. ' \
-                                        'Output is formatted as table.'
-                                    )
-    panalyze.add_argument("files",
-                nargs='+',
-                metavar="FILES",
-                help='One or more DocBook XML or DC files.'
-                )
-
     ## -----
     args = parser.parse_args(args=cliargs)
 
@@ -163,10 +150,7 @@ def parsecli(cliargs=None):
                 "d":       "delete",
                 "del":     "delete",
                 "s":       "set",
-                "set":     "set",
-                "q":       "query",
-                "a":       "query",
-                "analyze": "query",
+                "set":     "set"
                }
     args.action = actions.get(args.action)
 

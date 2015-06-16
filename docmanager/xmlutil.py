@@ -16,13 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import re
+import sys
+import xml.sax
 from collections import namedtuple
 from docmanager.core import NS, ReturnCodes, VALIDROOTS
+from docmanager.logmanager import log
 from io import StringIO
 from itertools import accumulate
-import re
-
-import xml.sax
 
 # -------------------------------------------------------------------
 # Regular Expressions
@@ -164,7 +165,13 @@ def ensurefileobj(source):
         else:
             # source isn't a file-like object nor starts with XML structure
             # so it has to be a filename
-            return StringIO(open(source, 'r').read())
+            try:
+                res = StringIO(open(source, 'r').read())
+            except FileNotFoundError as err:
+                log.error("Could not find file '{}'.".format(err.filename))
+                sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+            
+            return res
     # TODO: Check if source is an URL; should we allow this?
 
 
