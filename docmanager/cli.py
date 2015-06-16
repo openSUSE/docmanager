@@ -60,7 +60,7 @@ def parsecli(cliargs=None):
 
     parser = argparse.ArgumentParser(
         prog="docmanager",
-        usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]",
+        # usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]\n",
         description="Docmanager sets, gets, delets, or queries "
                     "meta-information for DocBook5 XML files.")
     parser.add_argument('--version',
