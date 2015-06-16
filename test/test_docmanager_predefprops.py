@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
 import pytest
+import shlex
 from argparse import Namespace
 from conftest import compare_pytest_version
 from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.display import getrenderer
-import shlex
 
 @pytest.mark.skipif(compare_pytest_version((2,6,4)),
                     reason="Need 2.6.4 to execute this test")
@@ -18,17 +18,19 @@ import shlex
     ('priority', '2'),
     ('translation', 'no'),
     ('languages', 'en,de'),
+    ('release', 'SLES'),
+    ('release', 'SUSE Linux Enterprise Server 12'),
 ])
 def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     """Check predefined property actions"""
     # write test
-    clicmd = shlex.split('set --{} {} {}'.format(option, value, tmp_valid_xml))
+    clicmd = shlex.split('set --{} "{}" {}'.format(option, value, tmp_valid_xml))
     a = Actions(parsecli(clicmd))
     a.parse()
     out, err = capsys.readouterr()
 
     # read test
-    clicmd = shlex.split('get -p {} {}'.format(option, tmp_valid_xml))
+    clicmd = shlex.split('get -p "{}" {}'.format(option, tmp_valid_xml))
     a = Actions(parsecli(clicmd))
     res = a.parse()
     renderer = getrenderer('default')

@@ -181,6 +181,14 @@
       </para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--release</option> <replaceable>RELEASE</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the release type (Example: SUSE Linux Enterprise Server 12) for the given XML files. Note: If you use <option>-p</option> release=FOO, <option>--release</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>
   <refsect2>

@@ -34,7 +34,6 @@ def populate_properties(args):
     :return: list of property=value items
     :rtype: list
     """
-    logmgr_flog()
 
     result=[]
     for prop in DefaultDocManagerProperties:
@@ -131,6 +130,9 @@ def parsecli(cliargs=None):
                     )
     pset.add_argument('-L', '--languages',
                       help='Set the property "languages" for the given documents.'
+                    )
+    pset.add_argument('-R', '--release',
+                      help='Set the property "release" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
 
