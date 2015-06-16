@@ -23,7 +23,7 @@ import re
 import sys
 from docmanager import __version__
 from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
-from docmanager.logmanager import log
+from docmanager.logmanager import log, logmgr_flog
 from prettytable import PrettyTable
 
 
@@ -34,6 +34,8 @@ def populate_properties(args):
     :return: list of property=value items
     :rtype: list
     """
+    logmgr_flog()
+
     result=[]
     for prop in DefaultDocManagerProperties:
         if hasattr(args, prop) and getattr(args, prop) is not None:
@@ -46,6 +48,7 @@ def parsecli(cliargs=None):
     :return: parsed arguments
     :rtype: argparse.Namespace
     """
+
     filesargs = dict(nargs='+',
                      metavar="FILE",
                      help='One or more DocBook XML or DC files.'
@@ -202,6 +205,8 @@ def show_langlist(columns=None):
     :param int columns: Maximum number of characters in a column;
                         None to fill the current terminal window
     """
+    logmgr_flog()
+
     try:
         import os
         from shutil import get_terminal_size
@@ -230,43 +235,7 @@ def show_langlist(columns=None):
                 x.append("")
         print(fmt.format(*x))
     print(line)
-    sys.exit(ReturnCodes.E_OK)
-
-
-def show_langlist(columns=None):
-    """Prints the language table
-
-    :param int columns: Maximum number of characters in a column;
-                        None to fill the current terminal window
-    """
-    try:
-        import os
-        from shutil import get_terminal_size
-    except ImportError:
-        def get_terminal_size(fallback=(80, 24)):
-            return os.terminal_size(fallback)
-
-    maxl = max([len(i) for i in LANGUAGES])
-
-    if columns is None or columns < maxl:
-        columns = get_terminal_size().columns
-    length = len(LANGUAGES)
-    padding = 2
-    rowwidth = maxl + padding + 1
-    divisor = columns // rowwidth
-    maxline = divisor * rowwidth
-
-    fmt="".join([ "{{:<{}}}|".format(maxl + padding) for _ in range(divisor)])
-    line = "-"*maxline
-    print(line)
-    for start, stop in zip(range(0, length, divisor),
-                           range(divisor, length+divisor, divisor)):
-        x = list(LANGUAGES[start:stop])
-        if len(x) < divisor:
-            for i in range(divisor - len(x)):
-                x.append("")
-        print(fmt.format(*x))
-    print(line)
+    
     sys.exit(ReturnCodes.E_OK)
 
 def input_format_check(args):
@@ -274,6 +243,8 @@ def input_format_check(args):
 
     :param object args: Arguments object from argparser
     """
+    logmgr_flog()
+
     if hasattr(args, 'status') and args.status is not None:
         values = [ 'editing', 'edited', 'proofing', 'proofed', 'comment', 'ready' ]
         if args.status not in values:

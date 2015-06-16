@@ -133,6 +133,8 @@ class XmlHandler(object):
     
         :param bool force: Ignore if there are already properties in an XML - just overwrite them
         """
+        logmgr_flog()
+        
         ret = 0
         for i in DefaultDocManagerProperties:
             if (i not in self.get(i)) or \
@@ -145,6 +147,8 @@ class XmlHandler(object):
 
     def check_root_element(self):
         """Checks if root element is valid"""
+        logmgr_flog()
+        
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
             raise ValueError("Cannot add info element to file '{}'. '{}' is not a valid root "
@@ -230,6 +234,8 @@ class XmlHandler(object):
         :return: if property is set
         :rtype: bool
         """
+        logmgr_flog()
+        
         element = self.__docmanager.find("./dm:{}".format(prop), namespaces=NS)
         if element is not None:
             return True
@@ -265,6 +271,7 @@ class XmlHandler(object):
     def get_all(self):
         """Returns all keys and values in a docmanager xml file
         """
+        logmgr_flog()
 
         ret = dict()
         for i in self.__docmanager.iterchildren():
@@ -278,6 +285,7 @@ class XmlHandler(object):
         :param str key: element name to delete
         """
         logmgr_flog()
+
         key_handler = self.__docmanager.find("./dm:"+key,
                                              namespaces=NS)
 
@@ -290,6 +298,8 @@ class XmlHandler(object):
         :param lxml.etree._Element node: node where to start
         :param str indendation: Additional indendation
         """
+        logmgr_flog()
+        
         indent = ""
         if node is not None:
             indent = "".join(["".join(n.tail.split("\n"))
@@ -299,6 +309,8 @@ class XmlHandler(object):
 
     def indent_dm(self):
         """Indents only dm:docmanager element and its children"""
+        logmgr_flog()
+        
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=NS)
@@ -331,6 +343,7 @@ class XmlHandler(object):
     def write(self):
         """Write XML tree to original filename"""
         logmgr_flog()
+        
         # Only indent docmanager child elements
         self.indent_dm()
 

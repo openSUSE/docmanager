@@ -42,7 +42,9 @@ class Actions(object):
         self.__xml = [ XmlHandler(x) for x in self.__files ]
 
 
-    def parse(self,):
+    def parse(self):
+        logmgr_flog()
+        
         action = self.__args.action
         if hasattr(self, action) and getattr(self, action) is not None:
             log.debug("Action.__init__: {}".format(self.__args))
@@ -53,7 +55,9 @@ class Actions(object):
 
 
     def init(self, arguments):
+        logmgr_flog()
         log.debug("Arguments {}".format(arguments))
+        
         for xh in self.__xml:
             log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
             if xh.init_default_props(self.__args.force) == 0:
