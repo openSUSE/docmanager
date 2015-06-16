@@ -25,7 +25,6 @@ import urllib.request
 from docmanager import __version__
 from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
 from docmanager.logmanager import log, logmgr_flog
-from prettytable import PrettyTable
 
 def populate_properties(args):
     """Populate args.properties from "standard" options
