@@ -107,8 +107,6 @@ class Actions(object):
                           'property=value')
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
-        print("")
-
         # save the changes
         for file in self.__files:
             log.debug("[{}] Trying to save the changes.".format(file))

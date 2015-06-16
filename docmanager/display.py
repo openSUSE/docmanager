@@ -38,12 +38,13 @@ def textrenderer(data, **kwargs):
             for v in data[0][1]:
                 print(data[0][1][v])
                 return
-    
+
     # if there are more than one file or one property
     for d in data:
         props = d[1]
         props = " ".join([ "%s=%s" % (key, value) for key, value in props.items()])
-        print("{} -> {}".format(d[0], props))
+        if len(props):
+            print("{} -> {}".format(d[0], props))
 
 
 DEFAULTRENDERER = textrenderer
