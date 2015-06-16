@@ -18,7 +18,6 @@
 
 import json
 import sys
-# from docmanager import filehandler
 from docmanager import table
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
