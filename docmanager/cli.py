@@ -297,3 +297,6 @@ def input_format_check(args):
             else:
                 log.warn("The given URL '{}' seems to be invalid or the remote server is not online. Please double check if"
                          " the URL is correct. Nevertheless the URL will be written into the given files.".format(args.repository))
+        
+        if hasattr(request, 'close'):
+            request.close()
