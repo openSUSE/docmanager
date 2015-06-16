@@ -21,6 +21,7 @@ __version__="3.0.0-RC4"
 
 from docmanager.action import Actions
 from docmanager.cli import parsecli
+from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
 from docmanager.logmanager import log
 import sys
@@ -47,3 +48,6 @@ def main(cliargs=None):
     except ValueError as err:
         log.error(err)
         sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
+    except FileNotFoundError as err:
+        log.error("Could not find file '{}'.".format(err.filename))
+        sys.exit(ReturnCodes.E_FILE_NOT_FOUND)

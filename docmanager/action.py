@@ -18,7 +18,6 @@
 
 import json
 import sys
-# from docmanager import filehandler
 from docmanager import table
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
@@ -30,8 +29,6 @@ from prettytable import PrettyTable
 class Actions(object):
     """An Actions instance represents an action event
     """
-
-    # __keywords=["SELECT", "WHERE", "SORTBY"]
 
     def __init__(self, args):
         """Initialize Actions class
@@ -45,7 +42,9 @@ class Actions(object):
         self.__xml = [ XmlHandler(x) for x in self.__files ]
 
 
-    def parse(self,):
+    def parse(self):
+        logmgr_flog()
+        
         action = self.__args.action
         if hasattr(self, action) and getattr(self, action) is not None:
             log.debug("Action.__init__: {}".format(self.__args))
@@ -56,7 +55,9 @@ class Actions(object):
 
 
     def init(self, arguments):
+        logmgr_flog()
         log.debug("Arguments {}".format(arguments))
+        
         for xh in self.__xml:
             log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
             if xh.init_default_props(self.__args.force) == 0:
@@ -124,34 +125,6 @@ class Actions(object):
             log.debug("Trying to delete property \"%s\".", argument)
             self.__files.set(argument)
             print("Property \"{}\" has been deleted.".format(argument))
-
-
-    def query(self, arguments):
-        """Display table after selecting properties
-
-        :param list arguments:
-        """
-        logmgr_flog()
-
-        #split the arguments by sql like keywords
-        #and convert strings into dicts
-        splited_arguments = self.split_arguments(arguments)
-        values = self.__files.get(splited_arguments["SELECT"])
-        where = self.parse_where(splited_arguments["WHERE"])
-        sort = self.parse_sort(splited_arguments["SORTBY"])
-
-        #if the file has no key=value match remove the file
-        #from the list
-        is_set = self.__files.is_set(where)
-        for fileobj, boolean in is_set.items():
-            if boolean is False:
-                values.pop(fileobj)
-
-        #create the table, add content, sort and print
-        tbl = table.Table()
-        tbl.add_by_list(values)
-        tbl.sort(sort)
-        print(tbl)
 
     def remove_duplicate_langcodes(self, values):
         new_list = []
