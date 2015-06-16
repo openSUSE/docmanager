@@ -297,11 +297,11 @@ class XmlHandler(object):
                 if key_handler.text == condition:
                     key_handler.getparent().remove(key_handler)
 
-    def get_indendation(self, node, indendation=""):
-        """Calculates indendation level
+    def get_indentation(self, node, indentation=""):
+        """Calculates indentation level
 
         :param lxml.etree._Element node: node where to start
-        :param str indendation: Additional indendation
+        :param str indentation: Additional indentation
         """
         logmgr_flog()
         
@@ -310,7 +310,7 @@ class XmlHandler(object):
             indent = "".join(["".join(n.tail.split("\n"))
                           for n in node.iterancestors()
                             if n.tail is not None ])
-        return indent+indendation
+        return indent+indentation
 
     def indent_dm(self):
         """Indents only dm:docmanager element and its children"""
@@ -338,7 +338,7 @@ class XmlHandler(object):
             log.info("prev: %s", prev)
             previndent = "".join(prev.tail.split('\n'))
             prev.tail = '\n' + infoindent
-        indent=self.get_indendation(dm.getprevious())
+        indent=self.get_indentation(dm.getprevious())
         dm.text = '\n' + indent + '    '
         dm.tail = '\n' + infoindent
         for node in dm.iterchildren():
