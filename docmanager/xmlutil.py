@@ -16,13 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import re
+import sys
+import xml.sax
 from collections import namedtuple
-from docmanager.core import ReturnCodes, NS
+from docmanager.core import NS, ReturnCodes, VALIDROOTS
+from docmanager.logmanager import log, logmgr_flog
 from io import StringIO
 from itertools import accumulate
-import re
-
-import xml.sax
 
 # -------------------------------------------------------------------
 # Regular Expressions
@@ -41,6 +42,8 @@ def ent2txt(match, start="[[[", end="]]]"):
     :return: replaced string
     :rtype: str
     """
+    logmgr_flog()
+    
     if match:
         return "{}{}{}".format(start,
                                match.group(2),
@@ -54,6 +57,8 @@ def txt2ent(match):
     :return: replaced string
     :rtype: str
     """
+    logmgr_flog()
+    
     if match:
         return "&{};".format(match.group(2))
 
@@ -65,6 +70,8 @@ def preserve_entities(text):
     :return: the preserved text
     :rtype: str
     """
+    logmgr_flog()
+    
     return ENTS.sub(ent2txt, text)
 
 
@@ -75,6 +82,8 @@ def recover_entities(text):
     :return: the recovered text
     :rtype: str
     """
+    logmgr_flog()
+    
     return STEN.sub(txt2ent, text)
 
 
@@ -87,6 +96,8 @@ def replaceinstream(stream, func):
     :return: another stream with replaced entities
     :rtype: StringIO
     """
+    logmgr_flog()
+    
     result = StringIO()
 
     for line in stream:
@@ -94,6 +105,18 @@ def replaceinstream(stream, func):
 
     result.seek(0)
     return result
+
+def check_root_element(rootelem, etree):
+    """Checks if root element is valid
+    
+    :param object: root element (object)
+    :param object: etree element (etree object)"""
+    logmgr_flog()
+    
+    tag = etree.QName(rootelem.tag)
+    if tag.localname not in VALIDROOTS:
+        raise ValueError("Cannot add info element to %s. "
+                         "Not a valid root element." % tag.localname)
 
 # -------------------------------------------------------------------
 
@@ -104,6 +127,8 @@ def isXML(text):
        :return: True, if text can be considered as XML, otherwise False
        :rtype: bool
     """
+    logmgr_flog()
+    
     possiblestartstrings = (re.compile("<\?xml"),
                             re.compile("<!DOCTYPE"),
                             re.compile("<!--",),
@@ -125,6 +150,8 @@ def findinfo_pos(root):
     :return: position where to insert <info>
     :rtype: int
     """
+    logmgr_flog()
+    
     titles = root.xpath("(d:title|d:subtitle|d:titleabbrev)[last()]",
                                 namespaces=NS)
     if not titles:
@@ -143,7 +170,8 @@ def ensurefileobj(source):
        :param source: filename, file-like object, or string
        :return: StringIO or file-like object
     """
-
+    logmgr_flog()
+    
     # StringIO support:
     if hasattr(source, 'getvalue') and hasattr(source, 'tell'):
         # we return the source
@@ -154,7 +182,13 @@ def ensurefileobj(source):
         else:
             # source isn't a file-like object nor starts with XML structure
             # so it has to be a filename
-            return StringIO(open(source, 'r').read())
+            try:
+                res = StringIO(open(source, 'r').read())
+            except FileNotFoundError as err:
+                log.error("Could not find file '{}'.".format(err.filename))
+                sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+            
+            return res
     # TODO: Check if source is an URL; should we allow this?
 
 
@@ -168,6 +202,8 @@ def localname(tag):
     :return:  local name
     :rtype:  str
     """
+    logmgr_flog()
+    
     m = NAMESPACE_REGEX.search(tag)
     if m:
         return m.groupdict()['local']
@@ -181,6 +217,8 @@ def get_namespace(tag):
     :return:        namespace of the element
     :rtype:         str
     """
+    logmgr_flog()
+    
     m = NAMESPACE_REGEX.search(tag)
     if m:
         return m.groupdict()['ns']
@@ -195,8 +233,10 @@ def compilestarttag(roottag=None):
        :return: a pattern object
        :rtype: _sre.SRE_Pattern
     """
-# Taken from the xmllib.py
-# http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
+    logmgr_flog()
+    
+    # Taken from the xmllib.py
+    # http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
     _S = '[ \t\r\n]+'                       # white space
     _opS = '[ \t\r\n]*'                     # optional white space
     _Name = '[a-zA-Z_:][-a-zA-Z0-9._:]*'    # valid XML name
@@ -221,12 +261,16 @@ class LocatingWrapper(object):
        into offset
     """
     def __init__(self, f):
+        logmgr_flog()
+        
         self.f = f
         self.offset = [0]
         self.curoffs = 0
 
     def read(self, *a):
         """Read data"""
+        logmgr_flog()
+        
         data = self.f.read(*a)
         self.offset.extend(accumulate(len(m)+1 for m in data.split('\n')))
         return data
@@ -238,10 +282,13 @@ class LocatingWrapper(object):
         :return: offset
         :rtype:  int
         """
+        logmgr_flog()
+        
         return self.offset[locator.getLineNumber() - 1] + locator.getColumnNumber()
 
     def close(self):
         """Close the locator"""
+        logmgr_flog()
         # Normally, we would close our file(-alike) object and call
         #   self.f.close()
         # However, we need this object later, so do nothing
@@ -253,6 +300,8 @@ class Handler(xml.sax.handler.ContentHandler):
        get the location of all the elements
     """
     def __init__( self, context, locator):
+        logmgr_flog()
+        
         # handler.ContentHandler.__init__( self )
         super().__init__()
         self.context = context
@@ -265,6 +314,8 @@ class Handler(xml.sax.handler.ContentHandler):
 
         :param LocatingWrapper loc: LocatingWrapper object
         """
+        logmgr_flog()
+        
         self.loc = locator
 
     def startElement(self, name, attrs):
@@ -273,6 +324,8 @@ class Handler(xml.sax.handler.ContentHandler):
         :param str name:  XML 1.0 Name of the element
         :param Attributes attrs: attributes of the current element
         """
+        logmgr_flog()
+        
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen < 2:
@@ -287,6 +340,8 @@ class Handler(xml.sax.handler.ContentHandler):
 
         :param str name:  XML 1.0 Name of the element
         """
+        logmgr_flog()
+        
         eline = self.loc.getLineNumber()
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
@@ -302,6 +357,8 @@ class Handler(xml.sax.handler.ContentHandler):
         :param str target: the target of the PI
         :param str data:   the data of the PI
         """
+        logmgr_flog()
+        
         ctxlen = len(self.context)
         # Only append PIs when it's NOT before start-tag
         if ctxlen:
@@ -316,6 +373,8 @@ class Handler(xml.sax.handler.ContentHandler):
 
         :param str text: text content of the XML comment
         """
+        logmgr_flog()
+        
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen:
@@ -328,7 +387,10 @@ class Handler(xml.sax.handler.ContentHandler):
     # From LexicalParser
     def startCDATA(self):
         """Signals a CDATA section"""
+        logmgr_flog()
+        
         pass
+
     endCDATA = startCDATA
 
     def startDTD(self,  doctype, publicID, systemID):
@@ -338,14 +400,20 @@ class Handler(xml.sax.handler.ContentHandler):
         :param publicID: public identifier (or empty)
         :param systemID: system identifier (or empty)
         """
+        logmgr_flog()
+        
         pass
 
     def endDTD(self):
         """Reports the end of a DTD declaration"""
+        logmgr_flog()
+        
         pass
 
     def startEntity(self, name):
         """Reports the start of an entity"""
+        logmgr_flog()
+        
         pass
 
 
@@ -362,6 +430,8 @@ def findprolog(source, maxsize=5000):
              }
     :rtype: dict
     """
+    logmgr_flog()
+
     result = {}
 
     # context is used to save our locations
@@ -409,4 +479,5 @@ def findprolog(source, maxsize=5000):
     result['root'] = starttag
     result['offset'] = len(doctype)
     result['roottag'] = context[0][0]
+
     return result

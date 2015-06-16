@@ -3,7 +3,7 @@
 import pytest
 import shlex
 
-from docmanager import parsecli
+from docmanager.cli import parsecli
 from docmanager.action import Actions
 from docmanager.core import DefaultDocManagerProperties, NS
 from docmanager.xmlhandler import XmlHandler
@@ -12,7 +12,7 @@ from docmanager.xmlutil import localname
 def test_docmanager_delcheck(tmp_valid_xml):
     ustr = 'Uf4C56WL'
     handler = XmlHandler(tmp_valid_xml.strpath)
-    handler.set(ustr, 'blub')
+    handler.set({ustr: 'blub'})
     handler.delete(ustr)
 
     with open(tmp_valid_xml.strpath, 'r') as f:

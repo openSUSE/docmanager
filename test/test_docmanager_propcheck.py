@@ -2,7 +2,7 @@
 
 import pytest
 import shlex
-from docmanager import parsecli
+from docmanager.cli import parsecli
 
 @pytest.mark.parametrize("source,expected", [
     ("get -p hello -p world {}", ['hello', 'world']),
@@ -17,4 +17,4 @@ from docmanager import parsecli
 def test_docmanager_propcheck(source, expected, tmp_valid_xml):
     """Check the arguments from the argument parser for the set and get commands"""
     args = parsecli(shlex.split(source.format(tmp_valid_xml)))
-    assert args.arguments == expected
+    assert args.properties == expected

@@ -12,7 +12,7 @@ def test_overwrite(tmp_docmanager_overwrite):
     """
 
     handler = XmlHandler(tmp_docmanager_overwrite.strpath)
-    handler.set("hello", "world")
+    handler.set({"hello": "world"})
 
     assert handler.get("hello") == { "hello": "world" }, \
         'Could not override old value of property "hello" in file test.override.xml'
