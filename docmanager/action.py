@@ -18,6 +18,7 @@
 
 import json
 import sys
+from collections import OrderedDict
 from docmanager import table
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
@@ -79,21 +80,26 @@ class Actions(object):
         """
         logmgr_flog()
 
+        # init xml handlers for all given files
+        handlers = OrderedDict()
+        for i in self.__files:
+            handlers[i] = XmlHandler(i)
+
+        # split key and value
         args = [ i.split("=") for i in arguments]
 
+        # iter through all key and values
         for arg in args:
             key, value = arg
             try:
                 if key == "languages":
                     value = value.split(",")
                     value = ",".join(self.remove_duplicate_langcodes(value))
-                log.debug("Trying to set value for property '{}' to '{}'".format(key, value))
-                for xh in self.__files:
-                    xml = XmlHandler(xh)
-                    xml.set({key: value})
-                    xml.write()
 
-                print("Set value for property \"{}\" to \"{}\".".format(key, value))
+                for file in self.__files:
+                    log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(file, key, value))
+                    handlers[file].set({key: value})
+                    print("[{}] Set value for property \"{}\" to \"{}\".".format(file, key, value))
 
             except ValueError:
                 log.error('Invalid usage. '
@@ -101,6 +107,13 @@ class Actions(object):
                           'property=value')
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
+        print("")
+
+        # save the changes
+        for file in self.__files:
+            log.debug("[{}] Trying to save the changes.".format(file))
+            handlers[file].write()
+            print("[{}] Saved changes.".format(file))
 
     def get(self, arguments):
         """Lists all properties

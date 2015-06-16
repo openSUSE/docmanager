@@ -19,12 +19,13 @@
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
 __version__="3.0.0-RC4"
 
+import sys
 from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
 from docmanager.logmanager import log
-import sys
+from xml.sax._exceptions import SAXParseException
 
 def main(cliargs=None):
     """Entry point for the application script
