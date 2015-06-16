@@ -134,10 +134,31 @@ class Actions(object):
         """
         logmgr_flog()
 
-        for argument in arguments:
-            log.debug("Trying to delete property \"%s\".", argument)
-            self.__files.set(argument)
-            print("Property \"{}\" has been deleted.".format(argument))
+        handlers = dict()
+
+        for file in self.__files:
+            handlers[file] = XmlHandler(file)
+
+            for a in arguments:
+                prop = ""
+                cond = None
+
+                s = a.split("=")
+                if len(s) == 1:
+                    prop = s[0]
+                else:
+                    prop = s[0]
+                    s.pop(0)
+                    cond = "".join(s)
+
+                log.debug("[{}] Trying to delete property \"{}\".".format(file, a))
+                handlers[file].delete(prop, cond)
+                print("[{}] Property \"{}\" has been deleted.".format(file, a))
+
+        for file in self.__files:
+            log.debug("[{}] Trying to save the changes.".format(file, a))
+            handlers[file].write()
+            print("[{}] Saved changes.".format(file, a))
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

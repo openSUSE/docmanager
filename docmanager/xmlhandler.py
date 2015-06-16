@@ -279,18 +279,23 @@ class XmlHandler(object):
 
         return ret
 
-    def delete(self, key):
+    def delete(self, key, condition=None):
         """Deletes an element inside docmanager element
 
         :param str key: element name to delete
+        :param str condition: the condition for the deletion (the var condition has to be equal with the property value)
         """
         logmgr_flog()
-
         key_handler = self.__docmanager.find("./dm:"+key,
                                              namespaces=NS)
 
         if key_handler is not None:
-            key_handler.getparent().remove(key_handler)
+            if condition is None:
+                key_handler.getparent().remove(key_handler)
+                print(condition)
+            else:
+                if key_handler.text == condition:
+                    key_handler.getparent().remove(key_handler)
 
     def get_indendation(self, node, indendation=""):
         """Calculates indendation level
