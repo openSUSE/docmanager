@@ -28,7 +28,8 @@ DefaultDocManagerProperties = (
         "priority",
         "translation",
         "languages",
-        "release"
+        "release",
+        "repository"
 )
 
 class ReturnCodes(object):

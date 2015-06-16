@@ -6,7 +6,7 @@
 <!ENTITY progname "DocManager">
 <!ENTITY version "3.0.0-RC4">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "06/15/2015">
+<!ENTITY release "06/16/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
@@ -186,6 +186,14 @@
      <listitem>
       <para>
        Set the release type (Example: SUSE Linux Enterprise Server 12) for the given XML files. Note: If you use <option>-p</option> release=FOO, <option>--release</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--repository</option> <replaceable>URL</replaceable> <replaceable>FILES</replaceable></term>
+     <listitem>
+      <para>
+       Set the repository URL (maybe a GitHub URL?) for this document. Note: If you use <option>-p</option> repository=FOO, <option>--repository</option> has a higher priority than <option>-p</option>
       </para>
      </listitem>
     </varlistentry>

@@ -11,7 +11,8 @@ from docmanager.core import ReturnCodes
     ('deadline', '2015-05-22', 'bla'),
     ('priority', 2, 11),
     ('translation', 'yes', 'bla'),
-    ('languages', 'en_US,en,de', 'bla')
+    ('languages', 'en_US,en,de', 'bla'),
+    ('repository', 'https://github.com/openSUSE/docmanager', 'bla')
 ])
 def test_docmanager_inputformatcheck(option, correct, wrong, tmp_valid_xml, capsys):
     """ Test the input format """

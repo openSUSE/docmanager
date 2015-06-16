@@ -21,11 +21,11 @@ import logging
 import os
 import re
 import sys
+import urllib.request
 from docmanager import __version__
 from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
 from docmanager.logmanager import log, logmgr_flog
 from prettytable import PrettyTable
-
 
 def populate_properties(args):
     """Populate args.properties from "standard" options
@@ -133,6 +133,9 @@ def parsecli(cliargs=None):
                     )
     pset.add_argument('-R', '--release',
                       help='Set the property "release" for the given documents.'
+                    )
+    pset.add_argument('--repository',
+                      help='Set the property "repository" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
 
@@ -278,3 +281,19 @@ def input_format_check(args):
             if i not in LANGUAGES:
                 print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+    elif hasattr(args, 'repository') and args.repository is not None:
+        request = None
+        
+        try:
+            request = urllib.request.urlopen(args.repository)
+        except ValueError:
+            print("Value of 'repository' is incorrect. The value is not a URL.")
+            sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
+        except urllib.error.URLError as err:
+            if hasattr(err, 'code') and err.code is not None:
+                if err.code is not 200:
+                    log.warn("The remote server returns an error code for this request: {} - Please double check if"
+                             " the URL is correct. Nevertheless the URL will be written into the given files.".format(err.code))
+            else:
+                log.warn("The given URL '{}' seems to be invalid or the remote server is not online. Please double check if"
+                         " the URL is correct. Nevertheless the URL will be written into the given files.".format(args.repository))
