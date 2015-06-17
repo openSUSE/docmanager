@@ -83,7 +83,7 @@ class Actions(object):
             for i in _set:
                 ret = xh.get(i)
                 if len(ret[i]) == 0 or self.__args.force == True:
-                    xh.set({ i: _set[i] })
+                    xh.set({ i: str(_set[i]) })
 
             xh.write()
 
