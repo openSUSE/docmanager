@@ -100,7 +100,7 @@ def parsecli(cliargs=None):
                     )
     pget.add_argument('-p', '--properties', **propargs)
     pget.add_argument('-f', '--format',
-                      choices=['table','json'],
+                      choices=['table','json','xml'],
                       help='Set the output format.'
                     )
     pget.add_argument("files", **filesargs)

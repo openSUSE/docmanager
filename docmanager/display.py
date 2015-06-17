@@ -18,6 +18,7 @@
 
 import json
 from collections import OrderedDict
+from lxml import etree
 from prettytable import PrettyTable
 
 def textrenderer(data, **kwargs):
@@ -81,7 +82,36 @@ def jsonrenderer(data, **kwargs):
     print(json.dumps(json_out))
 
 def xmlrenderer(data, **kwargs):
-    raise NotImplementedError
+    root = etree.Element("docmanager")
+    tree = root.getroottree()
+    
+    fileselem = etree.Element("files")
+    root.append(fileselem)
+
+    index = 0
+
+    for i in data:
+        if len(i[1]):
+            filename = i[0]
+
+            elem = etree.Element("file")
+            root[0].append(elem)
+
+            child = root[0][index]
+            child.set("name", filename)
+
+            for x in i[1]:
+                prop = x
+                value = i[1][x]
+
+                elem = etree.Element(prop)
+                elem.text = value
+
+                child.append(elem)
+
+            index += 1
+
+    print(etree.tostring(tree, encoding="unicode", pretty_print=True, doctype="<!DOCTYPE docmanager>"))
 
 def getrenderer(fmt):
     """Returns the renderer for a specific format

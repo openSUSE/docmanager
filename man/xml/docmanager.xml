@@ -212,7 +212,7 @@
     <varlistentry>
      <term><option>--format</option> <replaceable>FORMAT</replaceable></term>
      <listitem>
-      <para>Set the output format. Valid format types: <option>table</option>, <option>json</option></para>
+      <para>Set the output format. Valid format types: <option>table</option>, <option>json</option>, <option>xml</option></para>
      </listitem>
     </varlistentry>
    </variablelist>
