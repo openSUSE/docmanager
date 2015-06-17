@@ -91,6 +91,31 @@ def parsecli(cliargs=None):
     pinit.add_argument('--force',
                        action='store_true'
                       )
+    pinit.add_argument('-p', '--properties', **propargs)
+    pinit.add_argument('-M', '--maintainer',
+                      help='Set the property "maintainer" for the given documents.'
+                    )
+    pinit.add_argument('-S', '--status',
+                      help='Set the property "status" for the given documents.'
+                    )
+    pinit.add_argument('-D', '--deadline',
+                      help='Set the property "deadline" for the given documents.'
+                    )
+    pinit.add_argument('-P', '--priority',
+                      help='Set the property "priority" for the given documents.'
+                    )
+    pinit.add_argument('-T', '--translation',
+                      help='Set the property "translation" for the given documents.'
+                    )
+    pinit.add_argument('-L', '--languages',
+                      help='Set the property "languages" for the given documents.'
+                    )
+    pinit.add_argument('-R', '--release',
+                      help='Set the property "release" for the given documents.'
+                    )
+    pinit.add_argument('--repository',
+                      help='Set the property "repository" for the given documents.'
+                    )
     pinit.add_argument("files", **filesargs)
 
     # 'get' subparser
@@ -257,12 +282,14 @@ def input_format_check(args):
         if args.status not in values:
             print("Value of 'status' is incorrect. Expecting one of these values: editing, edited, proofing, proofed, comment, or ready")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
-    elif hasattr(args, 'deadline') and args.deadline is not None:
+
+    if hasattr(args, 'deadline') and args.deadline is not None:
         r = re.match("^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$", args.deadline)
         if r is None:
             print("Value of 'deadline' is incorrect. Use this date format: YYYY-MM-DD")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
-    elif hasattr(args, 'priority') and args.priority is not None:
+
+    if hasattr(args, 'priority') and args.priority is not None:
         errmsg = "Value of 'priority' is incorrect. Expecting a value between 1 and 10."
 
         if args.priority.isnumeric() == False:
@@ -273,19 +300,21 @@ def input_format_check(args):
         if args.priority < 1 or args.priority > 10:
             print(errmsg)
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
-    elif hasattr(args, 'translation') and args.translation is not None:
+
+    if hasattr(args, 'translation') and args.translation is not None:
         values = [ 'yes', 'no' ]
         if args.translation not in values:
             print("Value of 'translation' is incorrect. Expecting one of these values: yes or no")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
-    elif hasattr(args, 'languages') and args.languages is not None:
+
+    if hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
             if i not in LANGUAGES:
                 print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
-    elif hasattr(args, 'repository') and args.repository is not None:
+
+    if hasattr(args, 'repository') and args.repository is not None:
         request = None
-        
         try:
             request = urllib.request.urlopen(args.repository)
         except ValueError:
@@ -299,6 +328,6 @@ def input_format_check(args):
             else:
                 log.warn("The given URL '{}' seems to be invalid or the remote server is not online. Please double check if"
                          " the URL is correct. Nevertheless the URL will be written into the given files.".format(args.repository))
-        
+
         if hasattr(request, 'close'):
             request.close()

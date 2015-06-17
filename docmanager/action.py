@@ -20,7 +20,7 @@ import json
 import sys
 from collections import OrderedDict
 from docmanager import table
-from docmanager.core import ReturnCodes
+from docmanager.core import DefaultDocManagerProperties, ReturnCodes
 from docmanager.display import getrenderer
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import ShellColors
@@ -62,11 +62,16 @@ class Actions(object):
     def init(self, arguments):
         logmgr_flog()
         log.debug("Arguments {}".format(arguments))
-        
+
+        _set = dict()
+        for d in DefaultDocManagerProperties:
+            if hasattr(self.__args, d) and getattr(self.__args, d) is not None:
+                _set[d] = getattr(self.__args, d)
+
         for xh in self.__xml:
             log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
             if xh.init_default_props(self.__args.force) == 0:
-                log.info("Initialized default properties for '{}'.".format(xh.filename))
+                print("Initialized default properties for '{}'.".format(xh.filename))
             else:
                 log.warn("Could not initialize all properties for '{}' because "
                       "there are already some properties in the XML file "
@@ -74,7 +79,12 @@ class Actions(object):
                       "finished. If you want to perform this operation and "
                       "overwrite the existing properties, you can add the "
                       "'--force' option to your command.".format(xh.filename))
-            
+
+            for i in _set:
+                ret = xh.get(i)
+                if len(ret[i]) == 0 or self.__args.force == True:
+                    xh.set({ i: _set[i] })
+
             xh.write()
 
     def set(self, arguments):
