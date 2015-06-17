@@ -31,7 +31,7 @@ class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, stopOnError=True):
         """Initializes the XmlHandler class
 
         :param str filename: filename of XML file
@@ -50,6 +50,9 @@ class XmlHandler(object):
         
         # parser
         self.__xmlparser = None
+        self.invalidXML = False
+        self.xmlErrorString = ""
+        self.stopOnError = stopOnError
         
         # lxml
         self.__tree = None
@@ -72,44 +75,49 @@ class XmlHandler(object):
         try:
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
-            log.error("<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
+            self.invalidXML = True
+            self.xmlErrorString = "<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
                                       err.getColumnNumber(), \
                                       err.getMessage(), \
-                                      self.filename,))
-            sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                                      self.filename,)
+            
+            if self.stopOnError == True:
+                log.error(self.xmlErrorString)
+                sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-        # save prolog details
-        self._offset, self._header, self._root, self._roottag = prolog['offset'], \
-            prolog['header'], \
-            prolog['root'], \
-            prolog['roottag']
-
-        # replace any entities
-        self.replace_entities()
-
-        # register namespace
-        # etree.register_namespace("dm", "{dm}".format(**NS))
-        self.__xmlparser = etree.XMLParser(remove_blank_text=False,
-                                           resolve_entities=False,
-                                           dtd_validation=False)
-        
-        # load the file and set a reference to the dm group
-        self.__tree = etree.parse(self._buffer, self.__xmlparser)
-        self.__root = self.__tree.getroot()
-        
-        check_root_element(self.__root, etree)
-        
-        # check for DocBook 5 namespace in start tag
-        self.check_docbook5_ns()
-        
-        # check for docmanager element
-        self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
-        
-        if self.__docmanager is None:
-            log.info("No docmanager element found")
-            self.create_group()
-        else:
-            log.info("Found docmanager element %s", self.__docmanager.getparent() )
+        if self.invalidXML == False:
+            # save prolog details
+            self._offset, self._header, self._root, self._roottag = prolog['offset'], \
+                prolog['header'], \
+                prolog['root'], \
+                prolog['roottag']
+    
+            # replace any entities
+            self.replace_entities()
+    
+            # register namespace
+            # etree.register_namespace("dm", "{dm}".format(**NS))
+            self.__xmlparser = etree.XMLParser(remove_blank_text=False,
+                                               resolve_entities=False,
+                                               dtd_validation=False)
+            
+            # load the file and set a reference to the dm group
+            self.__tree = etree.parse(self._buffer, self.__xmlparser)
+            self.__root = self.__tree.getroot()
+            
+            check_root_element(self.__root, etree)
+            
+            # check for DocBook 5 namespace in start tag
+            self.check_docbook5_ns()
+            
+            # check for docmanager element
+            self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
+            
+            if self.__docmanager is None:
+                log.info("No docmanager element found")
+                self.create_group()
+            else:
+                log.info("Found docmanager element %s", self.__docmanager.getparent() )
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
@@ -191,7 +199,7 @@ class XmlHandler(object):
            whereas foo belongs to the DocManager namespace
         """
         logmgr_flog()
-        
+
         for i in pairs:
             key_handler = self.__docmanager.find("./dm:"+i,
                                                  namespaces=NS)

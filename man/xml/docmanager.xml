@@ -4,9 +4,9 @@
 "http://www.docbook.org/xml/4.5/docbookx.dtd"
 [
 <!ENTITY progname "DocManager">
-<!ENTITY version "3.0.0-RC4">
+<!ENTITY version "3.0.0">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "06/16/2015">
+<!ENTITY release "06/17/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
@@ -128,6 +128,15 @@
      <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable> <replaceable>FILES</replaceable></term>
      <listitem>
       <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;property&gt;value&lt;/property&gt;</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--stop-on-error</option></term>
+     <listitem>
+      <para>
+       In case of errors in the XML files, this option exits the script without writing any changes. If not specified, files causing errors will
+       be reported and otherwise be ignored.
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>

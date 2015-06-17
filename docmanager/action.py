@@ -23,6 +23,7 @@ from docmanager import table
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
 from docmanager.logmanager import log, logmgr_flog
+from docmanager.shellcolors import ShellColors
 from docmanager.xmlhandler import XmlHandler
 from docmanager.xmlutil import localname
 from prettytable import PrettyTable
@@ -40,8 +41,11 @@ class Actions(object):
 
         self.__files = args.files
         self.__args = args
-        self.__xml = [ XmlHandler(x) for x in self.__files ]
-
+        
+        if hasattr(self.__args, 'stop_on_error'):
+            self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
+        else:
+            self.__xml = [ XmlHandler(x) for x in self.__files ]
 
     def parse(self):
         logmgr_flog()
@@ -80,10 +84,23 @@ class Actions(object):
         """
         logmgr_flog()
 
+        invalidFiles = 0
+        validFiles = 0
+
         # init xml handlers for all given files
         handlers = OrderedDict()
+        index = 0
+
         for i in self.__files:
-            handlers[i] = XmlHandler(i)
+            log.debug("Trying to initialize the XmlHandler for file '{}'.".format(i))
+            handlers[i] = self.__xml[index]
+
+            if handlers[i].invalidXML == True:
+                invalidFiles += 1
+            else:
+                validFiles += 1
+
+            index += 1
 
         # split key and value
         args = [ i.split("=") for i in arguments]
@@ -97,9 +114,10 @@ class Actions(object):
                     value = ",".join(self.remove_duplicate_langcodes(value))
 
                 for file in self.__files:
-                    log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(file, key, value))
-                    handlers[file].set({key: value})
-                    print("[{}] Set value for property \"{}\" to \"{}\".".format(file, key, value))
+                    if handlers[file].invalidXML == False:
+                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(file, key, value))
+                        handlers[file].set({key: value})
+                        print("[{}] Set value for property \"{}\" to \"{}\".".format(file, key, value))
 
             except ValueError:
                 log.error('Invalid usage. '
@@ -109,9 +127,20 @@ class Actions(object):
 
         # save the changes
         for file in self.__files:
-            log.debug("[{}] Trying to save the changes.".format(file))
-            handlers[file].write()
-            print("[{}] Saved changes.".format(file))
+            if handlers[file].invalidXML == False:
+                log.debug("[{}] Trying to save the changes.".format(file))
+                handlers[file].write()
+                print("[{}] Saved changes.".format(file))
+        
+        print("")
+        print("Wrote in {} valid XML files.".format(ShellColors().make_green(validFiles)))
+        
+        if invalidFiles > 0:
+            print("")
+            print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+            for file in self.__files:
+                if handlers[file].invalidXML == True:
+                    print("{}: {}".format(file, ShellColors().make_red(handlers[file].xmlErrorString)))
 
     def get(self, arguments):
         """Lists all properties

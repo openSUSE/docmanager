@@ -111,6 +111,9 @@ def parsecli(cliargs=None):
                         help='Set key=value property (one or more) to '
                              'delete the key let the value blank.'
                     )
+    pset.add_argument('--stop-on-error',
+                       action='store_true'
+                      )
     pset.add_argument('-p', '--properties', **propargs)
     pset.add_argument('-M', '--maintainer',
                       help='Set the property "maintainer" for the given documents.'
