@@ -133,14 +133,23 @@ class Actions(object):
                 print("[{}] Saved changes.".format(file))
         
         print("")
-        print("Wrote in {} valid XML files.".format(ShellColors().make_green(validFiles)))
-        
+        if validFiles == 1:
+            print("Wrote in {} valid XML file.".format(ShellColors().make_green(validFiles)))
+        else:
+            print("Wrote in {} valid XML files.".format(ShellColors().make_green(validFiles)))
+
         if invalidFiles > 0:
             print("")
-            print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+            
+            if invalidFiles == 1:
+                print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+            else:
+                print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+
             for file in self.__files:
                 if handlers[file].invalidXML == True:
                     print("{}: {}".format(file, ShellColors().make_red(handlers[file].xmlErrorString)))
+            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get(self, arguments):
         """Lists all properties

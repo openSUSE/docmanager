@@ -323,6 +323,16 @@
      <para>The given XML document is not a DocBook 5 document. The start tag has to be in the official DocBook 5 namespace.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>13</term>
+    <listitem>
+     <para>
+      This error code appears only when the 'set' sub command and the if <option>--stop-on-error</option> were not used. If there are
+      errors in at least one of the given XML files, the error code will be returned at the end of the process. This does not mean that
+      files are unchanged, only that the invalid XML files remain untouched.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
  <refsect1 id="docmanager.examples">
