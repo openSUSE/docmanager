@@ -142,7 +142,7 @@ class Actions(object):
             print("")
             
             if invalidFiles == 1:
-                print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+                print("Skipped {} XML file due to an error.".format(ShellColors().make_red(invalidFiles)))
             else:
                 print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
 
