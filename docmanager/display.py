@@ -18,6 +18,7 @@
 
 import json
 from collections import OrderedDict
+from lxml import etree
 from prettytable import PrettyTable
 
 def textrenderer(data, **kwargs):
@@ -38,18 +39,39 @@ def textrenderer(data, **kwargs):
             for v in data[0][1]:
                 print(data[0][1][v])
                 return
-    
+
     # if there are more than one file or one property
     for d in data:
         props = d[1]
         props = " ".join([ "%s=%s" % (key, value) for key, value in props.items()])
-        print("{} -> {}".format(d[0], props))
+        if len(props):
+            print("{} -> {}".format(d[0], props))
 
 
 DEFAULTRENDERER = textrenderer
 
 def tablerenderer(data, **kwargs):
-    raise NotImplementedError
+    if data is None:
+        return
+
+    index = 0
+    for i in data:
+        if len(i[1]):
+            filename = i[0]
+            print("File: {}".format(filename))
+            t = PrettyTable(["Property", "Value"])
+            t.align["Property"] = "l" # left align
+            t.align["Value"] = "l" # left align
+            
+            for prop in i[1]:
+                value = i[1][prop]
+                t.add_row([prop, value])
+
+            print(t)
+            if (len(data)-1) is not index:
+                print("")
+
+        index += 1
 
 def jsonrenderer(data, **kwargs):
     json_out = OrderedDict()
@@ -60,7 +82,36 @@ def jsonrenderer(data, **kwargs):
     print(json.dumps(json_out))
 
 def xmlrenderer(data, **kwargs):
-    raise NotImplementedError
+    root = etree.Element("docmanager")
+    tree = root.getroottree()
+    
+    fileselem = etree.Element("files")
+    root.append(fileselem)
+
+    index = 0
+
+    for i in data:
+        if len(i[1]):
+            filename = i[0]
+
+            elem = etree.Element("file")
+            root[0].append(elem)
+
+            child = root[0][index]
+            child.set("name", filename)
+
+            for x in i[1]:
+                prop = x
+                value = i[1][x]
+
+                elem = etree.Element(prop)
+                elem.text = value
+
+                child.append(elem)
+
+            index += 1
+
+    print(etree.tostring(tree, encoding="unicode", pretty_print=True, doctype="<!DOCTYPE docmanager>"))
 
 def getrenderer(fmt):
     """Returns the renderer for a specific format

@@ -28,7 +28,8 @@ DefaultDocManagerProperties = (
         "priority",
         "translation",
         "languages",
-        "release"
+        "release",
+        "repository"
 )
 
 class ReturnCodes(object):
@@ -45,6 +46,7 @@ class ReturnCodes(object):
     E_WRONG_INPUT_FORMAT = 10
     E_PERMISSION_DENIED = 11
     E_NOT_DOCBOOK5_FILE = 12
+    E_SOME_FILES_WERE_INVALID = 13
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
