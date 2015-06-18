@@ -6,7 +6,7 @@
 <!ENTITY progname "DocManager">
 <!ENTITY version "3.0.0">
 <!ENTITY progcmd "docmanager">
-<!ENTITY release "06/17/2015">
+<!ENTITY release "06/18/2015">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>
@@ -109,23 +109,82 @@
  <refsect1 id="docmanager.commands">
   <title>Commands</title>
   <refsect2>
-   <title><command>init</command></title>
+   <title><command>init</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Initializes an XML document with all relevant properties. Property is the name of an XML tag.</para>
    <variablelist>
     <varlistentry>
-     <term><replaceable>FILES</replaceable></term>
+     <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable></term>
      <listitem>
-      <para>Initializes all given files with all relevant properties.</para>
+      <para>
+       Set the maintainer for the given XML files.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable></term>
+     <listitem>
+      <para>
+       Set the status for the given XML files.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--deadline</option> <replaceable>YYYY-MM-DD</replaceable></term>
+     <listitem>
+      <para>
+       Set the deadline for the given XML files.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--priority</option> <replaceable>1-10</replaceable></term>
+     <listitem>
+      <para>
+       Set the priority for the given XML files.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--translation</option> <replaceable>[yes|no]</replaceable></term>
+     <listitem>
+      <para>
+       Set the translation element for the given XML files.
+       than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--languages</option> <replaceable>LANGUAGE_CODE</replaceable></term>
+     <listitem>
+      <para>
+       Set the languages for the given XML files. You can get a list of language codes if you call <command>&progcmd; </command> <option>--langlist</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--release</option> <replaceable>RELEASE</replaceable></term>
+     <listitem>
+      <para>
+       Set the release type (Example: SUSE Linux Enterprise Server 12) for the given XML files.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--repository</option> <replaceable>URL</replaceable></term>
+     <listitem>
+      <para>
+       Set the repository URL (maybe a GitHub URL?) for this document.
+      </para>
      </listitem>
     </varlistentry>
    </variablelist>
   </refsect2>
   <refsect2>
-   <title><command>set</command></title>
+   <title><command>set</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Setting one or more properties.</para>
    <variablelist>
     <varlistentry>
-     <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable></term>
      <listitem>
       <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;property&gt;value&lt;/property&gt;</para>
      </listitem>
@@ -140,7 +199,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable></term>
      <listitem>
       <para>
        Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority than <option>-p</option>
@@ -148,7 +207,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable></term>
      <listitem>
       <para>
        Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority than <option>-p</option>
@@ -156,7 +215,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--deadline</option> <replaceable>YYYY-MM-DD</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--deadline</option> <replaceable>YYYY-MM-DD</replaceable></term>
      <listitem>
       <para>
        Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority than <option>-p</option>
@@ -164,7 +223,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--priority</option> <replaceable>1-10</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--priority</option> <replaceable>1-10</replaceable></term>
      <listitem>
       <para>
        Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority than <option>-p</option>
@@ -172,7 +231,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--translation</option> <replaceable>yes|no</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--translation</option> <replaceable>[yes|no]</replaceable></term>
      <listitem>
       <para>
        Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
@@ -181,7 +240,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--languages</option> <replaceable>LANGUAGE_CODE</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--languages</option> <replaceable>LANGUAGE_CODE</replaceable></term>
      <listitem>
       <para>
        Set the languages for the given XML files. You can get a list of language codes if you call <command>&progcmd; </command> <option>--langlist</option>
@@ -191,7 +250,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--release</option> <replaceable>RELEASE</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--release</option> <replaceable>RELEASE</replaceable></term>
      <listitem>
       <para>
        Set the release type (Example: SUSE Linux Enterprise Server 12) for the given XML files. Note: If you use <option>-p</option> release=FOO, <option>--release</option> has a higher priority than <option>-p</option>
@@ -199,7 +258,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--repository</option> <replaceable>URL</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>--repository</option> <replaceable>URL</replaceable></term>
      <listitem>
       <para>
        Set the repository URL (maybe a GitHub URL?) for this document. Note: If you use <option>-p</option> repository=FOO, <option>--repository</option> has a higher priority than <option>-p</option>
@@ -209,11 +268,11 @@
    </variablelist>
   </refsect2>
   <refsect2>
-   <title><command>get</command></title>
+   <title><command>get</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Getting one or more property values.</para>
    <variablelist>
     <varlistentry>
-     <term><option>-p</option> <replaceable>PROPERTY</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>-p</option> <replaceable>PROPERTY</replaceable></term>
      <listitem>
       <para>Get the value of a property.</para>
      </listitem>
@@ -227,13 +286,16 @@
    </variablelist>
   </refsect2>
   <refsect2>
-   <title><command>del</command></title>
+   <title><command>del</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Deleting one or more existing properties.</para>
    <variablelist>
     <varlistentry>
-     <term><option>-p</option> <replaceable>PROPERTY</replaceable> <replaceable>FILES</replaceable></term>
+     <term><option>-p</option> <replaceable>PROPERTY</replaceable></term>
      <listitem>
-      <para>Delete a property in an XML file.</para>
+      <para>
+       Delete a property in all given XML files. Note: You can build conditions with "=" like: del -p property=value - This means, DocManager will only
+       delete the properties in the given XML files if they have the value set to "value".
+      </para>
      </listitem>
     </varlistentry>
    </variablelist>
