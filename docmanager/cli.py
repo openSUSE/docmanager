@@ -18,7 +18,6 @@
 
 import argparse
 import logging
-import os
 import re
 import sys
 import urllib.request
@@ -240,7 +239,6 @@ def show_langlist(columns=None):
     logmgr_flog()
 
     try:
-        import os
         from shutil import get_terminal_size
     except ImportError:
         def get_terminal_size(fallback=(80, 24)):
@@ -310,7 +308,10 @@ def input_format_check(args):
     if hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
             if i not in LANGUAGES:
-                print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
+                print("Value of 'languages' is incorrect. "
+                      "Language code '{}' is not supported. "
+                      "Type 'docmanager --langlist' to see "
+                      "all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'repository') and args.repository is not None:

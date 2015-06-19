@@ -291,8 +291,8 @@ class LocatingWrapper(object):
         logmgr_flog()
         # Normally, we would close our file(-alike) object and call
         #   self.f.close()
-        # However, we need this object later, so do nothing
-        pass
+        # However, we do nothing
+
 
 
 class Handler(xml.sax.handler.ContentHandler):
@@ -388,8 +388,6 @@ class Handler(xml.sax.handler.ContentHandler):
     def startCDATA(self):
         """Signals a CDATA section"""
         logmgr_flog()
-        
-        pass
 
     endCDATA = startCDATA
 
