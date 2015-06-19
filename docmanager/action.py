@@ -119,11 +119,11 @@ class Actions(object):
                     value = value.split(",")
                     value = ",".join(self.remove_duplicate_langcodes(value))
 
-                for file in self.__files:
-                    if not handlers[file].invalidXML:
-                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(file, key, value))
-                        handlers[file].set({key: value})
-                        print("[{}] Set value for property \"{}\" to \"{}\".".format(file, key, value))
+                for f in self.__files:
+                    if not handlers[f].invalidXML:
+                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(f, key, value))
+                        handlers[f].set({key: value})
+                        print("[{}] Set value for property \"{}\" to \"{}\".".format(f, key, value))
 
             except ValueError:
                 log.error('Invalid usage. '
@@ -153,7 +153,7 @@ class Actions(object):
                 print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
 
             for f in self.__files:
-                if handlers[file].invalidXML == True:
+                if handlers[f].invalidXML:
                     print("{}: {}".format(f, ShellColors().make_red(handlers[f].xmlErrorString)))
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 

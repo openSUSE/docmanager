@@ -241,6 +241,7 @@ def show_langlist(columns=None):
     try:
         from shutil import get_terminal_size
     except ImportError:
+        import os
         def get_terminal_size(fallback=(80, 24)):
             return os.terminal_size(fallback)
 

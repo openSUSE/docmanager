@@ -368,7 +368,7 @@ class Handler(xml.sax.handler.ContentHandler):
                             current)
             self.context.append(["?%s" % target, pos])
 
-    def comment(self, text):
+    def comment(self, text): # pylint:unused-argument
         """Signals an XML comment
 
         :param str text: text content of the XML comment
@@ -391,7 +391,7 @@ class Handler(xml.sax.handler.ContentHandler):
 
     endCDATA = startCDATA
 
-    def startDTD(self,  doctype, publicID, systemID):
+    def startDTD(self,  doctype, publicID, systemID): # pylint:unused-argument
         """Signals the start of an DTD declaration
 
         :param  doctype: name of the root element
@@ -399,20 +399,14 @@ class Handler(xml.sax.handler.ContentHandler):
         :param systemID: system identifier (or empty)
         """
         logmgr_flog()
-        
-        pass
 
     def endDTD(self):
         """Reports the end of a DTD declaration"""
         logmgr_flog()
-        
-        pass
 
-    def startEntity(self, name):
+    def startEntity(self, name):  # pylint:unused-argument
         """Reports the start of an entity"""
         logmgr_flog()
-        
-        pass
 
 
 def findprolog(source, maxsize=5000):
