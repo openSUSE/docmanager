@@ -231,12 +231,14 @@ def parsecli(cliargs=None):
 
     return args
 
-def show_langlist(columns=None):
-    """Prints the language table
+
+def show_langlist(columns=None, *, padding=2):
+    """Prints all supported languages
+
     :param int columns: Maximum number of characters in a column;
                         None to fill the current terminal window
+    :param int padding: space from longest entry to border
     """
-    logmgr_flog()
 
     try:
         from shutil import get_terminal_size
@@ -250,7 +252,6 @@ def show_langlist(columns=None):
     if columns is None or columns < maxl:
         columns = get_terminal_size().columns
     length = len(LANGUAGES)
-    padding = 2
     rowwidth = maxl + padding + 1
     divisor = columns // rowwidth
     maxline = divisor * rowwidth
