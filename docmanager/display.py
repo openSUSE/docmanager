@@ -48,9 +48,15 @@ def textrenderer(data, **kwargs):
             print("{} -> {}".format(d[0], props))
 
 
-DEFAULTRENDERER = textrenderer
-
 def tablerenderer(data, **kwargs):
+    """Output as table
+
+    :param list data: Filename with properties
+                      syntax: [(FILENAME, {PROPERTIES}), ...]
+    :param dict kwargs: for further customizations
+    :return: rendered output
+    :rtype: str
+    """
     if data is None:
         return
 
@@ -73,7 +79,16 @@ def tablerenderer(data, **kwargs):
 
         index += 1
 
+
 def jsonrenderer(data, **kwargs):
+    """Output as JSON
+
+    :param list data: Filename with properties
+                      syntax: [(FILENAME, {PROPERTIES}), ...]
+    :param dict kwargs: for further customizations
+    :return: rendered output
+    :rtype: str
+    """
     json_out = OrderedDict()
     for i in data:
         json_out[i[0]] = {}
@@ -81,7 +96,17 @@ def jsonrenderer(data, **kwargs):
     
     print(json.dumps(json_out))
 
+
 def xmlrenderer(data, **kwargs):
+    """Output as XML
+
+    :param list data: Filename with properties
+                      syntax: [(FILENAME, {PROPERTIES}), ...]
+    :param dict kwargs: for further customizations
+    :return: rendered output
+    :rtype: str
+    """
+
     root = etree.Element("docmanager")
     tree = root.getroottree()
     
@@ -111,7 +136,13 @@ def xmlrenderer(data, **kwargs):
 
             index += 1
 
-    print(etree.tostring(tree, encoding="unicode", pretty_print=True, doctype="<!DOCTYPE docmanager>"))
+    print(etree.tostring(tree,
+                         encoding="unicode",
+                         pretty_print=True,
+                         doctype="<!DOCTYPE docmanager>"))
+
+
+DEFAULTRENDERER = textrenderer
 
 def getrenderer(fmt):
     """Returns the renderer for a specific format

@@ -23,7 +23,6 @@ from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, ensurefileobj, \
      findprolog, get_namespace, localname, recover_entities, replaceinstream, preserve_entities, \
      findinfo_pos
-from io import StringIO
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -81,11 +80,11 @@ class XmlHandler(object):
                                       err.getMessage(), \
                                       self.filename,)
             
-            if self.stopOnError == True:
+            if self.stopOnError:
                 log.error(self.xmlErrorString)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-        if self.invalidXML == False:
+        if not self.invalidXML:
             # save prolog details
             self._offset, self._header, self._root, self._roottag = prolog['offset'], \
                 prolog['header'], \
