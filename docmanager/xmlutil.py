@@ -473,3 +473,24 @@ def findprolog(source, maxsize=5000):
     result['roottag'] = context[0][0]
 
     return result
+
+def xml_indent(elem, level=0):
+    """Indent XML elements
+
+    :param lxml.etree._Element elem: XML Element to indent
+    :param int level: indentation level
+    """
+
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            xml_indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i

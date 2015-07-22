@@ -19,7 +19,7 @@
 import sys
 from collections import OrderedDict
 from docmanager.config import Config
-from docmanager.core import DefaultDocManagerProperties, ReturnCodes
+from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import ShellColors
 from docmanager.xmlhandler import XmlHandler
@@ -62,13 +62,24 @@ class Actions(object):
         log.debug("Arguments {}".format(arguments))
 
         _set = dict()
-        for d in DefaultDocManagerProperties:
-            if hasattr(self.__args, d) and getattr(self.__args, d) is not None:
-                _set[d] = getattr(self.__args, d)
+        props = list(DefaultDocManagerProperties)
 
+        # append bugtracker properties if needed
+        if self.__args.with_bugtracker == True:
+            for p in BugtrackerElementList:
+                props.append(p)
+
+        # set default properties
+        for d in props:
+            rprop = d.replace("/", "_")
+
+            if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None:
+                _set[d] = getattr(self.__args, rprop)
+
+        # iter through all xml handlers and init its properties
         for xh in self.__xml:
             log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
-            if xh.init_default_props(self.__args.force) == 0:
+            if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
                 print("Initialized default properties for '{}'.".format(xh.filename))
             else:
                 log.warn("Could not initialize all properties for '{}' because "
@@ -78,11 +89,20 @@ class Actions(object):
                       "overwrite the existing properties, you can add the "
                       "'--force' option to your command.".format(xh.filename))
 
+            # set default values for the given properties
             for i in _set:
                 ret = xh.get(i)
                 if len(ret[i]) == 0 or self.__args.force:
                     xh.set({ i: str(_set[i]) })
 
+            # if bugtracker options are provided, set default values
+            for i in BugtrackerElementList:
+                rprop = i.replace("/", "_")
+
+                if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None and len(getattr(self.__args, rprop)) >= 1:
+                    xh.set({ i: getattr(self.__args, rprop) })
+
+            # safe the xml file
             xh.write()
 
     def set(self, arguments):
@@ -122,7 +142,10 @@ class Actions(object):
                 for f in self.__files:
                     if not handlers[f].invalidXML:
                         log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(f, key, value))
-                        handlers[f].set({key: value})
+                        if self.__args.bugtracker == True:
+                            handlers[f].set({"bugtracker/" + key: value})
+                        else:
+                            handlers[f].set({key: value})
                         print("[{}] Set value for property \"{}\" to \"{}\".".format(f, key, value))
 
             except ValueError:

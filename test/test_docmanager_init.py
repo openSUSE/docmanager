@@ -30,14 +30,17 @@ def test_docmanager_init_0(tmp_valid_xml):
     ('languages', 'en,de'),
     ('release', 'SLES'),
     ('release', 'SUSE Linux Enterprise Server 12'),
-    ('repository', 'https://github.com/openSUSE/docmanager')
+    ('repository', 'https://github.com/openSUSE/docmanager'),
+    ('bugtracker/url', 'https://github.com')
 ])
 def test_docmanager_init_1(tmp_valid_xml, option, value):
     """ Test the init sub command with pre defined values """
 
     tmpfile = tmp_valid_xml.strpath
 
-    clicmd = "init --{} \"{}\" {}".format(option, value, tmpfile)
+    ropt = option.replace("/", "-");
+
+    clicmd = "init --{} \"{}\" {}".format(ropt, value, tmpfile)
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
 

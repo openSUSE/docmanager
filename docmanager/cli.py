@@ -22,7 +22,7 @@ import re
 import sys
 import urllib.request
 from docmanager import __version__
-from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
+from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
 
 def populate_properties(args):
@@ -35,8 +35,26 @@ def populate_properties(args):
 
     result=[]
     for prop in DefaultDocManagerProperties:
-        if hasattr(args, prop) and getattr(args, prop) is not None:
-            result.append( "{}={}".format(prop, getattr(args, prop)) )
+        proparg = prop.replace("/", "_")
+        if hasattr(args, proparg) and getattr(args, proparg) is not None:
+            result.append( "{}={}".format(prop, getattr(args, proparg)) )
+
+    return result
+
+def populate_bugtracker_properties(args):
+    """Populate args.bugtracker_* from "standard" options
+
+    :param argparse.Namespace args:
+    :return: list of property=value items
+    :rtype: list
+    """
+
+    result=[]
+    for prop in BugtrackerElementList:
+        proparg = prop.replace("/", "_")
+        if hasattr(args, proparg) and getattr(args, proparg) is not None:
+            result.append( "{}={}".format(prop, getattr(args, proparg)) )
+
     return result
 
 def parsecli(cliargs=None):
@@ -90,6 +108,9 @@ def parsecli(cliargs=None):
     pinit.add_argument('--force',
                        action='store_true'
                       )
+    pinit.add_argument('--with-bugtracker',
+                       action='store_true'
+                      )
     pinit.add_argument('-p', '--properties', **propargs)
     pinit.add_argument('-M', '--maintainer',
                       help='Set the property "maintainer" for the given documents.'
@@ -115,6 +136,21 @@ def parsecli(cliargs=None):
     pinit.add_argument('--repository',
                       help='Set the property "repository" for the given documents.'
                     )
+    pinit.add_argument('--bugtracker-url',
+                      help='Set the property "bugtracker/url" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-component',
+                      help='Set the property "bugtracker/component" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-product',
+                      help='Set the property "bugtracker/product" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-assignee',
+                      help='Set the property "bugtracker/assignee" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-version',
+                      help='Set the property "bugtracker/version" for the given documents.'
+                    )
     pinit.add_argument("files", **filesargs)
 
     # 'get' subparser
@@ -135,6 +171,8 @@ def parsecli(cliargs=None):
                         help='Set key=value property (one or more) to '
                              'delete the key let the value blank.'
                     )
+    pset.add_argument('-B', '--bugtracker',
+                      action='store_true')
     pset.add_argument('--stop-on-error',
                        action='store_true'
                       )
@@ -162,6 +200,21 @@ def parsecli(cliargs=None):
                     )
     pset.add_argument('--repository',
                       help='Set the property "repository" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-url',
+                      help='Set the property "bugtracker/url" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-component',
+                      help='Set the property "bugtracker/component" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-product',
+                      help='Set the property "bugtracker/product" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-assignee',
+                      help='Set the property "bugtracker/assignee" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-version',
+                      help='Set the property "bugtracker/version" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
 
@@ -215,6 +268,7 @@ def parsecli(cliargs=None):
     # Fill "standard" properties (like status) also into properties list:
     if args.action in ("s", "set"):
         args.properties.extend(populate_properties(args))
+        args.properties.extend(populate_bugtracker_properties(args))
 
     # args.arguments = args.properties
     loglevel = {
