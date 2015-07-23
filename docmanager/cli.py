@@ -20,6 +20,7 @@ import argparse
 import logging
 import re
 import sys
+import os.path
 import urllib.request
 from docmanager import __version__
 from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties, BugtrackerElementList
@@ -258,6 +259,13 @@ def parsecli(cliargs=None):
 
     if args.action == "init":
         args.properties = []
+
+    # Remove any directories from our files list
+    allfiles = args.files[:]
+    args.files = [ f for f in args.files if not os.path.isdir(f) ]
+    diff = list(set(allfiles) - set(args.files))
+    if diff:
+        print("Ignoring the following directories:", ", ".join(diff))
 
     # Fix properties
     # Handle the different styles with -p foo and -p foo,bar
