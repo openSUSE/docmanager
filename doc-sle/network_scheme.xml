@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE appendix
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+    %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="app.nwscheme">
+ <title>An Example Network</title>
+ <info>
+  <mediaobject>
+   <imageobject role="html">
+    <imagedata fileref="network_schema.png" width="100%" format="PNG"/>
+   </imageobject>
+   <imageobject role="pdf">
+    <imagedata fileref="network_schema.svg" width="100%" format="SVG"/>
+   </imageobject>
+  </mediaobject>
+ </info>
+ <para>
+  This example network is used across all network-related chapters of the
+  &productnamereg; documentation.
+ </para>
+ <informalfigure>
+  <mediaobject>
+   <imageobject role="html">
+    <imagedata fileref="network_schema.png" width="100%" format="PNG"/>
+   </imageobject>
+   <imageobject role="pdf">
+    <imagedata fileref="network_schema.svg" width="100%" format="SVG"/>
+   </imageobject>
+  </mediaobject>
+ </informalfigure>
+</appendix>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+    %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="cha.qemu.overview">
+ <title>&qemu; Overview</title>
+ <info/>
+ <para>
+  &qemu; is a fast, cross-platform open-source machine emulator which can
+  emulate a huge number of hardware architectures for you. &qemu; lets
+  you run a complete unmodified operating system (&vmguest;) on top of
+  your existing system (&vmhost;).
+ </para>
+ <para>
+  You can also use &qemu; for debugging purposes&mdash;you can easily
+  stop your running virtual machine, inspect its state and save and restore
+  it later.
+ </para>
+ <para>
+  &qemu; consists of the following parts:
+ </para>
+ <itemizedlist mark="bullet" spacing="normal">
+  <listitem>
+   <para>
+    processor emulator (x86, s390x, PowerPC, Sparc)
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    emulated devices (graphic card, network card, hard drives, mice)
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    generic devices used to connect the emulated devices to the related host
+    devices
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    descriptions of the emulated machines (PC, Power Mac)
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    debugger
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    user interface used to interact with the emulator
+   </para>
+  </listitem>
+ </itemizedlist>
+ <para>
+  &qemu; is central to &kvm; and &xen; Virtualization, where it
+  provides the general machine emulation. &xen;'s usage of &qemu; is
+  somewhat hidden from the user, while &kvm;'s usage exposes most
+  &qemu; features transparently. If the &vmguest; hardware
+  architecture is the same as the &vmhost;'s architecture, &qemu; can
+  take advantage of the &kvm; acceleration (&suse; only supports
+  &qemu; with the &kvm; acceleration loaded).
+ </para>
+ <para>
+  Apart from providing a core virtualization infrastructure and
+  processor-specific drivers, &qemu; also provides an
+  architecture-specific userspace program for managing &vmguest;s.
+  Depending on the architecture this program is one of:
+ </para>
+ <itemizedlist mark="bullet" spacing="normal">
+  <listitem>
+   <para>
+    <command>qemu-system-i386</command>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <command>qemu-system-s390x</command>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <command>qemu-system-x86_64</command>
+   </para>
+  </listitem>
+ </itemizedlist>
+ <para>
+  In the following this command is referred to as &qemusystemarch;; in
+  examples the <command>qemu-system-x86_64</command> command is used.
+ </para>
+</chapter>

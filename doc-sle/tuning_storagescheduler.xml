@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+    %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="cha.tuning.io">
+ <title>Tuning I/O Performance</title>
+ <info/>
+ <para>
+  I/O scheduling controls how input/output operations will be submitted to
+  storage. &productname; offers various I/O algorithms&mdash;called
+  <literal>elevators</literal>&mdash; suiting different workloads.
+  Elevators can help to reduce seek operations, can prioritize I/O requests,
+  or make sure, and I/O request is carried out before a given deadline.
+ </para>
+ <para>
+  Choosing the best suited I/O elevator not only depends on the workload,
+  but on the hardware, too. Single ATA disk systems, SSDs, RAID arrays, or
+  network storage systems, for example, each require different tuning
+  strategies.
+ </para>
+ <sect1 xml:id="cha.tuning.io.switch">
+  <title>Switching I/O Scheduling</title>
+
+  <para>
+   &productname; lets you set a default I/O scheduler at boot-time, which
+   can be changed on the fly per block device. This makes it possible to set
+   different algorithms for e.g. the device hosting the system partition and
+   the device hosting a database.
+  </para>
+
+  <para>
+   By default the <systemitem class="resource">CFQ</systemitem> (Completely
+   Fair Queuing) scheduler is used. Change this default by entering the boot
+   parameter
+  </para>
+
+<screen>elevator=<replaceable>SCHEDULER</replaceable></screen>
+
+  <para>
+   where <replaceable>SCHEDULER</replaceable> is one of
+   <option>cfq</option>, <option>noop</option>, or
+   <option>deadline</option>. See <xref linkend="cha.tuning.io.schedulers"/>
+   for details.
+  </para>
+
+  <para>
+   To change the elevator for a specific device in the running system, run
+   the following command:
+  </para>
+
+<screen>echo <replaceable>SCHEDULER</replaceable> &gt; /sys/block/<replaceable>DEVICE</replaceable>/queue/scheduler</screen>
+
+  <para>
+   Here, <replaceable>SCHEDULER</replaceable> is one of
+   <option>cfq</option>, <option>noop</option>, or <option>deadline</option>
+   and <replaceable>DEVICE</replaceable> is the block device
+   (<systemitem>sda</systemitem> for example).
+  </para>
+
+  <note os="sles" arch="zseries">
+   <title>Default Scheduler on IBM &zseries;</title>
+   <para>
+    On IBM &zseries; the default I/O scheduler for a storage device is
+    set by the device driver.
+   </para>
+  </note>
+ </sect1>
+ <sect1 xml:id="cha.tuning.io.schedulers">
+  <title>Available I/O Elevators</title>
+
+  <para>
+   In the following elevators available on &productname; are listed. Each
+   elevator has a set of tunable parameters, which can be set with the
+   following command:
+  </para>
+
+<screen>echo <replaceable>VALUE</replaceable> &gt; /sys/block/<replaceable>DEVICE</replaceable>/queue/iosched/<replaceable>TUNABLE</replaceable></screen>
+
+  <para>
+   where <replaceable>VALUE</replaceable> is the desired value for the
+   <replaceable>TUNABLE</replaceable> and <replaceable>DEVICE</replaceable>
+   the block device.
+  </para>
+
+  <para>
+   To find out which elevator is the current default, run the following
+   command. The currently selected scheduler is listed in brackets:
+  </para>
+
+<screen>&wsI;:~ # cat /sys/block/sda/queue/scheduler
+noop deadline [cfq]</screen>
+
+  <sect2 xml:id="sec.tuning.io.schedulers.cfq">
+   <title><systemitem class="resource">CFQ</systemitem> (Completely Fair Queuing)</title>
+   <para>
+    <systemitem class="resource">CFQ</systemitem> is a fairness-oriented
+    scheduler and is used by default on &productname;. The algorithm
+    assigns each thread a time slice in which it is allowed to submit I/O to
+    disk. This way each thread gets a fair share of I/O throughput. It also
+    allows assigning tasks I/O priorities which are taken into account
+    during scheduling decisions (see <command>man 1 ionice</command>). The
+    <systemitem class="resource">CFQ</systemitem> scheduler has the
+    following tunable parameters:
+   </para>
+   <variablelist>
+    <varlistentry>
+     <term><filename>
+      /sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/slice_idle
+     </filename>
+     </term>
+     <listitem>
+      <para>
+       When a task has no more I/O to submit in its time slice, the I/O
+       scheduler waits for a while before scheduling the next thread to
+       improve locality of I/O. For media where locality does not play a big
+       role (SSDs, SANs with lots of disks) setting
+       <filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/slice_idle</filename>
+       to <literal>0</literal> can improve the throughput considerably.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><filename>
+      /sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/quantum
+     </filename>
+     </term>
+     <listitem>
+      <para>
+       This option limits the maximum number of requests that are being
+       processed at once by the device. The default value is
+       <literal>4</literal>. For a storage with several disks, this setting
+       can unnecessarily limit parallel processing of requests. Therefore,
+       increasing the value can improve performance. However, it can also
+       cause latency of certain I/O operations to increase because more
+       requests are buffered inside the storage. When changing this value,
+       you can also consider tuning
+       <filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/slice_async_rq</filename>
+       (the default value is <literal>2</literal>). This limits the maximum
+       number of asynchronous requests&mdash;usually write
+       requests&mdash;that are submitted in one time slice.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/low_latency</filename>
+     </term>
+     <listitem>
+      <para>
+       When enabled (which is the default on &productname;) the scheduler
+       may dynamically adjust the length of the time slice by aiming to meet
+       a tuning parameter called the <literal>target_latency</literal>. Time
+       slices are recomputed to meet this <literal>target_latency</literal>
+       and ensure that processes get fair access within a bounded length of
+       time.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/target_latency</filename>
+     </term>
+     <listitem>
+      <para>
+       Contains an estimated latency time for the
+       <systemitem class="resource">CFQ</systemitem>.
+       <systemitem class="resource">CFQ</systemitem> will 8 use it to
+       calculate the time slice used for every task.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+   <example>
+    <title>Increasing individual thread throughput using <systemitem class="resource">CFQ</systemitem></title>
+    <para>
+     In &productname; &productnumber; the
+     <literal>low_latency</literal> tuning parameter is enabled by default
+     to ensure that processes get fair access within a bounded length of
+     time. Note that this parameter was not enabled in versions prior to
+     &sle; 12.
+    </para>
+    <para>
+     This is usually preferred in a server scenario where processes are
+     executing I/O as part of transactions the time to complete each
+     transaction will be predictable. The exception is if the performance
+     metric of interest is the peak performance of a single process when
+     there is I/O contention. Another exception is if a workload must
+     complete as quickly as possible and there are multiple sources of I/O.
+     In the latter example, unfair treatment from the I/O scheduler may
+     complete the transactions faster as processes take their full slice,
+     exit quickly and reduce overall contention.
+    </para>
+    <para>
+     To address this, there are two options&mdash;increase
+     <literal>target_latency</literal> or disable
+     <literal>low_latency</literal>. As with all tuning parameters it is
+     important to verify your workload behaves as expected before and after
+     the tuning modification. Take careful note of whether your workload
+     depends on individual process peak performance or scales better with
+     fairness. It should also be noted that the performance will depend on
+     the underlying storage and the correct tuning option for one
+     installation may not be universally true.
+    </para>
+    <para>
+     Find below an example that does not control when I/O starts but is
+     simple enough to just demonstrate the point. 32 processes are writing a
+     small amount of data to disk in parallel. Using the &productname;
+     default (enabling <literal>low_latency</literal>), the result looks as
+     follows:
+    </para>
+<screen>&prompt.root;echo 1 &gt; /sys/block/sda/queue/iosched/low_latency
+&prompt.root;time ./dd-test.sh 
+10485760 bytes (10 MB) copied, 2.62464 s, 4.0 MB/s
+10485760 bytes (10 MB) copied, 3.29624 s, 3.2 MB/s
+10485760 bytes (10 MB) copied, 3.56341 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.56908 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.53043 s, 3.0 MB/s
+10485760 bytes (10 MB) copied, 3.57511 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.53672 s, 3.0 MB/s
+10485760 bytes (10 MB) copied, 3.5433 s, 3.0 MB/s
+10485760 bytes (10 MB) copied, 3.65474 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.63694 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.90122 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 3.88507 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 3.86135 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 3.84553 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 3.88871 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 3.94943 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 4.12731 s, 2.5 MB/s
+10485760 bytes (10 MB) copied, 4.15106 s, 2.5 MB/s
+10485760 bytes (10 MB) copied, 4.21601 s, 2.5 MB/s
+10485760 bytes (10 MB) copied, 4.35004 s, 2.4 MB/s
+10485760 bytes (10 MB) copied, 4.33387 s, 2.4 MB/s
+10485760 bytes (10 MB) copied, 4.55434 s, 2.3 MB/s
+10485760 bytes (10 MB) copied, 4.52283 s, 2.3 MB/s
+10485760 bytes (10 MB) copied, 4.52682 s, 2.3 MB/s
+10485760 bytes (10 MB) copied, 4.56176 s, 2.3 MB/s
+10485760 bytes (10 MB) copied, 4.62727 s, 2.3 MB/s
+10485760 bytes (10 MB) copied, 4.78958 s, 2.2 MB/s
+10485760 bytes (10 MB) copied, 4.79772 s, 2.2 MB/s
+10485760 bytes (10 MB) copied, 4.78004 s, 2.2 MB/s
+10485760 bytes (10 MB) copied, 4.77994 s, 2.2 MB/s
+10485760 bytes (10 MB) copied, 4.86114 s, 2.2 MB/s
+10485760 bytes (10 MB) copied, 4.88062 s, 2.1 MB/s
+
+real    0m4.978s
+user    0m0.112s
+sys     0m1.544s</screen>
+    <para>
+     Note that each process completes in similar times. This is the
+     <systemitem class="resource">CFQ</systemitem> scheduler meeting its
+     <literal>target_latency</literal> giving each process gets fair access
+     to storage. The early processes completed faster as the start time of
+     the processes was not identical. This could be controlled for but not
+     in this simple example.
+    </para>
+    <para>
+     This is what happens when low_latency is disabled:
+    </para>
+<screen>&prompt.root;echo 0 &gt; /sys/block/sda/queue/iosched/low_latency
+&prompt.root;time ./dd-test.sh 
+10485760 bytes (10 MB) copied, 0.813519 s, 12.9 MB/s
+10485760 bytes (10 MB) copied, 0.788106 s, 13.3 MB/s
+10485760 bytes (10 MB) copied, 0.800404 s, 13.1 MB/s
+10485760 bytes (10 MB) copied, 0.816398 s, 12.8 MB/s
+10485760 bytes (10 MB) copied, 0.959087 s, 10.9 MB/s
+10485760 bytes (10 MB) copied, 1.09563 s, 9.6 MB/s
+10485760 bytes (10 MB) copied, 1.18716 s, 8.8 MB/s
+10485760 bytes (10 MB) copied, 1.27661 s, 8.2 MB/s
+10485760 bytes (10 MB) copied, 1.46312 s, 7.2 MB/s
+10485760 bytes (10 MB) copied, 1.55489 s, 6.7 MB/s
+10485760 bytes (10 MB) copied, 1.64277 s, 6.4 MB/s
+10485760 bytes (10 MB) copied, 1.78196 s, 5.9 MB/s
+10485760 bytes (10 MB) copied, 1.87496 s, 5.6 MB/s
+10485760 bytes (10 MB) copied, 1.9461 s, 5.4 MB/s
+10485760 bytes (10 MB) copied, 2.08351 s, 5.0 MB/s
+10485760 bytes (10 MB) copied, 2.28003 s, 4.6 MB/s
+10485760 bytes (10 MB) copied, 2.42979 s, 4.3 MB/s
+10485760 bytes (10 MB) copied, 2.54564 s, 4.1 MB/s
+10485760 bytes (10 MB) copied, 2.6411 s, 4.0 MB/s
+10485760 bytes (10 MB) copied, 2.75171 s, 3.8 MB/s
+10485760 bytes (10 MB) copied, 2.86162 s, 3.7 MB/s
+10485760 bytes (10 MB) copied, 2.98453 s, 3.5 MB/s
+10485760 bytes (10 MB) copied, 3.13723 s, 3.3 MB/s
+10485760 bytes (10 MB) copied, 3.36399 s, 3.1 MB/s
+10485760 bytes (10 MB) copied, 3.60018 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.58151 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.67385 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.69471 s, 2.8 MB/s
+10485760 bytes (10 MB) copied, 3.66658 s, 2.9 MB/s
+10485760 bytes (10 MB) copied, 3.81495 s, 2.7 MB/s
+10485760 bytes (10 MB) copied, 4.10172 s, 2.6 MB/s
+10485760 bytes (10 MB) copied, 4.0966 s, 2.6 MB/s
+
+real    0m3.505s
+user    0m0.160s
+sys     0m1.516s</screen>
+    <para>
+     Note that the time processes take to complete is spread much wider as
+     processes are not getting fair access. Some processes complete faster
+     and exit allowing the total workload to complete faster and some
+     processes measure higher apparent I/O performance. It is also important
+     to note that this example may not behave similarly on all systems as
+     the results depend on the resources of the machine and the underlying
+     storage.
+    </para>
+    <para>
+     It is important to emphasise that neither tuning option is inherently
+     better than the other. Both are best in different circumstances and it
+     is important to understand the requirements of your workload and tune
+     accordingly.
+    </para>
+   </example>
+  </sect2>
+
+  <sect2 xml:id="sec.tuning.io.schedulers.noop">
+   <title><systemitem class="resource">NOOP</systemitem></title>
+   <para>
+    A trivial scheduler that only passes down the I/O that comes to it.
+    Useful for checking whether complex I/O scheduling decisions of other
+    schedulers are not causing I/O performance regressions.
+   </para>
+   <para>
+    In some cases, this scheduler can be helpful for devices that do I/O
+    scheduling themselves, such as intelligent storage, or devices that do
+    not depend on mechanical movement, like SSDs. Usually, the
+    <systemitem class="resource">DEADLINE</systemitem> I/O scheduler is a
+    better choice for these devices. However,
+    <systemitem class="resource">NOOP</systemitem> creates less overhead and
+    thus can on certain workloads increase performance.
+   </para>
+  </sect2>
+
+  <sect2 xml:id="sec.tuning.io.schedulers.deadline">
+   <title><systemitem class="resource">DEADLINE</systemitem></title>
+   <para>
+    <systemitem class="resource">DEADLINE</systemitem> is a latency-oriented
+    I/O scheduler. Each I/O request is assigned a deadline. Usually,
+    requests are stored in queues (read and write) sorted by sector numbers.
+    The <systemitem class="resource">DEADLINE</systemitem> algorithm
+    maintains two additional queues (read and write) in which requests are
+    sorted by deadline. As long as no request has timed out, the
+    <quote>sector</quote> queue is used. When timeouts occur, requests from
+    the <quote>deadline</quote> queue are served until there are no more
+    expired requests. Generally, the algorithm prefers reads over writes.
+   </para>
+   <para>
+    This scheduler can provide a superior throughput over the
+    <systemitem class="resource">CFQ</systemitem> I/O scheduler in cases
+    where several threads read and write and fairness is not an issue. For
+    example, for several parallel readers from a SAN and for databases
+    (especially when using <quote>TCQ</quote> disks). The
+    <systemitem class="resource">DEADLINE</systemitem> scheduler has the
+    following tunable parameters:
+   </para>
+   <variablelist>
+    <varlistentry>
+     <term><filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/writes_starved</filename>
+     </term>
+     <listitem>
+      <para>
+       Controls how many reads can be sent to disk before it is possible to
+       send writes. A value of <literal>3</literal> means, that three read
+       operations are carried out for one write operation.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/read_expire</filename>
+     </term>
+     <listitem>
+      <para>
+       Sets the deadline (current time plus the read_expire value) for read
+       operations in milliseconds. The default is 500.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/write_expire</filename>
+     </term>
+     <listitem>
+      <para>
+       <filename>/sys/block/<replaceable>&lt;device&gt;</replaceable>/queue/iosched/read_expire</filename>
+       Sets the deadline (current time plus the read_expire value) for read
+       operations in milliseconds. The default is 500.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </sect2>
+ </sect1>
+ <sect1 xml:id="cha.tuning.io.barrier">
+  <title>I/O Barrier Tuning</title>
+
+  <para>
+   <remark>sknorr, 2014-07-24: This might need updating to include Btrfs.</remark>
+   Most file systems (such as XFS, Ext3, Ext4, or reiserfs) send write
+   barriers to disk after fsync or during transaction commits. Write
+   barriers enforce proper ordering of writes, making volatile disk write
+   caches safe to use (at some performance penalty). If your disks are
+   battery-backed in one way or another, disabling barriers can safely
+   improve performance.
+  </para>
+
+  <para>
+   Sending write barriers can be disabled using the
+   <option>barrier=0</option> mount option (for Ext3, Ext4, and reiserfs),
+   or using the <option>nobarrier</option> mount option (for XFS).
+  </para>
+
+  <warning>
+   <title>Disabling Barriers Can Lead to Data Loss</title>
+   <para>
+    Disabling barriers when disks cannot guarantee caches are properly
+    written in case of power failure can lead to severe file system
+    corruption and data loss.
+   </para>
+  </warning>
+ </sect1>
+</chapter>

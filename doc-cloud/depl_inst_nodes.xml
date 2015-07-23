@@ -1,0 +1,1383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter 
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+  %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="cha.depl.inst.nodes">
+ <title>Installing the &ostack; Nodes</title>
+ <para>
+  The &ostack; nodes represent the actual cloud infrastructure. Node
+  installation and service deployment is done automatically from the
+  &admserv;. Before deploying the &ostack; services, you need to
+  install &slsa; 11 SP3 on all &contrnode;s. Storage nodes running
+  &o_blockstore; also need to be installed with &slsa; 11 SP3, while
+  &ceph; &stornode;s are required to run &slsa; 12. &compnode;s
+  can either run &slsa; 11 SP3, &slsa; 12, Windows (see
+  <xref linkend="app.deploy.hyperv"/> for installation instructions) or
+  VMware vSphere (see <xref linkend="app.deploy.vmware"/> for installation
+  instructions).
+ </para>
+ <para>
+  To start the installation, each node needs to be booted using PXE, which
+  is provided by the <systemitem class="resource">tftp</systemitem> server
+  from the &admserv;. Afterwards you can allocate the nodes and trigger
+  the operating system installation. There are three different types of
+  nodes:
+ </para>
+ <simplelist>
+  <member><emphasis role="bold">&contrnode;(s):</emphasis> One or more central
+  management node(s) interacting with all other nodes. All &contrnode;s run on
+  &slsa; 11 SP3.
+  </member>
+  <member><emphasis role="bold">&compnode;s:</emphasis> The nodes on which the
+   &vmguest;s are started. &compnode;s either run on &slsa; 11 SP3, &slsa; 12,
+   Windows, or VMware.
+  </member>
+  <member><emphasis role="bold">&stornode;s:</emphasis> Nodes providing object
+  or block storage. &stornode;s either run on &slsa; 11 SP3 (&o_objstore; and
+  &o_blockstore;) or &slsa; 12 (&ceph;).
+  </member>
+ </simplelist>
+ <sect1 xml:id="sec.depl.inst.nodes.prep">
+  <title>Preparations</title>
+
+  <variablelist>
+   <varlistentry>
+    <term>Meaningful Node names</term>
+    <listitem>
+     <para>
+      Make a note of the MAC address and the purpose of each node (for
+      example, controller, storage &ceph;, storage &swift;, compute).
+      This will make deploying the &ostack; services a lot easier and
+      less error-prone, since it enables you to assign meaningful names
+      (aliases) to the nodes, which are otherwise listed with the MAC
+      address by default.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>BIOS Boot Settings</term>
+    <listitem>
+     <para>
+      Make sure booting using PXE (booting from the network) is enabled and
+      configured as the <emphasis>primary</emphasis> boot-option for each
+      node. The nodes will boot twice from the network during the allocation
+      and installation phase.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Custom Node Configuration</term>
+    <listitem>
+     <para>
+      All nodes are installed using &ay; with the same configuration
+      located at
+      <filename>/opt/dell/chef/cookbooks/provisioner/templates/default/autoyast.xml.erb</filename>.
+      If this configuration does not match your needs (for example if you
+      need special third party drivers) you need to make adjustments to this
+      file. An &ay; manual can be found at
+      <link xlink:href="http://www.suse.com/documentation/sles11/book_autoyast/data/book_autoyast.html"/>.
+      Having changed the &ay; configuration file, you need to re-upload
+      it to &chef;, using the following command:
+     </para>
+<screen>knife cookbook upload -o /opt/dell/chef/cookbooks/ provisioner</screen>
+    </listitem>
+   </varlistentry>
+   <varlistentry xml:id="var.depl.inst.nodes.prep.root_login">
+    <term>Direct &rootuser; Login</term>
+    <listitem>
+     <para>
+      By default, the &rootuser; account on the nodes has no password
+      assigned, so a direct &rootuser; login is not possible. Logging in
+      on the nodes as &rootuser; is only possible via SSH public keys
+      (for example, from the &admserv;).
+     </para>
+     <para>
+      If you want to allow direct &rootuser; login, you can set a
+      password via the &crow; Provisioner &barcl; before deploying the
+      nodes. That password will be used for the &rootuser; account on all
+      &ostack; nodes. Using this method after the nodes are deployed is
+      not possible. In that case you would need to log in to each node via
+      SSH from the &admserv; and change the password manually with
+      <command>passwd</command>.
+     </para>
+<!-- fs 2012-09-20: Stupid NovDoc does not allow procedures in
+          variablelists, so using an ordered list instead ;-(( -->
+     <orderedlist spacing="normal">
+      <title>Setting a &rootuser; Password for the &ostack; Nodes</title>
+      <listitem>
+       <para>
+        Create an md5-hashed &rootuser;-password, for example by using
+        <command>openssl passwd</command> <option>-1</option>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Open a browser and point it to the &crow; Web interface available
+        at port <literal>3000</literal> of the &admserv;, for example
+        <literal>http://192.168.124.10:3000/</literal>. Log in as user
+        <systemitem class="username">crowbar</systemitem>. The password
+        defaults to <literal>crowbar</literal>, if you have not changed it
+        during the installation.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Open the &barcl; menu by clicking <menuchoice>
+        <guimenu>Barclamps</guimenu> <guimenu>Crowbar</guimenu>
+        </menuchoice>. Click the <guimenu>Provisioner</guimenu> &barcl;
+        entry and <guimenu>Edit</guimenu> the <guimenu>Default</guimenu>
+        proposal.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Click <guimenu>Raw</guimenu> in the <guimenu>Attributes</guimenu>
+        section to edit the configuration file.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Add the following line to the end of the file before the last
+        closing curly bracket:
+       </para>
+<screen>, "root_password_hash": "<replaceable>HASHED_PASSWORD</replaceable>"</screen>
+       <para>
+        replacing "<replaceable>HASHED_PASSWORD</replaceable>" with the
+        password you generated in the first step.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Click <guimenu>Apply</guimenu>.
+       </para>
+      </listitem>
+     </orderedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Preparing a Windows Netboot Environment</term>
+    <listitem>
+     <para>
+      In case you plan to deploy &compnode;s running either Microsoft
+      &hyper; Server or Windows Server 2012, you need to prepare a
+      Windows Netboot Environment. Refer to
+      <xref linkend="app.deploy.hyperv"/> for details.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </sect1>
+ <sect1 xml:id="sec.depl.inst.nodes.install">
+  <title>Node Installation</title>
+
+  <para>
+   To install a node, you need to boot it first using PXE. It will be booted
+   with an image that enables the &admserv; to discover the node and make
+   it available for installation. Once you have allocated the node, it will
+   boot using PXE again and the automatic installation will start.
+  </para>
+
+  <procedure>
+   <step>
+    <para>
+     Boot all nodes using PXE that you want to deploy. The nodes will boot
+     into the <quote>SLEShammer</quote> image, which performs the initial
+     hardware discovery.
+    </para>
+    <important>
+     <title>Limit the Number of Concurrent Boots using PXE</title>
+     <para>
+      Booting many nodes using PXE at the same time will cause heavy load on
+      the TFTP server, because all nodes will request the boot image at the
+      same time. It is recommended to boot the nodes time-delayed.
+     </para>
+    </important>
+   </step>
+   <step>
+    <para>
+     Open a browser and point it to the &crow; Web interface available at
+     port <literal>3000</literal> of the &admserv;, for example
+     <literal>http://192.168.124.10:3000/</literal>. Log in as user
+     <systemitem class="username">crowbar</systemitem>. The password
+     defaults to <literal>crowbar</literal>, if you have not changed it.
+    </para>
+    <para>
+     Click <menuchoice> <guimenu>Nodes</guimenu>
+     <guimenu>&dash;</guimenu> </menuchoice> to open the <guimenu>Node
+     Dashboard</guimenu>.
+    </para>
+   </step>
+   <step>
+    <para>
+     Each node that has successfully booted will be listed as being in state
+     <literal>Discovered</literal>, indicated by a yellow bullet. The nodes
+     will be listed with their MAC address as a name. Wait until all nodes
+     are listed as being <literal>Discovered</literal> before proceeding. In
+     case a node does not report as being <literal>Discovered</literal>, it
+     may need to be rebooted manually.
+    </para>
+    <figure>
+     <title>Discovered Nodes</title>
+     <mediaobject>
+      <imageobject role="fo">
+       <imagedata fileref="depl_node_dashboard_initial_nodes.png" width="100%" format="png"/>
+      </imageobject>
+      <imageobject role="html">
+       <imagedata fileref="depl_node_dashboard_initial_nodes.png" width="75%" format="png"/>
+      </imageobject>
+     </mediaobject>
+    </figure>
+   </step>
+   <step>
+    <para>
+     Although this step is optional, it is recommended to properly group
+     your nodes at this stage, since it lets you clearly arrange all nodes.
+     Grouping the nodes by role would be one option, for example control,
+     compute, object storage (&swift;), and block storage (&ceph;).
+    </para>
+    <substeps performance="required">
+     <step>
+      <para>
+       Enter the name of a new group into the <guimenu>New Group</guimenu>
+       text box and click <guimenu>Add Group</guimenu>.
+      </para>
+     </step>
+     <step>
+      <para>
+       Drag and drop a node onto the title of the newly created group.
+       Repeat this step for each node you want to put into the group.
+      </para>
+      <figure>
+       <title>Grouping Nodes</title>
+       <mediaobject>
+        <imageobject role="fo">
+         <imagedata fileref="depl_node_dashboard_groups_initial.png" width="100%" format="png"/>
+        </imageobject>
+        <imageobject role="html">
+         <imagedata fileref="depl_node_dashboard_groups_initial.png" width="75%" format="png"/>
+        </imageobject>
+       </mediaobject>
+      </figure>
+     </step>
+    </substeps>
+   </step>
+   <step>
+    <para>
+     To allocate all nodes, click <menuchoice><guimenu>Nodes</guimenu>
+     <guimenu>Bulk Edit</guimenu></menuchoice>. To allocate a single node,
+     click the name of a node, then click <guimenu>Edit</guimenu>.
+    </para>
+    <figure>
+     <title>Editing a Single Node</title>
+     <mediaobject>
+      <imageobject role="fo">
+       <imagedata fileref="depl_node_edit.png" width="100%" format="png"/>
+      </imageobject>
+      <imageobject role="html">
+       <imagedata fileref="depl_node_edit.png" width="75%" format="png"/>
+      </imageobject>
+     </mediaobject>
+    </figure>
+    <important>
+     <title>Limit the Number of Concurrent Node Deployments</title>
+     <para>
+      Deploying a large number of nodes in bulk mode will cause heavy load
+      on the &admserv;. The subsequent concurrent &chef; client runs
+      triggered by the nodes will require a lot of RAM on the &admserv;.
+     </para>
+     <para>
+      Therefore it is recommended to limit the number of concurrent
+      <quote>Allocations</quote> in bulk mode. The maximum number depends on
+      the amount of RAM on the &admserv;&mdash;limiting concurrent
+      deployments to five up to ten is recommended.
+     </para>
+    </important>
+   </step>
+   <step>
+    <para>
+     Provide a meaningful <guimenu>Alias</guimenu>, <guimenu>Public
+     Name</guimenu> and a <guimenu>Description</guimenu> for each node and
+     check the <guimenu>Allocate</guimenu> box. You can also specify the
+     <guimenu>Intended Role</guimenu> for the node. This optional setting is
+     used to make reasonable proposals for the &barcl;s.
+    </para>
+    <para>
+     Normally <guimenu>Target Platform</guimenu> needs to be set to
+     <guimenu>SLES 11 SP3</guimenu>. If you plan to install &compnode;s
+     running &slsa; 12 or &ceph; &stornode;s, choose <guimenu>SLES
+     12</guimenu>. To support &hyper; in your cloud, you need to prepare
+     the Windows netboot environment as described in
+     <xref linkend="app.deploy.hyperv"/>. After that is done, set the
+     <guimenu>Target Platform</guimenu> of the &compnode;s that should
+     run Windows to either <guimenu>Windows Server</guimenu> or
+     <guimenu>HyperV Server</guimenu>. When specifying <guimenu>Windows
+     Server</guimenu> you also need to add a valid <guimenu>License
+     Key</guimenu>.
+    </para>
+    <tip>
+     <title>Alias Names</title>
+     <para>
+      Providing an alias name will change the default node names (MAC
+      address) to the name you provided, making it easier to identify the
+      node. Furthermore, this alias will also be used as a DNS
+      <literal>CNAME</literal> for the node in the admin network. As a
+      result, you can access the node via this alias when, for example,
+      logging in via SSH.
+     </para>
+    </tip>
+    <tip>
+     <title>Public Names</title>
+     <para>
+      A node's <guimenu>Alias Name</guimenu> is resolved by the DNS server
+      installed on the &admserv; and therefore only available within the
+      cloud network. The &ostack; &dash; or some APIs
+      (<systemitem class="service">keystone-server</systemitem>,
+      <systemitem class="service">glance-server</systemitem>,
+      <systemitem class="service">cinder-controller</systemitem>,
+      <systemitem class="service">neutron-server</systemitem>,
+      <systemitem class="service">nova-multi-controller</systemitem>, and
+      <systemitem class="service">swift-proxy</systemitem>) can be accessed
+      from outside the &cloud; network. To be able to access them by
+      name, these names need to be resolved by a name server placed outside
+      of the &cloud; network. If you have created DNS entries for nodes,
+      specify the name in the <guimenu>Public Name</guimenu> field.
+     </para>
+     <para>
+      The <guimenu>Public Name</guimenu> is never used within the &cloud;
+      network. However, if you create an SSL certificate for a node that has
+      a public name, this name must be added as an
+      <literal>AlternativeName</literal> to the certificate (see
+      <xref linkend="sec.depl.req.ssl"/> for more information).
+     </para>
+    </tip>
+    <figure>
+     <title>Bulk Editing Nodes</title>
+     <mediaobject>
+      <imageobject role="fo">
+       <imagedata fileref="depl_node_bulk_edit_allocate.png" width="100%" format="png"/>
+      </imageobject>
+      <imageobject role="html">
+       <imagedata fileref="depl_node_bulk_edit_allocate.png" width="75%" format="png"/>
+      </imageobject>
+     </mediaobject>
+    </figure>
+   </step>
+   <step>
+    <para>
+     Once you have filled in the data for all nodes, click
+     <guimenu>Save</guimenu>. The nodes will reboot and commence the
+     &ay;-based &sls; installation via a second PXE boot. Click
+     <menuchoice> <guimenu>Nodes</guimenu> <guimenu>&dash;</guimenu>
+     </menuchoice> to return to the <guimenu>Node Dashboard</guimenu>.
+    </para>
+   </step>
+   <step>
+    <para>
+     Nodes that are being installed are listed with the status
+     <literal>Installing</literal> (yellow/green bullet). When the
+     installation of a node has finished, it is listed as being
+     <literal>Ready</literal>, indicated by a green bullet. Wait until all
+     nodes are listed as being <literal>Ready</literal> before proceeding.
+    </para>
+    <figure>
+     <title>All Nodes Have Been Installed</title>
+     <mediaobject>
+      <imageobject role="fo">
+       <imagedata fileref="depl_node_dashboard_groups_installed.png" width="100%" format="png"/>
+      </imageobject>
+      <imageobject role="html">
+       <imagedata fileref="depl_node_dashboard_groups_installed.png" width="75%" format="png"/>
+      </imageobject>
+     </mediaobject>
+    </figure>
+   </step>
+  </procedure>
+ </sect1>
+ <sect1 xml:id="sec.depl.inst.nodes.install.external">
+  <title>Converting Existing &slsa; 11 SP3 Machines Into &cloud; Nodes</title>
+
+  <para>
+   &cloud; also allows to add existing machines installed with &slsa;
+   11 SP3 to the pool of nodes. This enables you to not only use spare
+   machines for &cloud;, but also offers an alternative way of
+   provisioning and installing nodes (via &susemgr; for example). A
+   mandatory prerequisite is that the machine must run &slsa; 11 SP3.
+  </para>
+
+  <para>
+   It is also required that the machine is on the same network as the
+   &admserv;, since it needs to communicate with this server. Since the
+   &admserv; provides a DHCP server, it is recommended to configure the
+   respective network device with DHCP. If using a static IP address, make
+   sure it is not already used in the admin network (check the list of used
+   IP addresses with the &yast; &crow; module as described in
+   <xref linkend="sec.depl.adm_inst.crowbar.network"/>).
+  </para>
+
+  <para>
+   Proceed as follows to convert an existing &slsa; 11 SP3 machine into a
+   &cloud; node:
+  </para>
+
+  <procedure>
+   <step>
+    <para>
+     Download the <filename>crowbar_register</filename> script from the
+     &admserv; at
+     http://<replaceable>192.168.124.10</replaceable>:8091/suse-11.3/crowbar_register
+     (replace the IP address with the IP address of your &admserv; using
+     <command>curl</command> or <command>wget</command>).
+    </para>
+   </step>
+   <step>
+    <para>
+     Make the <filename>crowbar_register</filename> script executable
+     (<command>chmod</command> <option>a+x</option> crowbar_register).
+    </para>
+   </step>
+   <step>
+    <para>
+     Run the <filename>crowbar_register</filename> script. If you have
+     multiple network interfaces, the script tries to automatically detect
+     the one that is connected to the admin network. You may also explicitly
+     specify which network interface to use by using the
+     <option>--interface</option> switch, for example
+     <command>crowbar_register</command> <option>--interface eth1</option>.
+    </para>
+   </step>
+   <step>
+    <para>
+     After the script has successfully run, the machine has been added to
+     the pool of nodes in the &cloud; and can be used as any other node
+     from the pool.
+    </para>
+   </step>
+  </procedure>
+ </sect1>
+ <sect1 xml:id="sec.depl.inst.nodes.post">
+  <title>Post-Installation Configuration</title>
+
+  <para>
+   The following lists some <emphasis>optional</emphasis> configuration
+   steps like configuring node updates, monitoring, access and
+   SSL-enablement. You may entirely skip the following steps or perform any
+   of them at a later stage.
+  </para>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.updater">
+   <title>Deploying Node Updates with the Updater &barcl;</title>
+   <para>
+    To keep the operating system and the &cloud; software itself
+    up-to-date on the nodes, you can either deploy the Updater &barcl; or
+    the &susemgr; &barcl;. While the latter requires access to a
+    &susemgr; server, the Updater &barcl; uses Zypper to install
+    updates and patches from repositories made available on the
+    &admserv;.
+   </para>
+   <para>
+    The easiest way to provide the required repositories on the &admserv;
+    is to set up an &smt; server as described in
+    <xref linkend="app.deploy.smt"/>. Alternatives to setting up an &smt;
+    server are described in <xref linkend="sec.depl.req.repos"/>.
+   </para>
+   <para>
+    The Updater &barcl; lets you deploy updates that are available on the
+    update repositories at the moment of deployment. Each time you deploy
+    updates with this &barcl; you can choose a different set of nodes to
+    which the updates are deployed. This lets you exactly control where and
+    when updates are deployed.
+   </para>
+   <para>
+    To deploy the Updater &barcl;, proceed as follows. For general
+    instructions on how to edit &barcl; proposals refer to
+    <xref linkend="sec.depl.ostack.barclamps"/>.
+   </para>
+   <procedure>
+    <step>
+     <para>
+      Open a browser and point it to the &crow; Web interface available
+      at port <literal>3000</literal> of the &admserv;, for example
+      <literal>http://192.168.124.10:3000/</literal>. Log in as user
+      <systemitem class="username">crowbar</systemitem>. The password
+      defaults to <literal>crowbar</literal>, if you have not changed it
+      during the installation.
+     </para>
+    </step>
+    <step>
+     <para>
+      Open the &barcl; menu by clicking <menuchoice>
+      <guimenu>Barclamps</guimenu> <guimenu>Crowbar</guimenu> </menuchoice>.
+      Click the <guimenu>Updater</guimenu> &barcl; entry and
+      <guimenu>Create</guimenu> to open the proposal.
+     </para>
+    </step>
+    <step>
+     <para>
+      Configure the &barcl; by the following attributes. This
+      configuration always applies to all nodes on which the &barcl; is
+      deployed. Creating individual configurations for certain nodes is not
+      supported.
+     </para>
+     <variablelist>
+      <varlistentry>
+       <term>Use zypper
+       </term>
+       <listitem>
+        <para>
+         Define which Zypper subcommand to use for updating.
+         <guimenu>patch</guimenu> will install all patches applying to the
+         system from the configured update repositories that are available.
+         <guimenu>update</guimenu> will update packages from all configured
+         repositories (not just the update repositories) that have a higher
+         version number than the installed packages.
+         <guimenu>dist-upgrade</guimenu> replaces each package installed
+         with the version from the repository and deletes packages not
+         available in the repositories.
+        </para>
+        <para>
+         Using <guimenu>patch</guimenu> is recommended.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Enable GPG Checks
+       </term>
+       <listitem>
+        <para>
+         If set to true (recommended), checks if packages are correctly
+         signed.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Automatically Agree With Licenses
+       </term>
+       <listitem>
+        <para>
+         If set to true (recommended), Zypper automatically accepts third
+         party licenses.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Include Patches that need Reboots (Kernel)
+       </term>
+       <listitem>
+        <para>
+         Installs patches that require a reboot (for example Kernel or glibc
+         updates). Only set this option to <literal>true</literal> when you
+         can safely reboot the affected nodes. Refer to
+         <xref linkend="cha.depl.maintenance"/> for more information.
+         Installing a new Kernel and not rebooting may result in an unstable
+         system.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Reboot Nodes if Needed
+       </term>
+       <listitem>
+        <para>
+         Automatically reboots the system in case a patch requiring a reboot
+         has been installed. Only set this option to <literal>true</literal>
+         when you can safely reboot the affected nodes. Refer to
+         <xref linkend="cha.depl.maintenance"/> for more information.
+        </para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+     <figure>
+      <title>SUSE Updater &barcl;: Configuration</title>
+      <mediaobject>
+       <imageobject role="fo">
+        <imagedata fileref="depl_barclamp_updater_attributes.png" width="100%" format="png"/>
+       </imageobject>
+       <imageobject role="html">
+        <imagedata fileref="depl_barclamp_updater_attributes.png" width="75%" format="png"/>
+       </imageobject>
+      </mediaobject>
+     </figure>
+    </step>
+    <step>
+     <para>
+      Choose the nodes on which the Updater &barcl; should be deployed in
+      the <guimenu>Node Deployment</guimenu> section by dragging them to the
+      <guimenu>Updater</guimenu> column.
+     </para>
+     <figure>
+      <title>SUSE Updater &barcl;: Node Deployment</title>
+      <mediaobject>
+       <imageobject role="fo">
+        <imagedata fileref="depl_barclamp_updater_nodes.png" width="100%" format="png"/>
+       </imageobject>
+       <imageobject role="html">
+        <imagedata fileref="depl_barclamp_updater_nodes.png" width="75%" format="png"/>
+       </imageobject>
+      </mediaobject>
+     </figure>
+    </step>
+   </procedure>
+   <para>
+    <command>zypper</command> keeps track of the packages and patches it
+    installs in <filename>/var/log/zypp/history</filename>. Review that log
+    file on a node to find out which updates have been installed. A second
+    log file recording debug information on the <command>zypper</command>
+    runs can be found at <filename>/var/log/zypper.log</filename> on each
+    node.
+   </para>
+  </sect2>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.manager">
+   <title>Configuring Node Updates with the <guimenu>&susemgr; Client</guimenu> &barcl;</title>
+   <para>
+    To keep the operating system and the &cloud; software itself
+    up-to-date on the nodes, you can either deploy <guimenu>&susemgr;
+    Client</guimenu> &barcl; or the Updater &barcl;. The latter uses
+    Zypper to install updates and patches from repositories made available
+    on the &admserv;.
+   </para>
+   <para>
+    To enable the &susemgr; server to manage the &cloud; nodes, the
+    respective &productname; &productnumber; channels
+    (SUSE-Cloud-5-Pool, SUSE-Cloud-5-Updates) need to be available on the
+    server. It also requires to generate an <literal>Activation
+    Key</literal> for &cloud;.
+   </para>
+   <para>
+    The <guimenu>&susemgr; Client</guimenu> &barcl; requires access to
+    the &susemgr; server from every node it is deployed to.
+   </para>
+   <para>
+    To deploy the <guimenu>&susemgr; Client</guimenu> &barcl;, proceed
+    as follows. For general instructions on how to edit &barcl; proposals
+    refer to <xref linkend="sec.depl.ostack.barclamps"/>.
+   </para>
+   <procedure>
+    <step>
+     <para>
+      Generate an <literal>Activation Key</literal> for &cloud; on the
+      &susemgr; server. See the section <citetitle>Activation
+      Keys</citetitle> at
+      <link xlink:href="http://www.suse.com/documentation/suse_manager/book_susemanager_ref/data/s1-sm-systems.html"/>
+      for instructions).
+     </para>
+    </step>
+    <step>
+     <para>
+      Download the package
+      <literal>rhn-org-trusted-ssl-cert-<replaceable>VERSION</replaceable>-<replaceable>RELEASE</replaceable>.noarch.rpm</literal>
+      from
+      https://<replaceable>susemanager.&exampledomain;</replaceable>/pub/.
+      <replaceable>VERSION</replaceable> and
+      <replaceable>RELEASE</replaceable> may vary, ask the administrator of
+      the &susemgr; for the correct values.
+      <replaceable>susemanager.&exampledomain;</replaceable> needs to be
+      replaced by the address of your &susemgr; server. Copy the file you
+      downloaded to
+      <filename>/opt/dell/chef/cookbooks/suse-manager-client/files/default/ssl-cert.rpm</filename>
+      on the &admserv;. The package contains the &susemgr;'s CA SSL
+      Public Certificate. The certificate installation has not been
+      automated on purpose, because downloading the certificate manually
+      enables you to check it before copying it.
+     </para>
+    </step>
+    <step>
+     <para>
+      Re-install the &barcl; by running the following command:
+     </para>
+<screen>/opt/dell/bin/barclamp_install.rb --rpm suse-manager-client</screen>
+    </step>
+    <step>
+     <para>
+      Open a browser and point it to the &crow; Web interface available
+      at port <literal>3000</literal> of the &admserv;, for example
+      <literal>http://192.168.124.10:3000/</literal>. Log in as user
+      <systemitem class="username">crowbar</systemitem>. The password
+      defaults to <literal>crowbar</literal>, if you have not changed it
+      during the installation.
+     </para>
+    </step>
+    <step>
+     <para>
+      Open the &barcl; menu by clicking <menuchoice>
+      <guimenu>Barclamps</guimenu> <guimenu>Crowbar</guimenu> </menuchoice>.
+      Click the <guimenu>SUSE Manager Client</guimenu> &barcl; entry and
+      <guimenu>Create</guimenu> to open the proposal.
+     </para>
+    </step>
+    <step>
+     <para>
+      Configure the &barcl; by the following attributes. This
+      configuration always applies to all nodes on which the &barcl; is
+      deployed. Creating individual configurations for certain nodes is not
+      supported.
+     </para>
+     <variablelist>
+      <varlistentry>
+       <term>Activation Key
+       </term>
+       <listitem>
+        <para>
+         Enter the &susemgr; activation key for &cloud; here. This key
+         must have been generated on the &susemgr; server.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>SUSE Manager Server Hostname
+       </term>
+       <listitem>
+        <para>
+         Fully qualified host name of the &susemgr; server. This name
+         must be resolvable via the DNS server on the &admserv;.
+        </para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </step>
+    <step>
+     <para>
+      Choose the nodes on which the &susemgr; &barcl; should be
+      deployed in the <guimenu>Node Deployment</guimenu> section by dragging
+      them to the <guimenu>suse-manager-client</guimenu> column. It is
+      recommended to deploy it on all nodes in the &cloud;.
+     </para>
+     <figure>
+      <title>&susemgr; &barcl;</title>
+      <mediaobject>
+       <imageobject role="fo">
+        <imagedata fileref="depl_barclamp_susemgr.png" width="100%" format="png"/>
+       </imageobject>
+       <imageobject role="html">
+        <imagedata fileref="depl_barclamp_susemgr.png" width="75%" format="png"/>
+       </imageobject>
+      </mediaobject>
+     </figure>
+    </step>
+   </procedure>
+  </sect2>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.nfs">
+   <title>Mounting NFS Shares on a Node</title>
+   <para>
+    The NFS &barcl; allows you to mount NFS share from a remote host on
+    nodes in the cloud. This feature can, for example, be used to provide an
+    image repository for &o_img;. Note that all nodes which are to mount
+    an NFS share must be able to reach the NFS server. This requires to
+    manually adjust the network configuration.
+   </para>
+   <para>
+    To deploy the NFS &barcl;, proceed as follows. For general
+    instructions on how to edit &barcl; proposals refer to
+    <xref linkend="sec.depl.ostack.barclamps"/>.
+   </para>
+   <procedure>
+    <step>
+     <para>
+      Open a browser and point it to the &crow; Web interface available
+      at port <literal>3000</literal> of the &admserv;, for example
+      <literal>http://192.168.124.10:3000/</literal>. Log in as user
+      <systemitem class="username">crowbar</systemitem>. The password
+      defaults to <literal>crowbar</literal>, if you have not changed it
+      during the installation.
+     </para>
+    </step>
+    <step>
+     <para>
+      Open the &barcl; menu by clicking <menuchoice>
+      <guimenu>Barclamps</guimenu> <guimenu>Crowbar</guimenu> </menuchoice>.
+      Click the <guimenu>NFS Client</guimenu> &barcl; entry and
+      <guimenu>Create</guimenu> to open the proposal.
+     </para>
+    </step>
+    <step>
+     <para>
+      Configure the &barcl; by the following attributes. Each set of
+      attributes is used to mount a single NFS share.
+     </para>
+     <variablelist>
+      <varlistentry>
+       <term>Name
+       </term>
+       <listitem>
+        <para>
+         Unique name for the current configuration. This name is used in the
+         Web interface only to distinguish between different shares.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>NFS Server
+       </term>
+       <listitem>
+        <para>
+         Fully qualified host name or IP address of the NFS server.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Export on Server
+       </term>
+       <listitem>
+        <para>
+         Export name for the share on the NFS server.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>Mount Options
+       </term>
+       <listitem>
+        <para>
+         Mount options that will be used on the node. See <command>man 8
+         mount </command> for general mount options and <command>man 5
+         nfs</command> for a list of NFS-specific options. Note that the
+         general option <option>nofail</option> (do not report errors if
+         device does not exist) is automatically set.
+        </para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </step>
+    <step>
+     <para>
+      Click <guimenu>Add</guimenu> after having filled in all attributes. If
+      you want to mount more than one share, fill in the data for another
+      NFS mount, otherwise click <guimenu>Save</guimenu> to save the data,
+      or <guimenu>Apply</guimenu> to deploy the proposal. Note that you must
+      always click <guimenu>Add</guimenu> before saving or applying the
+      &barcl;, otherwise the data that was entered will be lost.
+     </para>
+     <figure>
+      <title>NFS &barcl;</title>
+      <mediaobject>
+       <imageobject role="fo">
+        <imagedata fileref="depl_barclamp_nfs.png" width="100%" format="png"/>
+       </imageobject>
+       <imageobject role="html">
+        <imagedata fileref="depl_barclamp_nfs.png" width="75%" format="png"/>
+       </imageobject>
+      </mediaobject>
+     </figure>
+    </step>
+    <step>
+     <para>
+      Go to the <guimenu>Node Deployment</guimenu> section and drag and drop
+      all nodes, on which the NFS shares defined above should be mounted, to
+      the <guimenu>nfs-client</guimenu> column. Click
+      <guimenu>Apply</guimenu> to deploy the proposal.
+     </para>
+     <para>
+      The NFS &barcl; is the only &barcl; that lets you create
+      different proposals, enabling you to be able to mount different NFS
+      shares on different nodes. Once you have created an NFS proposal, a
+      special <guimenu>Edit</guimenu> is shown in the &barcl; overview
+      screen of the &crow; Web interface. Click it to either
+      <guimenu>Edit</guimenu> an existing proposal or
+      <guimenu>Create</guimenu> a new one. Creating a new proposal requires
+      to give it a unique name.
+     </para>
+     <figure>
+      <title>Editing an NFS &barcl; Proposal</title>
+      <mediaobject>
+       <imageobject role="fo">
+        <imagedata fileref="depl_barclamp_nfs_edit.png" width="100%" format="png"/>
+       </imageobject>
+       <imageobject role="html">
+        <imagedata fileref="depl_barclamp_nfs_edit.png" width="75%" format="png"/>
+       </imageobject>
+      </mediaobject>
+     </figure>
+    </step>
+   </procedure>
+  </sect2>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.ceph_ext">
+   <title>Using an Externally Managed &ceph; Cluster</title>
+   <para>
+    While deploying &ceph; from within &cloud; is possible, leveraging
+    an external &ceph; cluster is also fully supported. Follow the
+    instructions below to use an external &ceph; cluster in
+    &productname;.
+   </para>
+   <sect3 xml:id="sec.depl.inst.nodes.post.ceph_ext.requirements">
+    <title>Requirements</title>
+    <variablelist>
+     <varlistentry>
+      <term>&ceph; Release</term>
+      <listitem>
+       <para>
+        &cloud; uses &ceph; clients from the &ceph;
+        <quote>Firefly</quote> release. Since other &ceph; releases may
+        not fully work with <quote>Firefly</quote> clients, the external
+        &ceph; installation must run a <quote>Firefly</quote> release,
+        too. Other releases are not supported.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term>Network Configuration</term>
+      <listitem>
+       <para>
+        The external &ceph; cluster needs to be connected to a separate
+        VLAN, which is mapped to the &cloud; storage VLAN (see
+        <xref linkend="sec.depl.req.network"/> for more information).
+       </para>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </sect3>
+   <sect3 xml:id="sec.depl.inst.nodes.post.ceph_ext.install">
+    <title>Making &ceph; Available on the &cloud; Nodes</title>
+    <para>
+     &ceph; can be used from the KVM &compnode;s, with
+     &o_blockstore; and with &o_img;,. The following installation
+     steps need to be executed on each node accessing &ceph;:
+    </para>
+    <important>
+     <title>Installation Workflow</title>
+     <para>
+      The following steps need to be executed before the &barcl;s get
+      deployed.
+     </para>
+    </important>
+    <warning>
+     <title>Do not deploy the &ceph; &barcl;</title>
+     <para>
+      If using an external &ceph; cluster, you must not deploy the
+      &cloud; &ceph; &barcl;. An external and an internal &ceph;
+      cluster cannot be used together.
+     </para>
+    </warning>
+    <procedure>
+     <step>
+      <para>
+       Log in as user &rootuser; to a machine in the &ceph; cluster
+       and generate keyring files for the &o_img; (optional, only needed
+       when using &o_img; with &ceph;/Rados) and &o_blockstore;
+       users. The keyring file that will be generated for &o_blockstore;
+       will also be used on the &compnode;s. To do so, you need to
+       specify pool names and user names for both services. The default
+       names are:
+      </para>
+      <informaltable>
+       <tgroup cols="3">
+        <colspec colnum="1" colname="1" colwidth="33*"/>
+        <colspec colnum="2" colname="2" colwidth="33*"/>
+        <colspec colnum="3" colname="3" colwidth="33*"/>
+        <thead>
+         <row>
+          <entry>
+           <para/>
+          </entry>
+          <entry>
+           <para>
+            &o_img;
+           </para>
+          </entry>
+          <entry>
+           <para>
+            &o_blockstore;
+           </para>
+          </entry>
+         </row>
+        </thead>
+        <tbody>
+         <row>
+          <entry>
+           <para>
+            <emphasis role="bold">User</emphasis>
+           </para>
+          </entry>
+          <entry>
+           <para>
+            glance
+           </para>
+          </entry>
+          <entry>
+           <para>
+            volumes
+           </para>
+          </entry>
+         </row>
+         <row>
+          <entry>
+           <para>
+            <emphasis role="bold">Pool</emphasis>
+           </para>
+          </entry>
+          <entry>
+           <para>
+            images
+           </para>
+          </entry>
+          <entry>
+           <para>
+            volumes
+           </para>
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </informaltable>
+      <para>
+       Make a note of user and pool names in case you do not use the default
+       values&mdash;you will need this information later, when deploying
+       &o_img; and &o_blockstore;.
+      </para>
+      <para>
+       Create the keyring file with the following commands. Re-run the
+       commands for &o_img;, too, if needed.
+      </para>
+      <substeps performance="required">
+       <step>
+        <para>
+         Generate a key:
+        </para>
+<screen>ceph auth get-or-create-key client.<replaceable>USERNAME</replaceable> mon "allow r" \
+osd 'allow class-read object_prefix rbd_children, allow rwx \
+pool=<replaceable>POOLNAME</replaceable>'</screen>
+        <para>
+         Replace <replaceable>USERNAME</replaceable> and
+         <replaceable>POOLNAME</replaceable> with the respective values.
+        </para>
+       </step>
+       <step>
+        <para>
+         Use the key to generate the keyring file
+         <filename>/etc/ceph/ceph.client.<replaceable>USERNAME</replaceable>.keyring</filename>:
+        </para>
+<screen>ceph-authtool \
+/etc/ceph/ceph.client.<replaceable>USERNAME</replaceable>.keyring \
+--create-keyring --name=client.<replaceable>USERNAME</replaceable>&gt; \
+--add-key=<replaceable>KEY</replaceable></screen>
+        <para>
+         Replace <replaceable>USERNAME</replaceable> with the respective
+         value.
+        </para>
+       </step>
+      </substeps>
+     </step>
+     <step>
+      <para>
+       Copy the &ceph; configuration file <filename>ceph.conf</filename>
+       (usually located in <filename>/etc/ceph</filename>) and the keyring
+       file(s) generated in the previous step to a temporary location on the
+       &admserv;, for example <filename>/root/tmp/</filename>.
+      </para>
+     </step>
+     <step>
+      <para>
+       Log in to the &crow; Web interface and check whether the nodes
+       which should have access to the &ceph; cluster already have an IP
+       address from the storage network. Do so by going to the
+       <guimenu>Dashboard</guimenu> and clicking the node name. An
+       <guimenu>IP address</guimenu> should be listed for
+       <guimenu>storage</guimenu>. Make a note of the <guimenu>Full
+       name</guimenu> of each node that has <emphasis>no</emphasis> storage
+       network IP address.
+      </para>
+     </step>
+     <step>
+      <para>
+       Log in to the &admserv; as user &rootuser; and run the
+       following command for all nodes you noted down in the previous step:
+      </para>
+<screen>crowbar network allocate_ip "default" <replaceable>NODE</replaceable> "storage" "host"
+chef-client</screen>
+      <para>
+       <replaceable>NODE</replaceable> needs to be replaced by the node's
+       name.
+      </para>
+     </step>
+     <step>
+      <para>
+       After having executed the command in the previous step for all
+       affected nodes, run the command <command>chef-client</command> on the
+       &admserv;.
+      </para>
+     </step>
+     <step>
+      <para>
+       Log in to each affected node as user &rootuser;. See
+       <xref linkend="var.depl.trouble.faq.ostack.login"/> for instructions.
+       On each node, do the following:
+      </para>
+      <substeps performance="required">
+       <step>
+        <para>
+         Manually install nova, cinder (if using &ceph;) and/or glance
+         (if using &ceph;) packages with the following commands:
+        </para>
+<screen>zypper in openstack-glance
+zypper in openstack-cinder
+zypper in openstack-nova</screen>
+       </step>
+       <step>
+        <para>
+         Copy the ceph.conf file from the &admserv; to
+         <filename>/etc/ceph</filename>:
+        </para>
+<screen>mkdir -p /etc/ceph
+scp root@admin:/root/tmp/ceph.conf /etc/ceph
+chmod 664 /etc/ceph/ceph.conf</screen>
+       </step>
+       <step>
+        <para>
+         Copy the keyring file to <filename>/etc/ceph</filename>. The
+         keyring file created for &o_blockstore; needs to be copied to
+         the &contrnode; on which &o_blockstore; will be deployed and
+         to all KVM nodes:
+        </para>
+<screen>scp root@admin:/root/tmp/ceph.client.volumes.keyring /etc/ceph
+chmod 640 /etc/ceph/ceph.client.volumes.keyring</screen>
+        <para>
+         The keyring file created for &o_img; needs to be copied to the
+         &contrnode; on which &o_img; will be deployed. For example:
+        </para>
+<screen>scp root@admin:/root/tmp/ceph.client.glance.keyring /etc/ceph
+chmod 640 /etc/ceph/ceph.client.glance.keyring</screen>
+       </step>
+       <step>
+        <para>
+         Adjust the ownership of the keyring file as follows:
+        </para>
+        <simplelist>
+         <member>
+	  &o_img;: <command>chown
+	  root.cinder /etc/ceph/ceph.client.volumes.keyring</command>
+         </member>
+         <member>
+	  &o_blockstore;: <command>chown
+	  root.glance /etc/ceph/ceph.client.glance.keyring</command>
+         </member>
+         <member>
+	  KVM &compnode;s: <command>chown
+	  root.nova /etc/ceph/ceph.volumes.keyring</command>
+         </member>
+        </simplelist>
+       </step>
+      </substeps>
+     </step>
+    </procedure>
+   </sect3>
+  </sect2>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.access">
+   <title>Accessing the Nodes</title>
+   <para>
+    The nodes can only be accessed via SSH from the &admserv;&mdash;it
+    is not possible to connect to them from any other host in the network.
+   </para>
+   <para>
+    The &rootuser; account <emphasis>on the nodes</emphasis> has no
+    password assigned, therefore logging in to a node as
+    &rootuser;@<replaceable>node</replaceable> is only possible via SSH
+    with key authentication. By default, you can only log in with the key of
+    the &rootuser; of the &admserv;
+    (root@<replaceable>admin</replaceable>) via SSH only.
+   </para>
+   <para>
+    In case you have added additional users to the &admserv; and want to
+    give them permission to log in to the nodes as well, you need to add
+    these user's public SSH keys to &rootuser;'s
+    <filename>authorized_keys</filename> file on all nodes. Proceed as
+    follows:
+   </para>
+   <procedure>
+    <title>Copying SSH Keys to All Nodes</title>
+    <step>
+     <para>
+      If not already existing, generate an SSH key pair for the user that
+      should be able to log in to the nodes with
+      <command>ssh-keygen</command>. Alternatively copy an existing public
+      key with <command>ssh-copy-id</command>. Refer to the respective man
+      pages for more information.
+     </para>
+    </step>
+    <step>
+     <para>
+      Log in to the &crow; Web interface available at port
+      <literal>3000</literal> of the &admserv;, for example
+      <literal>http://192.168.124.10:3000/</literal> (user name and default
+      password: <literal>crowbar</literal>).
+     </para>
+    </step>
+    <step>
+     <para>
+      Open the &barcl; menu by clicking <menuchoice>
+      <guimenu>Barclamps</guimenu> <guimenu>All Barclamps</guimenu>
+      </menuchoice>. Click the <guimenu>Provisioner</guimenu> &barcl;
+      entry and <guimenu>Edit</guimenu> the <guimenu>Default</guimenu>
+      proposal.
+     </para>
+    </step>
+    <step>
+     <para>
+      Copy and paste the <emphasis>public</emphasis> SSH key of the user
+      into the <guimenu>Additional SSH Keys</guimenu> text box. If adding
+      keys for multiple users, note that each key needs to be placed on a
+      new line.
+     </para>
+    </step>
+    <step>
+     <para>
+      Click <guimenu>Apply</guimenu> to deploy the keys and save your
+      changes to the proposal.
+     </para>
+    </step>
+   </procedure>
+  </sect2>
+
+  <sect2 xml:id="sec.depl.inst.nodes.post.ssl">
+   <title>Enabling SSL (optional)</title>
+   <para>
+    To enable SSL to encrypt communication within the cloud (see
+    <xref linkend="sec.depl.req.ssl"/> for details), the respective
+    certificates need to be available on the nodes running the encrypted
+    services. An SSL certificate is at least required on the &contrnode;.
+   </para>
+   <para>
+    To make them available, copy them to the node. Each certificate consists
+    of a pair of files the certificate file (for example,
+    <filename>signing_cert.pem</filename>) and the key file (for example,
+    <filename>signing_key.pem</filename>). If you use your own certificate
+    authority (CA) for signing, you will also need a certificate file for
+    the CA (for example, <filename>ca.pem</filename>). It is recommended to
+    copy the files to the <filename>/etc</filename> directory using the
+    directory structure outlined below. If you use a dedicated certificate
+    for each service, create directories named after the services (for
+    example, <filename>/etc/keystone</filename>). If sharing the
+    certificates, use a directory such as <filename>/etc/cloud</filename>.
+   </para>
+   <variablelist>
+    <varlistentry>
+     <term>SSL Certificate File</term>
+     <listitem>
+      <para>
+       <filename>/etc/cloud/ssl/certs/signing_cert.pem</filename>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>SSL Key File</term>
+     <listitem>
+      <para>
+       <filename>/etc/cloud/private/signing_key.pem</filename>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>CA Certificates File</term>
+     <listitem>
+      <para>
+       <filename>/etc/cloud/ssl/certs/ca.pem</filename>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+   <figure>
+    <title>The SSL Dialog</title>
+    <mediaobject>
+     <imageobject role="fo">
+      <imagedata fileref="depl_barclamp_ssl.png" width="100%" format="png"/>
+     </imageobject>
+     <imageobject role="html">
+      <imagedata fileref="depl_barclamp_ssl.png" width="75%" format="png"/>
+     </imageobject>
+    </mediaobject>
+   </figure>
+  </sect2>
+ </sect1>
+ <sect1 xml:id="sec.depl.inst.nodes.edit">
+  <title>Editing Allocated Nodes</title>
+
+  <para>
+   All nodes that have been allocated can be decommissioned or re-installed.
+   Click a node's name in the <guimenu>Node Dashboard</guimenu> to open a
+   screen with the node details. The following options are available:
+  </para>
+
+  <variablelist>
+   <varlistentry>
+    <term>Reinstall
+    </term>
+    <listitem>
+     <para>
+      Triggers a reinstallation. The machine stays allocated.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Deallocate
+    </term>
+    <listitem>
+     <para>
+      Temporarily removes the node from the pool of nodes. After you
+      reallocate the node it will take its former role. Useful for adding
+      additional machines in times of high load or for decommissioning
+      machines in times of low load.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Forget
+    </term>
+    <listitem>
+     <para>
+      Deletes a node from the pool. If you want to re-use this node again,
+      it needs to be reallocated and re-installed from scratch.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Reboot
+    </term>
+    <listitem>
+     <para>
+      Reboots the node.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Shutdown
+    </term>
+    <listitem>
+     <para>
+      Shuts the node down.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+
+  <figure>
+   <title>Node Information</title>
+   <mediaobject>
+    <imageobject role="fo">
+     <imagedata fileref="depl_nodeinfo.png" width="100%" format="png"/>
+    </imageobject>
+    <imageobject role="html">
+     <imagedata fileref="depl_nodeinfo.png" width="75%" format="png"/>
+    </imageobject>
+   </mediaobject>
+  </figure>
+
+  <warning>
+   <title>Editing Nodes in a Production System</title>
+   <para>
+    When deallocating nodes that provide essential services, the complete
+    cloud will become unusable. While it is uncritical to disable single
+    storage nodes (provided you have not disabled redundancy) or single
+    compute nodes, disabling &contrnode;(s) will cause major problems. It
+    will either <quote>kill</quote> certain services (for example
+    &o_objstore;) or, at worst (when deallocating the &contrnode;
+    hosting &o_netw;) the complete cloud. You should also not disable
+    nodes providing &ceph; monitoring services or the nodes providing
+    swift ring and proxy services.
+   </para>
+  </warning>
+ </sect1>
+</chapter>

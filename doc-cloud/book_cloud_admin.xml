@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book 
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+  %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en" xml:id="book.cloud.admin">
+ <info>
+  <title>&cloudadmin;</title><productname>&productname;</productname>
+  <productnumber>&productnumber;</productnumber><date>
+<?dbtimestamp format="B d, Y"?></date>
+  <xi:include href="copyright_suse_cloud.xml" parse="xml"/>
+  <xi:include href="authors.xml" parse="xml"/>
+ </info>
+ <xi:include href="admin_intro.xml" parse="xml"/>
+ <xi:include href="admin_dashboard.xml" parse="xml"/>
+ <xi:include href="admin_cli.xml" parse="xml"/>
+ <xi:include href="admin_api.xml" parse="xml"/>
+<!--<xi:include href="admin_troubleshooting.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
+ <xi:include href="admin_docupdates.xml" parse="xml"/>
+</book>

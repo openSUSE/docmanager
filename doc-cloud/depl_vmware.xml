@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE appendix 
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+  %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="app.deploy.vmware">
+ <title>VMware vSphere Installation Instructions</title>
+ <para>
+  &cloud; supports the &o_comp; Compute VMware vCenter driver which
+  enables access to advanced features such as vMotion, High Availability,
+  and Dynamic Resource Scheduling (DRS). However, VMware vSphere is not
+  supported <quote>natively</quote> by &cloud;&mdash;it rather
+  delegates requests to an existing vCenter. It requires preparations at the
+  vCenter and post install adjustments of the &compnode;.
+ </para>
+ <sect1 xml:id="app.deploy.vmware.requirements">
+  <title>Requirements</title>
+
+  <para>
+   The following requirements must be met to successfully deploy a
+   &o_comp; Compute VMware node:
+  </para>
+
+  <itemizedlist mark="bullet" spacing="normal">
+   <listitem>
+    <para>
+     VMware vSphere vCenter 5.1
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     VMware vSphere ESXi nodes 5.1
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     A separate &compnode; that acts as a proxy to vCenter is required.
+     Minimum system requirements for this node are:
+    </para>
+    <simplelist>
+     <member>CPU: x86_64 with 2 cores (4 recommended)</member>
+     <member>RAM: 2 GB (8 GB recommended)</member>
+     <member>Disk space: 4 GB (30 GB recommended)</member>
+    </simplelist>
+    <para>
+     See <xref linkend="app.deploy.vmware.compnode"/> for setup
+     instructions.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     &o_netw; must not be deployed with the <literal>openvswitch with
+     gre</literal> plug-in. See <xref linkend="sec.depl.ostack.quantum"/>
+     for details.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Security groups are only supported when running VMWare NSX. You need to
+     deploy &o_netw; with the <guimenu>vmware</guimenu> plug-in to have
+     security group support. This is also a prerequisite for
+     <literal>gre</literal> tunnel support.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect1>
+ <sect1 xml:id="app.deploy.vmware.vcenter">
+  <title>Preparing the VMware vCenter Server</title>
+
+  <para>
+   &cloud; requires the VMware vCenter server to run version 5.1 or
+   better. You need to create a single data center for &cloud; (multiple
+   data centers are currently not supported):
+  </para>
+
+  <procedure>
+   <step>
+    <para>
+     Log in to the vCenter Server using the vSphere Web Client
+    </para>
+   </step>
+   <step>
+    <para>
+     Choose <guimenu>Hosts and Clusters</guimenu> and create a single
+     <guimenu>Datacenter</guimenu>
+    </para>
+   </step>
+   <step>
+    <para>
+     Set up a <guimenu>New Cluster</guimenu> which has
+     <guimenu>DRS</guimenu> enabled.
+    </para>
+   </step>
+   <step>
+    <para>
+     Set <guimenu>Automation Level</guimenu> to <literal>Fully
+     Automated</literal> and <guimenu>Migration Threshold</guimenu> to
+     <literal>Aggressive</literal>.
+    </para>
+   </step>
+   <step>
+    <para>
+     Create shared storage. Only shared storage is supported and data stores
+     must be shared among all hosts in a cluster. It is recommended to
+     remove data stores not intended for &ostack; from clusters being
+     configured for &ostack;. Currently, a single data store can be used
+     per cluster.
+    </para>
+   </step>
+   <step>
+    <para>
+     Create a port group with the same name as the
+     <envar>vmware.integration_bridge</envar> value in
+     <filename>nova.conf</filename> (default is br-int). All VM NICs are
+     attached to this port group for management by the &ostack;
+     networking plug-in. Assign the same VLAN ID as for the neutron network.
+     On the default network setup this is the same VLAN ID as for the
+     <literal>nova_fixed</literal> network. Use
+     <menuchoice><guimenu>&yast;</guimenu>
+     <guimenu>Miscellaneous</guimenu> <guimenu>Crowbar</guimenu>
+     <guimenu>Networks</guimenu></menuchoice> to look up the VLAN ID.
+    </para>
+   </step>
+  </procedure>
+ </sect1>
+ <sect1 xml:id="app.deploy.vmware.compnode">
+  <title>Finishing the &o_comp; Compute VMware node Installation</title>
+
+  <para>
+   Deploy &o_comp; as described in <xref linkend="sec.depl.ostack.nova"/>
+   on a single &compnode; and fill in the <guimenu>VMWare vCenter
+   Settings</guimenu> attributes:
+  </para>
+
+  <variablelist>
+   <varlistentry>
+    <term>vCenter IP Address
+    </term>
+    <listitem>
+     <para>
+      IP address of the vCenter server.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>vCenter Username / vCenter
+     Password
+    </term>
+    <listitem>
+     <para>
+      vCenter login credentials.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Cluster Names</term>
+    <listitem>
+     <para>
+      A comma-separated list of cluster names you have added on the vCenter
+      server.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>VLAN Interface</term>
+    <listitem>
+     <para>
+      The physical interface that is to be used for VLAN networking. The
+      default value of <literal>vmnic0</literal> references the first
+      available interface (<quote>eth0</quote>). <literal>vmnic1</literal>
+      would be the second interface (<quote>eth1</quote>).
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+
+  <figure>
+   <title>The &o_comp; &barcl;: VMware Configuration</title>
+   <mediaobject>
+    <imageobject role="fo">
+     <imagedata fileref="depl_barclamp_nova_vmware.png" width="100%" format="png"/>
+    </imageobject>
+    <imageobject role="html">
+     <imagedata fileref="depl_barclamp_nova_vmware.png" width="75%" format="png"/>
+    </imageobject>
+   </mediaobject>
+  </figure>
+ </sect1>
+ <sect1 xml:id="app.deploy.vmware.ha">
+  <title>Making the &o_comp; Compute VMware Node Highly Available</title>
+
+  <para>
+   &ostack; does not support deploying multiple VMware &compnode;s. As
+   a workaround, set up an &vmguest; on the vSphere Cluster, register it
+   with &crow; and deploy the
+   <literal>nova-multi-compute-vmware</literal> role on this node:
+  </para>
+
+  <procedure>
+   <step>
+    <para>
+     Create an &vmguest; on the vSphere Cluster and install &slsa; 11
+     SP3.
+    </para>
+   </step>
+   <step>
+    <para>
+     Configure a network interface in a way that it can access the
+     &cloud; admin network.
+    </para>
+   </step>
+   <step>
+    <para>
+     Enable the High-Availability flag in vCenter for this &vmguest;.
+    </para>
+   </step>
+   <step>
+    <para>
+     Follow the instructions at
+     <xref linkend="sec.depl.inst.nodes.install.external"/> to register the
+     &vmguest; with the &admserv; and add it to the pool of nodes
+     available for deployment.
+    </para>
+   </step>
+   <step>
+    <para>
+     Deploy the <literal>nova-multi-compute-vmware</literal> role on the new
+     node as described in <xref linkend="sec.depl.ostack.nova"/> and
+     <xref linkend="app.deploy.vmware.compnode"/>.
+    </para>
+   </step>
+  </procedure>
+ </sect1>
+</appendix>

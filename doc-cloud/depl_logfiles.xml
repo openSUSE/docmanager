@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE appendix 
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+  %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="cha.deploy.logs">
+ <title>Log Files</title>
+ <para>
+  Find a list of log files below, sorted according to the nodes where they
+  can be found.
+ </para>
+ <sect1 xml:id="sec.deploy.logs.adminserv">
+  <title>On the &admserv;</title>
+
+  <itemizedlist mark="bullet" spacing="normal">
+   <listitem>
+    <para>
+     &crow; Web Interface:
+     <filename>/var/log/crowbar/production.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Chef server: <filename>/var/log/chef/server.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Chef expander: <filename>/var/log/chef/expander.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Chef client (for the &admserv; only):
+     <filename>/var/log/chef/client.log </filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Upgrade log files (only available if the &admserv; has been upgraded
+     from a previous version using <command>suse-cloud-upgrade</command>):
+     <filename>/var/log/crowbar/upgrade/*</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Apache SOLR (&chef;'s search server):
+     <filename>/var/log/chef/solr.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     HTTP (&ay;) installation server for provisioner &barcl;:
+     <filename>/var/log/apache2/provisioner-{access,error}_log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Log file from mirroring &smt; repositories (optional):
+     <filename>/var/log/smt/smt-mirror.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Default &suse; log files: <filename>/var/log/messages</filename>,
+     <filename>/var/log/zypper.log </filename> etc.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Syslogs for all nodes: <filename>/var/log/nodes/*.log</filename> (these
+     are collected via remote syslogging)
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Other client node log files saved on the &admserv;:
+    </para>
+    <itemizedlist mark="bullet" spacing="normal">
+     <listitem>
+      <para>
+       <filename>/var/log/crowbar/sledgehammer/d*.log</filename>: Initial
+       &chef; client run on nodes booted using PXE prior to discovery by
+       &crow;.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       <filename>/var/log/crowbar/chef-client/d*.log</filename>: Output from
+       &chef; client when proposals are applied to nodes. This is the
+       first place to look if a &barcl; proposal fails to apply.
+      </para>
+     </listitem>
+    </itemizedlist>
+   </listitem>
+  </itemizedlist>
+ </sect1>
+ <sect1 xml:id="sec.deploy.logs.crownodes">
+  <title>On All Other &crow; Nodes</title>
+
+  <para>
+   Logs for when the node registers with the &admserv;:
+  </para>
+
+  <itemizedlist mark="bullet" spacing="normal">
+   <listitem>
+    <para>
+     <filename>/var/log/crowbar/crowbar_join/errlog</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/crowbar/crowbar_join/$TOPIC.{log,err}</filename>:
+     STDOUT/STDERR from running commands associated with $TOPIC when the
+     node joins the Crowbar cluster. $TOPIC can be:
+    </para>
+    <itemizedlist mark="bullet" spacing="normal">
+     <listitem>
+      <para>
+       <filename>zypper</filename>: package management activity
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       <filename>ifup</filename>: network configuration activity
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       <filename>&chef;</filename>: &chef; client activity
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       <filename>time</filename>: starting of ntp client
+      </para>
+     </listitem>
+    </itemizedlist>
+   </listitem>
+   <listitem>
+    <para>
+     &chef; client log: <filename>/var/log/chef/client.log</filename>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Default &suse; log files: <filename>/var/log/messages</filename>,
+     <filename>/var/log/zypper.log </filename> etc.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect1>
+ <sect1 xml:id="sec.deploy.logs.contrnode">
+  <title>On the &contrnode;(s)</title>
+
+  <para>
+   On setups with multiple &contrnode;s log files for certain services
+   (such as <filename>keystone.log</filename>) are only available on the
+   node, where the respective service is deployed.
+  </para>
+
+  <itemizedlist mark="bullet" spacing="normal">
+   <listitem>
+    <para>
+     <filename>/var/log/apache2/openstack-dashboard-*</filename>: Logs for
+     the &ostack; &dash;
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/ceilometer/*</filename>: &o_meter; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/cinder/*</filename>: &o_blockstore; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/glance/*</filename>: &o_img;; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/heat/*</filename>: &o_orch; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/keystone/*</filename>: &o_ident; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/neutron/*</filename>: &o_netw; log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/nova/*</filename>: various log files relating to
+     Nova services.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/rabbitmq/*</filename>: RabbitMQ log files.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <filename>/var/log/swift/*</filename>: &o_objstore; log files.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect1>
+ <sect1 xml:id="sec.deploy.logs.compnode">
+  <title>On &compnode;s</title>
+
+  <para>
+   <filename>/var/log/nova/nova-compute.log</filename>
+  </para>
+ </sect1>
+ <sect1 xml:id="sec.deploy.logs.cephnodes">
+  <title>On Nodes with &ceph; &barcl;</title>
+
+  <para>
+   <filename>/var/log/ceph/*.log</filename>
+  </para>
+ </sect1>
+</appendix>

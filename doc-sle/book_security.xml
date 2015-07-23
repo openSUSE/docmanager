@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="urn:x-suse:xslt:profiling:docbook50-profile.xsl"
+ type="text/xml" 
+ title="Profiling step"?>
+<!DOCTYPE book
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+    %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<!-- ##################################################################### -->
+<!-- Security Guide                                                        -->
+<!-- ##################################################################### -->
+<?provo dirname="security/"?>
+<book version="5.0" xml:lang="en" xml:id="book.security"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>&secguide;</title>
+    <productname>&productname;</productname>
+    <productnumber>&productnumber;</productnumber>
+    <date><?dbtimestamp format="B d, Y"?></date>
+    <xi:include href="common_copyright_gfdl.xml"/>
+    <abstract>
+      <para> &abstract_security; </para>
+    </abstract>
+  </info>
+
+ <xi:include href="security_intro.xml"/>
+ <xi:include href="security_preface.xml"/>
+
+ <part xml:id="part.auth">
+  <title>Authentication</title>
+  <xi:include href="security_pam.xml"/>
+  <xi:include href="security_nis.xml"/>
+  <xi:include href="security_auth.xml"/>
+  <xi:include href="security_ldap.xml"/>
+  <xi:include href="security_ad_support.xml"/>
+  <xi:include href="security_kerberos.xml"/>
+ </part>
+
+ <part xml:id="part.local_security">
+  <title>Local Security</title>
+  <xi:include href="security_yast2_security.xml"/>
+  <xi:include href="security_policy_kit.xml"/>
+  <xi:include href="security_acls.xml"/>
+  <xi:include href="security_cryptofs.xml"/>
+<!-- fs 2009-02-23: 
+     Not sure whethter this ships with openSUSE
+-->
+  <xi:include href="security_certificatestore.xml"/>
+  <xi:include href="security_aide.xml"/>
+ </part>
+
+ <part xml:id="part.network_security">
+  <title>Network Security</title>
+  <info/>
+  <xi:include href="security_ssh.xml"/>
+  <xi:include href="security_firewall.xml"/>
+  <xi:include href="security_vpnserver.xml"/>
+  <xi:include href="security_yast2_ca.xml"/>
+ </part>
+
+ <part xml:id="part.apparmor">
+  <title>Confining Privileges with &aa;</title>
+  <xi:include href="apparmor_intro.xml"/>
+  <xi:include href="apparmor_start.xml"/>
+  <xi:include href="apparmor_whatimmunize.xml"/>
+  <xi:include href="apparmor_profiles.xml"/>
+  <xi:include href="apparmor_repositories.xml"/>
+  <xi:include href="apparmor_profiles_yast.xml"/>
+  <xi:include href="apparmor_profiles_man.xml"/>
+  <xi:include href="apparmor_changehat.xml"/>
+  <xi:include href="apparmor_pam.xml"/>
+  <xi:include href="apparmor_managing.xml"/>
+  <xi:include href="apparmor_support.xml"/>
+  <xi:include href="apparmor_glossary.xml"/>
+ </part>
+
+ <part os="sles">
+  <title>SELinux</title>
+  <info/>
+  <xi:include href="selinux.xml"/>
+ </part>
+
+ <part xml:id="part.audit">
+  <title>&auditguide;</title>
+  <info/>
+  <xi:include href="audit_components.xml"/>
+  <xi:include href="audit_setup.xml"/>
+  <xi:include href="audit_scenarios.xml"/>
+  <xi:include href="audit_moreinfo.xml"/>
+ </part>
+
+<!-- ===================================================================== -->
+<!-- Appendixes                                                            -->
+<!-- ===================================================================== -->
+<!-- <xi:include href="security_pcidss.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/> -->
+ <xi:include href="security_docupdates.xml"/>
+ <xi:include href="common_legal.xml"/>
+</book>

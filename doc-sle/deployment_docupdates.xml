@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="urn:x-suse:xslt:profiling:docbook50-profile.xsl"
+type="text/xml"
+title="Profiling step"?>
+<!DOCTYPE appendix
+[
+  <!ENTITY % entities SYSTEM "entity-decl.ent">
+    %entities;
+]>
+<!-- Converted by suse-upgrade version 1.1 -->
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="app.deployment.docupdates">
+<!--list of xrefs, latest date sorted upmost-->
+ <title>Documentation Updates</title>
+ <info/>
+ <para>
+  This chapter lists content changes for this document since the release of
+  &productnamereg; 11 SP3.
+ </para>
+ <para>
+  This manual was updated on the following dates:
+ </para>
+<!--list of xrefs, latest date sorted upmost-->
+ <itemizedlist mark="bullet" spacing="normal">
+  <listitem>
+   <para>
+    <xref linkend="sec.deployment.docupdates.sle12_ga_maint1" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.deployment.docupdates.sle12_ga" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+ </itemizedlist>
+ <sect1 xml:id="sec.deployment.docupdates.sle12_ga_maint1">
+  <title>February 2015 (Documentation Maintenance Update)</title>
+
+  <variablelist>
+   <varlistentry>
+    <term><xref linkend="sec.i.yast2.timezone" xrefstyle="SectTitleOnPage"/>
+    </term>
+    <listitem>
+     <para>
+      With NTP disabled it is recommended to avoid writing system time to
+      the hardware clock. Thus set <literal>SYSTOHC=no</literal>.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Bugfixes</term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Adjustments for <xref linkend="cha.smt"/> because of the switch from
+        &ncc; to &scc;
+        (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=857639"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <xref linkend="sec.y2.userman.adv.passw"/>: Password Settings,
+        Expiration Date is expiring user accounts in YAST Users module
+        (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=743874"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Various bugfixes for <xref linkend="cha.update.sle"/>:
+       </para>
+       <itemizedlist mark="bullet" spacing="normal">
+        <listitem>
+         <para>
+          The named upgrade path does not work - There is no working upgrade
+          path from SLES 11 SP3 to SLES 12 on Linux for System z
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=907648"/>).
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          [doc] 7.5 The Atomic Update
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=905330"/>).
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          [doc] 7.5 Upgrading to SLE 12
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=904188"/>).
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          [doc] 7.4 Intermediate step: Updating SLE 11 SP2 to SLE 11 SP3
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=904186"/>).
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          [doc] 7.2 Supported Upgrade Paths to SLE
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=904182"/>).
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          [doc] Potentially misleading info around the 6 months overlap
+          support
+          (<link xlink:href="https://bugzilla.suse.com/show_bug.cgi?id=902463"/>).
+         </para>
+        </listitem>
+       </itemizedlist>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </sect1>
+ <sect1 xml:id="sec.deployment.docupdates.sle12_ga">
+  <title>October 2014 (Initial Release of &productname; 12)</title>
+
+  <variablelist>
+<!--list of general issues that apply to all books-->
+   <xi:include href="common_docupdates_general_i.xml"/>
+<!-- 2. Installation on AMD64 and Intel 64 -->
+   <varlistentry os="sles">
+    <term><xref linkend="cha.x86"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Updated system requirements.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry os="sles">
+<!-- 3. Installation on IBM POWER  -->
+    <term><xref linkend="cha.power"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Added POWER8 to the list of supported hardware (Fate#315272).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        &sls; 12 for POWER has moved to Little Endian. Updated affected
+        parts of the documentation.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry os="sles">
+<!-- 4. Installation on IBM System z -->
+    <term><xref linkend="cha.zseries"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Updated the list of supported platforms: Removed IBM Series z9 and
+        z10 machines and added IBM zEnterprise BC12.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Updated the memory and disk space requirements.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed instructions on how to IPL from tape&mdash;this is no
+        longer supported.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Rewrote large parts of <xref linkend="sec.prep.netcfg"/> to remove
+        redundant information and make it more concise.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed references to Token Ring, which is no longer supported
+        (Fate#313154).
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 6. Installation with YaST -->
+    <term><xref linkend="cha.inst"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Completely rewrote the chapter because of the new installation
+        workflow.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        The installation routine now supports setting up multiple network
+        devices during the installation (Fate#315680):
+        <xref linkend="sec.i.yast2.network"/>
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        The installation proposal contains a separate
+        <filename>/home</filename> partition formatted with XFS (Fate#316637
+        and Fate#316624):
+        <xref linkend="sec.i.yast2.inst_mode.partitioning"/>
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed occurrences of the &yast; Repair module which has been
+        dropped (Fate#308670).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Update repositories are added after having registered with &scc;
+        and can be used during installation (Fate#312012):
+        <xref linkend="sec.i.yast2.inst_mode.addon"/>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Extensions and modules can be added to the system during the
+        installation (Fate#316548):
+        <xref linkend="sec.i.yast2.conf.manual.cc"/>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        &sled; can be installed as an add-on on top of &sls;
+        (Fate#316436): <xref linkend="sec.i.yast2.inst_mode.addon"/>.
+       </para>
+      </listitem>
+      <listitem os="sles">
+       <para>
+        The HW crypto stack for IBM &zseries; can be selected for
+        installation via a pattern (Fate#316143):
+        <xref linkend="sec.i.yast2.proposal.sofware"/>
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Automatically importing SSH keys from a previous installation can be
+        disabled (Fate#314982):
+        <xref linkend="sec.i.yast.start.parameters.keys_users"/>
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 7. Updating SUSE Linux Enterprise -->
+    <term><xref linkend="cha.update.sle"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Added new section: <xref linkend="sec.update.sle12"/>.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 8. Setting Up Hardware Components with YaST -->
+    <term><xref linkend="cha.y2.hw"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Removed the following sections as the respective &yast; modules
+        are no longer included: <citetitle>Hardware Information</citetitle>,
+        <citetitle>Setting Up Graphics Card and Monitor</citetitle>,
+        <citetitle>Mouse Model</citetitle>, and <citetitle>Setting Up a
+        Scanner</citetitle>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed content about mouse setup and adjusted
+        <xref linkend="cha.y2.hw.keym"/>.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 9. Installing or Removing Software -->
+    <term><xref linkend="cha.y2.sw"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Completely rewrote <xref linkend="sec.updater"/> because of changes
+        in the GNOME software updater.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 10. Installing Add-On Products  -->
+    <term><xref linkend="cha.add-ons"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Installing add-on products or software extensions is now also
+        possible without access to physical media. Added the following new
+        sections: <xref linkend="sec.add-ons.register"/> and
+        <xref linkend="sec.add-ons.extensions"/>. Modified
+        <xref linkend="sec.add-ons.install"/> accordingly.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!-- 16. Subscription Management -->
+    <term><xref linkend="cha.smt"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        For registering clients against an &smt; server,
+        <command>suse_register</command> has been replaced with
+        <command>SUSEConnect</command> (Fate#316585).
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Bugfixes</term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Updated chapter <xref linkend="cha.addon_creator"/> according to
+        <link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=861855"/>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Updated chapter <xref linkend="cha.productcreator"/> and added
+        chapter <xref linkend="cha.imgcreator"/> according to
+        <link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=864033"/>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Updated section <xref linkend="sec.updater"/> according to
+        <link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=839692"/>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed section <citetitle>Using Fingerprint
+        Authentication</citetitle>. Further minor corrections and additions
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=857680"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Removed obsolete parameter <literal>OsaMedium</literal> from
+        parmfile and Cobbler examples
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=860404"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Additions in section <xref linkend="sec.fb.customize"/>
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=861866"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Added instructions on how to add secondary languages during
+        installation
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=870482"/>).
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+<!--Installing Multiple Kernel Versions -->
+    <term><xref linkend="cha.tuning.multikernel"/>
+    </term>
+    <listitem>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        Multiversion feature (more than one kernel installed) is enabled by
+        default
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=891805"/>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        Warn about incompatible Kernel Module Packages (KPMs)
+        (<link xlink:href="http://bugzilla.suse.com/show_bug.cgi?id=891805"/>).
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </sect1>
+</appendix>
