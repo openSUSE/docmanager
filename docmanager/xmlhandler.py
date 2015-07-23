@@ -155,7 +155,7 @@ class XmlHandler(object):
         """
         logmgr_flog()
 
-        props = DefaultDocManagerProperties
+        props = list(DefaultDocManagerProperties)
 
         if bugtracker == True:
             for i in BugtrackerElementList:
