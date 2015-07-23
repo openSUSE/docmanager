@@ -63,6 +63,8 @@ class Actions(object):
 
         _set = dict()
         props = list(DefaultDocManagerProperties)
+        validFiles = 0
+        invalidFiles = 0
 
         # append bugtracker properties if needed
         if self.__args.with_bugtracker == True:
@@ -78,32 +80,41 @@ class Actions(object):
 
         # iter through all xml handlers and init its properties
         for xh in self.__xml:
-            log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
-            if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
-                print("Initialized default properties for '{}'.".format(xh.filename))
+            if xh.invalidXML == False:
+                validFiles += 1
+
+                log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
+                if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
+                    print("[" + ShellColors().make_green("success") + "] Initialized default properties for '{}'.".format(xh.filename))
+                else:
+                    log.warn("Could not initialize all properties for '{}' because "
+                          "there are already some properties in the XML file "
+                          "which would be overwritten after this operation has been "
+                          "finished. If you want to perform this operation and "
+                          "overwrite the existing properties, you can add the "
+                          "'--force' option to your command.".format(xh.filename))
+
+                # set default values for the given properties
+                for i in _set:
+                    ret = xh.get(i)
+                    if len(ret[i]) == 0 or self.__args.force:
+                        xh.set({ i: str(_set[i]) })
+
+                # if bugtracker options are provided, set default values
+                for i in BugtrackerElementList:
+                    rprop = i.replace("/", "_")
+
+                    if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None and len(getattr(self.__args, rprop)) >= 1:
+                        xh.set({ i: getattr(self.__args, rprop) })
+
+                # safe the xml file
+                xh.write()
             else:
-                log.warn("Could not initialize all properties for '{}' because "
-                      "there are already some properties in the XML file "
-                      "which would be overwritten after this operation has been "
-                      "finished. If you want to perform this operation and "
-                      "overwrite the existing properties, you can add the "
-                      "'--force' option to your command.".format(xh.filename))
+                invalidFiles += 1
+                print("[" + ShellColors().make_red("failed") + "] Initialized default properties for '{}'. ".format(xh.filename) + ShellColors().make_red(xh.xmlLogErrorString))
 
-            # set default values for the given properties
-            for i in _set:
-                ret = xh.get(i)
-                if len(ret[i]) == 0 or self.__args.force:
-                    xh.set({ i: str(_set[i]) })
-
-            # if bugtracker options are provided, set default values
-            for i in BugtrackerElementList:
-                rprop = i.replace("/", "_")
-
-                if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None and len(getattr(self.__args, rprop)) >= 1:
-                    xh.set({ i: getattr(self.__args, rprop) })
-
-            # safe the xml file
-            xh.write()
+        print("")
+        print("Initialized successfully {} files. {} files failed.".format(ShellColors().make_green(validFiles), ShellColors().make_red(invalidFiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments

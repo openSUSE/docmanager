@@ -36,6 +36,7 @@ class XmlHandler(object):
         :param str filename: filename of XML file
         """
         logmgr_flog()
+        log.debug("Initialized a new XML Handler for file '{}'.".format(filename))
 
         # general
         self._filename = ""
@@ -61,6 +62,9 @@ class XmlHandler(object):
         # load the file into a StringIO buffer
         self._filename = filename
         self._buffer = ensurefileobj(self._filename)
+
+        # log
+        self.xmlLogErrorString = ""
         
         # parse the given file with lxml
         self.parse()
@@ -75,13 +79,13 @@ class XmlHandler(object):
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
             self.invalidXML = True
-            self.xmlErrorString = "<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
+            self.xmlLogErrorString = "<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
                                       err.getColumnNumber(), \
                                       err.getMessage(), \
                                       self.filename,)
             
             if self.stopOnError:
-                log.error(self.xmlErrorString)
+                log.error(self.xmlLogErrorString)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
         if not self.invalidXML:
@@ -104,19 +108,28 @@ class XmlHandler(object):
             self.__tree = etree.parse(self._buffer, self.__xmlparser)
             self.__root = self.__tree.getroot()
             
-            check_root_element(self.__root, etree)
-            
-            # check for DocBook 5 namespace in start tag
-            self.check_docbook5_ns()
-            
-            # check for docmanager element
-            self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
-            
-            if self.__docmanager is None:
-                log.info("No docmanager element found")
-                self.create_group()
-            else:
-                log.info("Found docmanager element %s", self.__docmanager.getparent() )
+            try:
+                check_root_element(self.__root, etree)
+            except ValueError as err:
+                self.invalidXML = True
+                self.xmlLogErrorString = err
+
+                if self.stopOnError:
+                    log.error(self.xmlErrorString)
+                    sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+
+            if not self.invalidXML:
+                # check for DocBook 5 namespace in start tag
+                self.check_docbook5_ns()
+                
+                # check for docmanager element
+                self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
+                
+                if self.__docmanager is None:
+                    log.info("No docmanager element found")
+                    self.create_group()
+                else:
+                    log.info("Found docmanager element %s", self.__docmanager.getparent() )
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
@@ -371,6 +384,9 @@ class XmlHandler(object):
         parent = info.getparent()
         log.info("parent of info: %s", parent)
         log.info("child of info: %s", info.getchildren())
+
+        if info.tail is None:
+            info.tail = ""
 
         infoindent = "".join(info.tail.split('\n'))
         prev = dm.getprevious()

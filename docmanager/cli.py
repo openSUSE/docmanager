@@ -108,6 +108,9 @@ def parsecli(cliargs=None):
     pinit.add_argument('--force',
                        action='store_true'
                       )
+    pinit.add_argument('--stop-on-error',
+                       action='store_true'
+                      )
     pinit.add_argument('--with-bugtracker',
                        action='store_true'
                       )

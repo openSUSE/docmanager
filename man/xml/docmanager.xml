@@ -232,6 +232,14 @@
       </para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--stop-on-error</option></term>
+     <listitem>
+      <para>
+       If this option is given, DocManager will stop if there is an XML error in one file.
+      </para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>
   <refsect2>
