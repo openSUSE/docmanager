@@ -1,0 +1,23 @@
+-------------------------------------------------------------------
+Thu Jun 18 00:00:00 UTC 2015 - mschnitzer@suse.de
+
+Stable release DocManager 3.0.0:
+
+* Bugfixes:
+  - Fixed #54 (usage output irritating)
+  - Fixed #53 (Default property for product or release is missing)
+  - Fixed #52 (Inconsistent reporting)
+  - Fixed #51 (Include filename in error messages)
+  - Fixed #50 (Proceed on error when handling multiple files)
+  - Fixed #48 (docmanager set --priority 1,2 xml/FILE.xml causes traceback)
+
+* New features:
+  - Added xml and table output format
+  - Option `--repository` is a new option in init and set (have a look into
+    the man page)
+
+* Miscellaneous:
+  - Performance improvemenets
+  - Internal code improvement
+  - Updated man page and restructured some things
+  - Fixed some typos
