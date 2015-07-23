@@ -1,5 +1,4 @@
 # Config file for automatic testing at travis-ci.org
-
 language: python
 python:
     #- "2.7"
@@ -15,7 +14,20 @@ install:
 script:
     #- python3 setup.py test -a test
     - coverage run setup.py test
+    - python3 setup.py install
+    
+    # clone some repositories with real data
+    - git clone https://github.com/SUSE/doc-sle
+    - git clone https://github.com/SUSE/doc-sleha
+    - git clone https://github.com/SUSE-Cloud/doc-cloud
+    
+    # try to initialize all XML files
+    - cd doc-sle/xml
+    - docmanager init *
+    - cd ../../doc-sleha/xml
+    - docmanager init *
+    - cd ../../doc-cloud/xml
+    - docmanager init *
 
 after_success:
     codecov
-
