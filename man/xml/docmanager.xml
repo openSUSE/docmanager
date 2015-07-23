@@ -4,7 +4,7 @@
 "http://www.docbook.org/xml/4.5/docbookx.dtd"
 [
 <!ENTITY progname "DocManager">
-<!ENTITY version "3.0.0">
+<!ENTITY version "3.1.0">
 <!ENTITY progcmd "docmanager">
 <!ENTITY release "06/18/2015">
 ]>
