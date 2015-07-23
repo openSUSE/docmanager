@@ -177,6 +177,61 @@
       </para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--with-bugtracker</option></term>
+     <listitem>
+      <para>
+       Adds a bugtracker structure to an XML file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-url</option>  <replaceable>URL</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker URL. (Works for Bugzilla and GitHub)
+      </para>
+      <para>
+          For Bugzilla, for example: https://bugzilla.suse.com/enter_bug.cgi
+      </para>
+      <para>
+          For GitHub, for example: https://github.com/openSUSE/suse-xsl/issues/new (Please let the URL point to the "new issue" site
+          of your documentation repository - otherwise, it will not work)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-component</option> <replaceable>COMPONENT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker component. Example: Documentation (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-product</option> <replaceable>PRODUCT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker product. Example: SUSE Cloud 4 (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-assignee</option> <replaceable>ASSIGNEE</replaceable></term>
+     <listitem>
+      <para>
+       Sets the assignee either for GitHub or Bugzilla. Example: the login name of the user like "mschnitzer"
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-version</option> <replaceable>VERSION</replaceable></term>
+     <listitem>
+      <para>
+       Sets the version of the product release. Example: Beta 3 (The version is the milestone on GitHub)
+      </para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>
   <refsect2>
@@ -262,6 +317,53 @@
      <listitem>
       <para>
        Set the repository URL (maybe a GitHub URL?) for this document. Note: If you use <option>-p</option> repository=FOO, <option>--repository</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-url</option>  <replaceable>URL</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker URL. (Works for Bugzilla and GitHub)
+      </para>
+      <para>
+          For Bugzilla, for example: https://bugzilla.suse.com/enter_bug.cgi
+      </para>
+      <para>
+          For GitHub, for example: https://github.com/openSUSE/suse-xsl/issues/new (Please let the URL point to the "new issue" site
+          of your documentation repository - otherwise, it will not work)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-component</option> <replaceable>COMPONENT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker component. Example: Documentation (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-product</option> <replaceable>PRODUCT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker product. Example: SUSE Cloud 4 (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-assignee</option> <replaceable>ASSIGNEE</replaceable></term>
+     <listitem>
+      <para>
+       Sets the assignee either for GitHub or Bugzilla. Example: the login name of the user like "mschnitzer"
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-version</option> <replaceable>VERSION</replaceable></term>
+     <listitem>
+      <para>
+       Sets the version of the product release. Example: Beta 3 (The version is the milestone on GitHub)
       </para>
      </listitem>
     </varlistentry>
@@ -437,7 +539,7 @@
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term><command>&progcmd;</command> -vv <replaceable>set --maintainer mschnitzer example.xml</replaceable></term>
+    <term><command>&progcmd;</command> -vv set --maintainer mschnitzer example.xml</term>
     <listitem>
      <para>Increase the "verbosity level" for the "set" command. You can increase the "verbosity level" if you add more "v" behind the dash.</para>
     </listitem>
