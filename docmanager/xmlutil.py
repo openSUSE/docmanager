@@ -291,8 +291,8 @@ class LocatingWrapper(object):
         logmgr_flog()
         # Normally, we would close our file(-alike) object and call
         #   self.f.close()
-        # However, we need this object later, so do nothing
-        pass
+        # However, we do nothing
+
 
 
 class Handler(xml.sax.handler.ContentHandler):
@@ -368,7 +368,7 @@ class Handler(xml.sax.handler.ContentHandler):
                             current)
             self.context.append(["?%s" % target, pos])
 
-    def comment(self, text):
+    def comment(self, text): # pylint:unused-argument
         """Signals an XML comment
 
         :param str text: text content of the XML comment
@@ -388,12 +388,10 @@ class Handler(xml.sax.handler.ContentHandler):
     def startCDATA(self):
         """Signals a CDATA section"""
         logmgr_flog()
-        
-        pass
 
     endCDATA = startCDATA
 
-    def startDTD(self,  doctype, publicID, systemID):
+    def startDTD(self,  doctype, publicID, systemID): # pylint:unused-argument
         """Signals the start of an DTD declaration
 
         :param  doctype: name of the root element
@@ -401,23 +399,17 @@ class Handler(xml.sax.handler.ContentHandler):
         :param systemID: system identifier (or empty)
         """
         logmgr_flog()
-        
-        pass
 
     def endDTD(self):
         """Reports the end of a DTD declaration"""
         logmgr_flog()
-        
-        pass
 
-    def startEntity(self, name):
+    def startEntity(self, name):  # pylint:unused-argument
         """Reports the start of an entity"""
         logmgr_flog()
-        
-        pass
 
 
-def findprolog(source, maxsize=5000):
+def findprolog(source, maxsize=-1):
     """Returns a dictionary with essential information about the prolog
 
     :param source:
@@ -481,3 +473,24 @@ def findprolog(source, maxsize=5000):
     result['roottag'] = context[0][0]
 
     return result
+
+def xml_indent(elem, level=0):
+    """Indent XML elements
+
+    :param lxml.etree._Element elem: XML Element to indent
+    :param int level: indentation level
+    """
+
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            xml_indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i

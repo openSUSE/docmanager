@@ -1,0 +1,45 @@
+-------------------------------------------------------------------
+Thu Jun 23 15:44:00 UTC 2015 - toms@opensuse.org
+
+Stable release DocManager 3.1.0:
+
+* Bugfixes:
+  - Fixed #58 (Ignore Directories in File List)
+  - Fixed #57 (Ignoring XML Files in Case Root Element is Wrong)
+  - Fixed #56 (Add Tracker Meta Information)
+  - docmanager/xmlutil.py in findprolog():
+    Set maxsize to -1 by default to avoid XML errors when extensive
+    XML comments before root start tag are visible
+
+* New features:
+  - Issue #56: Add Tracker Meta Information
+  - Extended option `--stop-on-error` for `init` subcommand
+
+* Miscellaneous:
+  - Updated man page (69c8037, 1b67884, ae221a6)
+
+-------------------------------------------------------------------
+Thu Jun 18 10:56:30 UTC 2015 - mschnitzer@suse.com
+
+Stable release DocManager 3.0.0:
+
+* Bugfixes:
+  - Fixed #54 (usage output irritating)
+  - Fixed #53 (Default property for product or release is missing)
+  - Fixed #52 (Inconsistent reporting)
+  - Fixed #51 (Include filename in error messages)
+  - Fixed #50 (Proceed on error when handling multiple files)
+  - Fixed #48 (docmanager set --priority 1,2 xml/FILE.xml causes traceback)
+
+* New features:
+  - Added xml and table output format
+  - Option `--repository` is a new option in init and set (have a look into
+    the man page)
+  - Added Option `--stop-on-error` for get and set
+  - Added '--repository' as option to subcommand 'set' (#35, b421a15)
+
+* Miscellaneous:
+  - Performance improvemenets
+  - Internal code improvement
+  - Updated man page and restructured some things
+  - Fixed some typos

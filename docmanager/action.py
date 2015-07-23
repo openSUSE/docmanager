@@ -16,18 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-import json
 import sys
 from collections import OrderedDict
-from docmanager import table
 from docmanager.config import Config
-from docmanager.core import DefaultDocManagerProperties, ReturnCodes
-from docmanager.display import getrenderer
+from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.shellcolors import ShellColors
+from docmanager.shellcolors import red, green
 from docmanager.xmlhandler import XmlHandler
-from docmanager.xmlutil import localname
-from prettytable import PrettyTable
+
 
 class Actions(object):
     """An Actions instance represents an action event
@@ -66,28 +62,59 @@ class Actions(object):
         log.debug("Arguments {}".format(arguments))
 
         _set = dict()
-        for d in DefaultDocManagerProperties:
-            if hasattr(self.__args, d) and getattr(self.__args, d) is not None:
-                _set[d] = getattr(self.__args, d)
+        props = list(DefaultDocManagerProperties)
+        validFiles = 0
+        invalidFiles = 0
 
+        # append bugtracker properties if needed
+        if self.__args.with_bugtracker == True:
+            for p in BugtrackerElementList:
+                props.append(p)
+
+        # set default properties
+        for d in props:
+            rprop = d.replace("/", "_")
+
+            if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None:
+                _set[d] = getattr(self.__args, rprop)
+
+        # iter through all xml handlers and init its properties
         for xh in self.__xml:
-            log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
-            if xh.init_default_props(self.__args.force) == 0:
-                print("Initialized default properties for '{}'.".format(xh.filename))
+            if xh.invalidXML == False:
+                validFiles += 1
+
+                log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
+                if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
+                    print("[" + green("success") + "] Initialized default properties for '{}'.".format(xh.filename))
+                else:
+                    log.warn("Could not initialize all properties for '{}' because "
+                          "there are already some properties in the XML file "
+                          "which would be overwritten after this operation has been "
+                          "finished. If you want to perform this operation and "
+                          "overwrite the existing properties, you can add the "
+                          "'--force' option to your command.".format(xh.filename))
+
+                # set default values for the given properties
+                for i in _set:
+                    ret = xh.get(i)
+                    if len(ret[i]) == 0 or self.__args.force:
+                        xh.set({ i: str(_set[i]) })
+
+                # if bugtracker options are provided, set default values
+                for i in BugtrackerElementList:
+                    rprop = i.replace("/", "_")
+
+                    if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None and len(getattr(self.__args, rprop)) >= 1:
+                        xh.set({ i: getattr(self.__args, rprop) })
+
+                # safe the xml file
+                xh.write()
             else:
-                log.warn("Could not initialize all properties for '{}' because "
-                      "there are already some properties in the XML file "
-                      "which would be overwritten after this operation has been "
-                      "finished. If you want to perform this operation and "
-                      "overwrite the existing properties, you can add the "
-                      "'--force' option to your command.".format(xh.filename))
+                invalidFiles += 1
+                print("[" + red("failed") + "] Initialized default properties for '{}'. ".format(xh.filename) + red(xh.xmlLogErrorString))
 
-            for i in _set:
-                ret = xh.get(i)
-                if len(ret[i]) == 0 or self.__args.force == True:
-                    xh.set({ i: str(_set[i]) })
-
-            xh.write()
+        print("")
+        print("Initialized successfully {} files. {} files failed.".format(green(validFiles), red(invalidFiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -101,18 +128,16 @@ class Actions(object):
 
         # init xml handlers for all given files
         handlers = OrderedDict()
-        index = 0
 
-        for i in self.__files:
+        for idx, i in enumerate(self.__files):
             log.debug("Trying to initialize the XmlHandler for file '{}'.".format(i))
-            handlers[i] = self.__xml[index]
+            handlers[i] = self.__xml[idx]
 
-            if handlers[i].invalidXML == True:
+            if handlers[i].invalidXML:
                 invalidFiles += 1
             else:
                 validFiles += 1
 
-            index += 1
 
         # split key and value
         args = [ i.split("=") for i in arguments]
@@ -125,11 +150,14 @@ class Actions(object):
                     value = value.split(",")
                     value = ",".join(self.remove_duplicate_langcodes(value))
 
-                for file in self.__files:
-                    if handlers[file].invalidXML == False:
-                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(file, key, value))
-                        handlers[file].set({key: value})
-                        print("[{}] Set value for property \"{}\" to \"{}\".".format(file, key, value))
+                for f in self.__files:
+                    if not handlers[f].invalidXML:
+                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(f, key, value))
+                        if self.__args.bugtracker == True:
+                            handlers[f].set({"bugtracker/" + key: value})
+                        else:
+                            handlers[f].set({key: value})
+                        print("[{}] Set value for property \"{}\" to \"{}\".".format(f, key, value))
 
             except ValueError:
                 log.error('Invalid usage. '
@@ -138,29 +166,29 @@ class Actions(object):
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
         # save the changes
-        for file in self.__files:
-            if handlers[file].invalidXML == False:
-                log.debug("[{}] Trying to save the changes.".format(file))
-                handlers[file].write()
-                print("[{}] Saved changes.".format(file))
+        for f in self.__files:
+            if not handlers[f].invalidXML:
+                log.debug("[{}] Trying to save the changes.".format(f))
+                handlers[f].write()
+                print("[{}] Saved changes.".format(f))
         
         print("")
         if validFiles == 1:
-            print("Wrote in {} valid XML file.".format(ShellColors().make_green(validFiles)))
+            print("Wrote in {} valid XML file.".format(green(validFiles)))
         else:
-            print("Wrote in {} valid XML files.".format(ShellColors().make_green(validFiles)))
+            print("Wrote in {} valid XML files.".format(green(validFiles)))
 
         if invalidFiles > 0:
             print("")
             
             if invalidFiles == 1:
-                print("Skipped {} XML file due to an error.".format(ShellColors().make_red(invalidFiles)))
+                print("Skipped {} XML file due to an error.".format(red(invalidFiles)))
             else:
-                print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+                print("Skipped {} XML files due to errors.".format(red(invalidFiles)))
 
-            for file in self.__files:
-                if handlers[file].invalidXML == True:
-                    print("{}: {}".format(file, ShellColors().make_red(handlers[file].xmlErrorString)))
+            for f in self.__files:
+                if handlers[f].invalidXML:
+                    print("{}: {}".format(f, red(handlers[f].xmlErrorString)))
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get(self, arguments):
@@ -184,8 +212,8 @@ class Actions(object):
 
         handlers = dict()
 
-        for file in self.__files:
-            handlers[file] = XmlHandler(file)
+        for f in self.__files:
+            handlers[f] = XmlHandler(f)
 
             for a in arguments:
                 prop = ""
@@ -199,14 +227,14 @@ class Actions(object):
                     s.pop(0)
                     cond = "".join(s)
 
-                log.debug("[{}] Trying to delete property \"{}\".".format(file, a))
-                handlers[file].delete(prop, cond)
-                print("[{}] Property \"{}\" has been deleted.".format(file, a))
+                log.debug("[{}] Trying to delete property \"{}\".".format(f, a))
+                handlers[f].delete(prop, cond)
+                print("[{}] Property \"{}\" has been deleted.".format(f, a))
 
-        for file in self.__files:
-            log.debug("[{}] Trying to save the changes.".format(file, a))
-            handlers[file].write()
-            print("[{}] Saved changes.".format(file, a))
+        for f in self.__files:
+            log.debug("[{}] Trying to save the changes.".format(f))
+            handlers[f].write()
+            print("[{}] Saved changes.".format(f))
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

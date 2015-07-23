@@ -32,6 +32,14 @@ DefaultDocManagerProperties = (
         "repository"
 )
 
+BugtrackerElementList = (
+    "bugtracker/url",
+    "bugtracker/component",
+    "bugtracker/product",
+    "bugtracker/assignee",
+    "bugtracker/version"
+)
+
 class ReturnCodes(object):
     E_OK = 0
     E_FILE_NOT_FOUND = 1

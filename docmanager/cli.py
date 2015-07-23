@@ -18,12 +18,12 @@
 
 import argparse
 import logging
-import os
 import re
 import sys
+import os.path
 import urllib.request
 from docmanager import __version__
-from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties
+from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
 
 def populate_properties(args):
@@ -36,8 +36,26 @@ def populate_properties(args):
 
     result=[]
     for prop in DefaultDocManagerProperties:
-        if hasattr(args, prop) and getattr(args, prop) is not None:
-            result.append( "{}={}".format(prop, getattr(args, prop)) )
+        proparg = prop.replace("/", "_")
+        if hasattr(args, proparg) and getattr(args, proparg) is not None:
+            result.append( "{}={}".format(prop, getattr(args, proparg)) )
+
+    return result
+
+def populate_bugtracker_properties(args):
+    """Populate args.bugtracker_* from "standard" options
+
+    :param argparse.Namespace args:
+    :return: list of property=value items
+    :rtype: list
+    """
+
+    result=[]
+    for prop in BugtrackerElementList:
+        proparg = prop.replace("/", "_")
+        if hasattr(args, proparg) and getattr(args, proparg) is not None:
+            result.append( "{}={}".format(prop, getattr(args, proparg)) )
+
     return result
 
 def parsecli(cliargs=None):
@@ -89,7 +107,16 @@ def parsecli(cliargs=None):
                                   aliases=['i'],
                                   help='Initializes an XML document with predefined properties.')
     pinit.add_argument('--force',
-                       action='store_true'
+                       action='store_true',
+                       help='This option forces the initialization.'
+                      )
+    pinit.add_argument('--stop-on-error',
+                       action='store_true',
+                       help='If this option is given, DocManager will stop if there is an XML error in one file.'
+                      )
+    pinit.add_argument('--with-bugtracker',
+                       action='store_true',
+                       help='Adds a bugtracker structure to an XML file.'
                       )
     pinit.add_argument('-p', '--properties', **propargs)
     pinit.add_argument('-M', '--maintainer',
@@ -116,6 +143,21 @@ def parsecli(cliargs=None):
     pinit.add_argument('--repository',
                       help='Set the property "repository" for the given documents.'
                     )
+    pinit.add_argument('--bugtracker-url',
+                      help='Set the property "bugtracker/url" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-component',
+                      help='Set the property "bugtracker/component" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-product',
+                      help='Set the property "bugtracker/product" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-assignee',
+                      help='Set the property "bugtracker/assignee" for the given documents.'
+                    )
+    pinit.add_argument('--bugtracker-version',
+                      help='Set the property "bugtracker/version" for the given documents.'
+                    )
     pinit.add_argument("files", **filesargs)
 
     # 'get' subparser
@@ -136,6 +178,8 @@ def parsecli(cliargs=None):
                         help='Set key=value property (one or more) to '
                              'delete the key let the value blank.'
                     )
+    pset.add_argument('-B', '--bugtracker',
+                      action='store_true')
     pset.add_argument('--stop-on-error',
                        action='store_true'
                       )
@@ -163,6 +207,21 @@ def parsecli(cliargs=None):
                     )
     pset.add_argument('--repository',
                       help='Set the property "repository" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-url',
+                      help='Set the property "bugtracker/url" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-component',
+                      help='Set the property "bugtracker/component" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-product',
+                      help='Set the property "bugtracker/product" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-assignee',
+                      help='Set the property "bugtracker/assignee" for the given documents.'
+                    )
+    pset.add_argument('--bugtracker-version',
+                      help='Set the property "bugtracker/version" for the given documents.'
                     )
     pset.add_argument("files", **filesargs)
 
@@ -201,6 +260,13 @@ def parsecli(cliargs=None):
     if args.action == "init":
         args.properties = []
 
+    # Remove any directories from our files list
+    allfiles = args.files[:]
+    args.files = [ f for f in args.files if not os.path.isdir(f) ]
+    diff = list(set(allfiles) - set(args.files))
+    if diff:
+        print("Ignoring the following directories:", ", ".join(diff))
+
     # Fix properties
     # Handle the different styles with -p foo and -p foo,bar
     # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
@@ -216,6 +282,7 @@ def parsecli(cliargs=None):
     # Fill "standard" properties (like status) also into properties list:
     if args.action in ("s", "set"):
         args.properties.extend(populate_properties(args))
+        args.properties.extend(populate_bugtracker_properties(args))
 
     # args.arguments = args.properties
     loglevel = {
@@ -232,17 +299,19 @@ def parsecli(cliargs=None):
 
     return args
 
-def show_langlist(columns=None):
-    """Prints the language table
+
+def show_langlist(columns=None, *, padding=2):
+    """Prints all supported languages
+
     :param int columns: Maximum number of characters in a column;
                         None to fill the current terminal window
+    :param int padding: space from longest entry to border
     """
-    logmgr_flog()
 
     try:
-        import os
         from shutil import get_terminal_size
     except ImportError:
+        import os
         def get_terminal_size(fallback=(80, 24)):
             return os.terminal_size(fallback)
 
@@ -251,7 +320,6 @@ def show_langlist(columns=None):
     if columns is None or columns < maxl:
         columns = get_terminal_size().columns
     length = len(LANGUAGES)
-    padding = 2
     rowwidth = maxl + padding + 1
     divisor = columns // rowwidth
     maxline = divisor * rowwidth
@@ -310,7 +378,10 @@ def input_format_check(args):
     if hasattr(args, 'languages') and args.languages is not None:
         for i in args.languages.split(","):
             if i not in LANGUAGES:
-                print("Value of 'languages' is incorrect. Language code '{}' is not supported. Type 'docmanager --langlist' to see all supported language codes.".format(i))
+                print("Value of 'languages' is incorrect. "
+                      "Language code '{}' is not supported. "
+                      "Type 'docmanager --langlist' to see "
+                      "all supported language codes.".format(i))
                 sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'repository') and args.repository is not None:
