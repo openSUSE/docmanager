@@ -21,7 +21,7 @@ from collections import OrderedDict
 from docmanager.config import Config
 from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.shellcolors import ShellColors
+from docmanager.shellcolors import red, green
 from docmanager.xmlhandler import XmlHandler
 
 
@@ -85,7 +85,7 @@ class Actions(object):
 
                 log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
                 if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
-                    print("[" + ShellColors().make_green("success") + "] Initialized default properties for '{}'.".format(xh.filename))
+                    print("[" + green("success") + "] Initialized default properties for '{}'.".format(xh.filename))
                 else:
                     log.warn("Could not initialize all properties for '{}' because "
                           "there are already some properties in the XML file "
@@ -111,10 +111,10 @@ class Actions(object):
                 xh.write()
             else:
                 invalidFiles += 1
-                print("[" + ShellColors().make_red("failed") + "] Initialized default properties for '{}'. ".format(xh.filename) + ShellColors().make_red(xh.xmlLogErrorString))
+                print("[" + red("failed") + "] Initialized default properties for '{}'. ".format(xh.filename) + red(xh.xmlLogErrorString))
 
         print("")
-        print("Initialized successfully {} files. {} files failed.".format(ShellColors().make_green(validFiles), ShellColors().make_red(invalidFiles)))
+        print("Initialized successfully {} files. {} files failed.".format(green(validFiles), red(invalidFiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -174,21 +174,21 @@ class Actions(object):
         
         print("")
         if validFiles == 1:
-            print("Wrote in {} valid XML file.".format(ShellColors().make_green(validFiles)))
+            print("Wrote in {} valid XML file.".format(green(validFiles)))
         else:
-            print("Wrote in {} valid XML files.".format(ShellColors().make_green(validFiles)))
+            print("Wrote in {} valid XML files.".format(green(validFiles)))
 
         if invalidFiles > 0:
             print("")
             
             if invalidFiles == 1:
-                print("Skipped {} XML file due to an error.".format(ShellColors().make_red(invalidFiles)))
+                print("Skipped {} XML file due to an error.".format(red(invalidFiles)))
             else:
-                print("Skipped {} XML files due to errors.".format(ShellColors().make_red(invalidFiles)))
+                print("Skipped {} XML files due to errors.".format(red(invalidFiles)))
 
             for f in self.__files:
                 if handlers[f].invalidXML:
-                    print("{}: {}".format(f, ShellColors().make_red(handlers[f].xmlErrorString)))
+                    print("{}: {}".format(f, red(handlers[f].xmlErrorString)))
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get(self, arguments):

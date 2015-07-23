@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -16,42 +16,33 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from docmanager.logmanager import logmgr_flog
+from functools import wraps
 
-class ShellColors:
-    
-    def __init__(self):
-        self.col_red = "\033[01;31m{0}\033[00m"
-        self.col_green = "\033[1;32m{0}\033[00m"
-        
-    def make_red(self, text):
-        """This function appends a red color code to the given text
-        :param string text: the wanted text
-        """
-        logmgr_flog()
+def shellcolor(func):
+    """Decorator for shell color functions
 
-        return self.col_red.format(text)
+    :param func: Function to decorate
+    :return: decorated function
+    """
+    @wraps(func)
+    def wrapped(text):
+        return "\033[01;{0}\033[00m".format(func(text))
+    return wrapped
 
-    def make_green(self, text):
-        """This function appends a green color code to the given text
-        :param string text: the wanted text
-        """
-        logmgr_flog()
+@shellcolor
+def green(text):
+    """Create green text string
 
-        return self.col_green.format(text)
+    :param string text: text to print in green
+    :return: greenified string
+    """
+    return "32m{0}".format(text)
 
-    def print_red(self, text):
-        """This function appends a red color code to the given text and prints it
-        :param string text: the wanted text
-        """
-        logmgr_flog()
+@shellcolor
+def red(text):
+    """Create red text string
 
-        print(self.make_red(text))
-
-    def print_green(self, text):
-        """This function appends a green color code to the given text and prints it
-        :param string text: the wanted text
-        """
-        logmgr_flog()
-
-        print(self.make_green(text))
+    :param string text: text to print in red
+    :return: redified string
+    """
+    return "31m{0}".format(text)
