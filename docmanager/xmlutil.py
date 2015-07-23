@@ -409,7 +409,7 @@ class Handler(xml.sax.handler.ContentHandler):
         logmgr_flog()
 
 
-def findprolog(source, maxsize=5000):
+def findprolog(source, maxsize=-1):
     """Returns a dictionary with essential information about the prolog
 
     :param source:
