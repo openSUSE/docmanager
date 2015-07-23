@@ -109,10 +109,12 @@ def parsecli(cliargs=None):
                        action='store_true'
                       )
     pinit.add_argument('--stop-on-error',
-                       action='store_true'
+                       action='store_true',
+                       help='If this option is given, DocManager will stop if there is an XML error in one file.'
                       )
     pinit.add_argument('--with-bugtracker',
-                       action='store_true'
+                       action='store_true',
+                       help='Adds a bugtracker structure to an XML file.'
                       )
     pinit.add_argument('-p', '--properties', **propargs)
     pinit.add_argument('-M', '--maintainer',
