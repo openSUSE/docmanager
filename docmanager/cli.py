@@ -106,7 +106,8 @@ def parsecli(cliargs=None):
                                   aliases=['i'],
                                   help='Initializes an XML document with predefined properties.')
     pinit.add_argument('--force',
-                       action='store_true'
+                       action='store_true',
+                       help='This option forces the initialization.'
                       )
     pinit.add_argument('--stop-on-error',
                        action='store_true',
