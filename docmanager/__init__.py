@@ -41,7 +41,7 @@ def main(cliargs=None):
             renderer = getrenderer('default')
         else:
             renderer = getrenderer(a.args.format)
-        
+
         renderer(res)
     except PermissionError as err: # noqa
         log.error("{} on file {!r}.".format(err.args[1], err.filename))

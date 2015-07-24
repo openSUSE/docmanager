@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -67,7 +67,7 @@ class Actions(object):
         invalidFiles = 0
 
         # append bugtracker properties if needed
-        if self.__args.with_bugtracker == True:
+        if self.__args.with_bugtracker:
             for p in BugtrackerElementList:
                 props.append(p)
 
@@ -80,7 +80,7 @@ class Actions(object):
 
         # iter through all xml handlers and init its properties
         for xh in self.__xml:
-            if xh.invalidXML == False:
+            if not xh.invalidXML:
                 validFiles += 1
 
                 log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
@@ -138,7 +138,6 @@ class Actions(object):
             else:
                 validFiles += 1
 
-
         # split key and value
         args = [ i.split("=") for i in arguments]
 
@@ -153,7 +152,7 @@ class Actions(object):
                 for f in self.__files:
                     if not handlers[f].invalidXML:
                         log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(f, key, value))
-                        if self.__args.bugtracker == True:
+                        if self.__args.bugtracker:
                             handlers[f].set({"bugtracker/" + key: value})
                         else:
                             handlers[f].set({key: value})

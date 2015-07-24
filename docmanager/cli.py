@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -300,7 +300,7 @@ def parsecli(cliargs=None):
     return args
 
 
-def show_langlist(columns=None, *, padding=2):
+def show_langlist(columns=None, padding=2):
     """Prints all supported languages
 
     :param int columns: Maximum number of characters in a column;
