@@ -27,6 +27,7 @@ from docmanager.core import ReturnCodes, LANGUAGES, STATUSFLAGS, \
     DefaultDocManagerProperties, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
 
+
 def populate_properties(args):
     """Populate args.properties from "standard" options
 
@@ -42,6 +43,7 @@ def populate_properties(args):
             result.append( "{}={}".format(prop, getattr(args, proparg)) )
 
     return result
+
 
 def populate_bugtracker_properties(args):
     """Populate args.bugtracker_* from "standard" options
@@ -59,8 +61,178 @@ def populate_bugtracker_properties(args):
 
     return result
 
+
+def init_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs):
+    """Create the 'init' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    :param dict stop_on_error:   Dict for the --stop-on-error option
+    :param dict propargs:        Dict with action and help for default properties
+    :param tuple mainproperties: Tuple of short and long options of default properties
+    :param dict filesargs:       Dict for FILE argument
+    """
+    # 'init' command for the initialization
+    pinit = subparsers.add_parser('init',
+                                  aliases=['i'],
+                                  help='Initializes an XML document with '
+                                       'predefined properties.')
+    pinit.add_argument('--force',
+                       action='store_true',
+                       help='This option forces the initialization.'
+                      )
+    pinit.add_argument('--stop-on-error', **stop_on_error)
+    pinit.add_argument('--with-bugtracker',
+                       action='store_true',
+                       help='Adds a bugtracker structure to an XML file.'
+                      )
+    pinit.add_argument('-p', '--properties', **propargs)
+
+    for options in mainproperties:
+        pinit.add_argument(*options,
+                           help='Sets the property "{}"'.format(options[1][2:])
+                           )
+
+    pinit.add_argument('--repository',
+                      help='Sets the property "repository".'
+                    )
+    for item in BugtrackerElementList:
+        _, option = item.split('/')
+        pinit.add_argument('--bugtracker-{}'.format(option),
+                      help='Sets the property "bugtracker/{}".'.format(option)
+                    )
+
+    pinit.add_argument("files", **filesargs)
+
+
+def get_subcmd(subparsers, propargs, filesargs):
+    """Create the 'get' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    :param dict propargs:        Dict with action and help for default properties
+    :param dict filesargs:       Dict for FILE argument
+    """
+    pget = subparsers.add_parser('get',
+                        aliases=['g'],
+                        help='Get key and returns value'
+                    )
+    pget.add_argument('-p', '--properties', **propargs)
+    pget.add_argument('-f', '--format',
+                      choices=['table','json','xml'],
+                      help='Set the output format.'
+                    )
+    pget.add_argument("files", **filesargs)
+
+
+def set_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs):
+    """Create the 'set' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    :param dict stop_on_error:   Dict for the --stop-on-error option
+    :param dict propargs:        Dict with action and help for default properties
+    :param tuple mainproperties: Tuple of short and long options of default properties
+    :param dict filesargs:       Dict for FILE argument
+
+    """
+    pset = subparsers.add_parser('set',
+                        aliases=['s'],
+                        help='Set key=value property (one or more) to '
+                             'delete the key let the value blank.'
+                    )
+    pset.add_argument('-B', '--bugtracker',
+                      action='store_true')
+    pset.add_argument('--stop-on-error', **stop_on_error)
+    pset.add_argument('-p', '--properties', **propargs)
+
+    for options in mainproperties:
+        pset.add_argument(*options,
+                           help='Sets the property "{}"'.format(options[1][2:])
+                           )
+
+    pset.add_argument('--repository',
+                      help='Sets the property "repository"'
+                    )
+
+    for item in BugtrackerElementList:
+        _, option = item.split('/')
+        pset.add_argument('--bugtracker-{}'.format(option),
+                      help='Set the property "bugtracker/{}" '
+                           'for the given documents.'.format(option)
+                    )
+
+    pset.add_argument("files", **filesargs)
+
+
+def del_subcmd(subparsers, propargs, filesargs):
+    """Create the 'del' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    :param dict propargs:        Dict with action and help for default properties
+    :param dict filesargs:       Dict for FILE argument
+
+    """
+    pdel = subparsers.add_parser('del',
+                        aliases=['d'],
+                        help='Delete properties from XML documents'
+                    )
+    pdel.add_argument('-p', '--properties', **propargs)
+    pdel.add_argument("files", **filesargs)
+
+
+def rewrite_alias(args):
+    """Rewrite aliases
+
+    :param argparse.Namespace args: Parsed arguments
+    """
+    actions = { "i":       "init",
+                "init":    "init",
+                "g":       "get",
+                "get":     "get",
+                "d":       "delete",
+                "del":     "delete",
+                "s":       "set",
+                "set":     "set"
+               }
+    args.action = actions.get(args.action)
+
+
+def clean_filelist(args):
+    """Clean the file list from unwanted directory names
+
+    :param argparse.Namespace args: Parsed arguments
+    """
+    # Remove any directories from our files list
+    allfiles = args.files[:]
+    args.files = [ f for f in args.files if not os.path.isdir(f) ]
+    diff = list(set(allfiles) - set(args.files))
+    if diff:
+        print("Ignoring the following directories:", ", ".join(diff))
+
+
+def fix_properties(args):
+    """Make different property styles consistent
+
+    :param argparse.Namespace args: Parsed arguments
+    """
+    # Handle the different styles with -p foo and -p foo,bar
+    # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
+    # regardless of the passed arguments
+    _props=[ ]
+    # Use an empty list when args.properties = None
+    args.properties = [] if args.properties is None else args.properties
+    for item in args.properties:
+        repl = re.split("[,;]", item)
+        _props.extend(repl)
+    args.properties = _props
+
+    # Fill "standard" properties (like status) also into properties list:
+    if args.action in ("s", "set"):
+        args.properties.extend(populate_properties(args))
+        args.properties.extend(populate_bugtracker_properties(args))
+
+
 def parsecli(cliargs=None):
     """Parse command line arguments
+
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     :return: parsed arguments
     :rtype: argparse.Namespace
@@ -114,100 +286,16 @@ def parsecli(cliargs=None):
         # metavar="COMMAND"
         )
 
-    # 'init' command for the initialization
-    pinit = subparsers.add_parser('init',
-                                  aliases=['i'],
-                                  help='Initializes an XML document with predefined properties.')
-    pinit.add_argument('--force',
-                       action='store_true',
-                       help='This option forces the initialization.'
-                      )
-    pinit.add_argument('--stop-on-error', **stop_on_error)
-    pinit.add_argument('--with-bugtracker',
-                       action='store_true',
-                       help='Adds a bugtracker structure to an XML file.'
-                      )
-    pinit.add_argument('-p', '--properties', **propargs)
-
-    for options in mainproperties:
-        pinit.add_argument(*options,
-                           help='Sets the property "{}"'.format(options[1][2:])
-                           )
-
-    pinit.add_argument('--repository',
-                      help='Sets the property "repository".'
-                    )
-    for item in BugtrackerElementList:
-        _, option = item.split('/')
-        pinit.add_argument('--bugtracker-{}'.format(option),
-                      help='Sets the property "bugtracker/{}".'.format(option)
-                    )
-
-    pinit.add_argument("files", **filesargs)
-
-    # 'get' subparser
-    pget = subparsers.add_parser('get',
-                        aliases=['g'],
-                        help='Get key and returns value'
-                    )
-    pget.add_argument('-p', '--properties', **propargs)
-    pget.add_argument('-f', '--format',
-                      choices=['table','json','xml'],
-                      help='Set the output format.'
-                    )
-    pget.add_argument("files", **filesargs)
-
-    # 'set' subparser
-    pset = subparsers.add_parser('set',
-                        aliases=['s'],
-                        help='Set key=value property (one or more) to '
-                             'delete the key let the value blank.'
-                    )
-    pset.add_argument('-B', '--bugtracker',
-                      action='store_true')
-    pset.add_argument('--stop-on-error', **stop_on_error)
-    pset.add_argument('-p', '--properties', **propargs)
-
-    for options in mainproperties:
-        pset.add_argument(*options,
-                           help='Sets the property "{}"'.format(options[1][2:])
-                           )
-
-    pset.add_argument('--repository',
-                      help='Sets the property "repository"'
-                    )
-
-    for item in BugtrackerElementList:
-        _, option = item.split('/')
-        pset.add_argument('--bugtracker-{}'.format(option),
-                      help='Set the property "bugtracker/{}" '
-                           'for the given documents.'.format(option)
-                    )
-
-    pset.add_argument("files", **filesargs)
-
-    # 'del' subparser
-    pdel = subparsers.add_parser('del',
-                        aliases=['d'],
-                        help='Delete properties from XML documents'
-                    )
-    pdel.add_argument('-p', '--properties', **propargs)
-    pdel.add_argument("files", **filesargs)
+    init_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs)
+    get_subcmd(subparsers, propargs, filesargs)
+    set_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs)
+    del_subcmd(subparsers, propargs, filesargs)
 
     ## -----
     args = parser.parse_args(args=cliargs)
 
-    # Rewrite aliases
-    actions = { "i":       "init",
-                "init":    "init",
-                "g":       "get",
-                "get":     "get",
-                "d":       "delete",
-                "del":     "delete",
-                "s":       "set",
-                "set":     "set"
-               }
-    args.action = actions.get(args.action)
+    ##
+    rewrite_alias(args)
 
     # Display language list
     if args.langlist is True:
@@ -221,29 +309,11 @@ def parsecli(cliargs=None):
     if args.action == "init":
         args.properties = []
 
-    # Remove any directories from our files list
-    allfiles = args.files[:]
-    args.files = [ f for f in args.files if not os.path.isdir(f) ]
-    diff = list(set(allfiles) - set(args.files))
-    if diff:
-        print("Ignoring the following directories:", ", ".join(diff))
+    # Clean file list
+    clean_filelist(args)
 
     # Fix properties
-    # Handle the different styles with -p foo and -p foo,bar
-    # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
-    # regardless of the passed arguments
-    _props=[ ]
-    # Use an empty list when args.properties = None
-    args.properties = [] if args.properties is None else args.properties
-    for item in args.properties:
-        repl = re.split("[,;]", item)
-        _props.extend(repl)
-    args.properties = _props
-
-    # Fill "standard" properties (like status) also into properties list:
-    if args.action in ("s", "set"):
-        args.properties.extend(populate_properties(args))
-        args.properties.extend(populate_bugtracker_properties(args))
+    fix_properties(args)
 
     # args.arguments = args.properties
     loglevel = {
