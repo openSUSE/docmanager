@@ -20,9 +20,9 @@ import sys
 from docmanager.core import DefaultDocManagerProperties, \
      NS, ReturnCodes, VALIDROOTS, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import check_root_element, compilestarttag, ensurefileobj, \
-     findprolog, get_namespace, localname, recover_entities, replaceinstream, preserve_entities, \
-     findinfo_pos, xml_indent
+from docmanager.xmlutil import check_root_element, compilestarttag, \
+     ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
+     replaceinstream, preserve_entities, findinfo_pos, xml_indent
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -36,7 +36,7 @@ class XmlHandler(object):
         :param str filename: filename of XML file
         """
         logmgr_flog()
-        log.debug("Initialized a new XML Handler for file '{}'.".format(filename))
+        log.debug("Initialized a new XML Handler for file %r.", filename)
 
         # general
         self._filename = ""
@@ -79,12 +79,13 @@ class XmlHandler(object):
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
             self.invalidXML = True
-            self.xmlLogErrorString = "<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
-                                      err.getColumnNumber(), \
-                                      err.getMessage(), \
-                                      self.filename,)
 
             if self.stopOnError:
+                self.xmlLogErrorString = "<{}:{}> {} in {!r}.".format(\
+                                            err.getLineNumber(), \
+                                            err.getColumnNumber(), \
+                                            err.getMessage(), \
+                                            self.filename,)
                 log.error(self.xmlLogErrorString)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
@@ -129,15 +130,16 @@ class XmlHandler(object):
                     log.info("No docmanager element found")
                     self.create_group()
                 else:
-                    log.info("Found docmanager element %s", self.__docmanager.getparent() )
+                    log.info("Found docmanager element %s", self.__docmanager.getparent())
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
         """
         rootns = get_namespace(self.__root.tag)
         if rootns != NS['d']:
-            log.error("{} is not a DocBook 5 XML document. The start tag of the document has to be in the official " \
-                      "DocBook 5 namespace: {}".format(self._filename, NS['d']))
+            log.error("%s is not a DocBook 5 XML document. "
+                      "The start tag of the document has to be in the official "
+                      "DocBook 5 namespace: %s", self._filename, NS['d'])
             sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def replace_entities(self):
@@ -151,7 +153,8 @@ class XmlHandler(object):
     def init_default_props(self, force=False, bugtracker=False):
         """Initializes the default properties for the given XML files
 
-        :param bool force: Ignore if there are already properties in an XML - just overwrite them
+        :param bool force: Ignore if there are already properties in an
+                           XML - just overwrite them
         """
         logmgr_flog()
 
@@ -177,8 +180,10 @@ class XmlHandler(object):
 
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
-            raise ValueError("Cannot add info element to file '{}'. '{}' is not a valid root "
-                             "element.".format(self._filename, localname(self.__root.tag)))
+            raise ValueError("Cannot add info element to file %r. "
+                             "This file does not contain a valid "
+                             "DocBook 5 root element. Found %s",
+                             self._filename, localname(self.__root.tag))
 
     def create_group(self):
         """Creates the docmanager group element"""
@@ -188,17 +193,17 @@ class XmlHandler(object):
         info = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if info is None:
-            log.info("No <info> element found!")
+            log.debug("No <info> element found!")
             pos = findinfo_pos(self.__root)
-            log.info("Using position %d", pos)
+            log.debug("Using position %d", pos)
             info = etree.Element("{%s}info" % NS["d"])
             info.tail = '\n'
             info.text = '\n'
             self.__root.insert(pos, info)
 
-            log.info("Adding <info> element in '%s'", self.filename)
+            log.debug("Adding <info> element in '%s'", self.filename)
 
-        log.info("Adding <dm:docmanager> to <info>")
+        log.debug("Adding <dm:docmanager> to <info>")
         # dm = etree.Element("{%s}docmanager" % NS["dm"])
         # self.__docmanager = info.insert(0, dm)
         self.__docmanager = etree.SubElement(info,

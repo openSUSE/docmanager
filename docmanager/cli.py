@@ -23,7 +23,8 @@ import sys
 import os.path
 import urllib.request
 from docmanager import __version__
-from docmanager.core import ReturnCodes, LANGUAGES, DefaultDocManagerProperties, BugtrackerElementList
+from docmanager.core import ReturnCodes, LANGUAGES, STATUSFLAGS, \
+    DefaultDocManagerProperties, BugtrackerElementList
 from docmanager.logmanager import log, logmgr_flog
 
 def populate_properties(args):
@@ -76,6 +77,17 @@ def parsecli(cliargs=None):
                          'Example (get/del): -p foo or -p foo,bar or -p foo -p bar '
                          'Example (set): -p foo=a or -p foo=a,bar=b or -p foo=a -p bar=b'
                )
+    stop_on_error = dict(action='store_true',
+                       default=False,
+                       help='Stop if an (XML) error is found '
+                            'in a XML file (default: %(default)s)'
+               )
+    mainproperties = (
+        ('-M', '--maintainer'),  ('-S', '--status'),
+        ('-D', '--deadline'),    ('-P', '--priority'),
+        ('-T', '--translation'), ('-L', '--languages'),
+        ('-R', '--release')
+        )
 
     parser = argparse.ArgumentParser(
         prog="docmanager",
@@ -110,54 +122,27 @@ def parsecli(cliargs=None):
                        action='store_true',
                        help='This option forces the initialization.'
                       )
-    pinit.add_argument('--stop-on-error',
-                       action='store_true',
-                       help='If this option is given, DocManager will stop if there is an XML error in one file.'
-                      )
+    pinit.add_argument('--stop-on-error', **stop_on_error)
     pinit.add_argument('--with-bugtracker',
                        action='store_true',
                        help='Adds a bugtracker structure to an XML file.'
                       )
     pinit.add_argument('-p', '--properties', **propargs)
-    pinit.add_argument('-M', '--maintainer',
-                      help='Set the property "maintainer" for the given documents.'
-                    )
-    pinit.add_argument('-S', '--status',
-                      help='Set the property "status" for the given documents.'
-                    )
-    pinit.add_argument('-D', '--deadline',
-                      help='Set the property "deadline" for the given documents.'
-                    )
-    pinit.add_argument('-P', '--priority',
-                      help='Set the property "priority" for the given documents.'
-                    )
-    pinit.add_argument('-T', '--translation',
-                      help='Set the property "translation" for the given documents.'
-                    )
-    pinit.add_argument('-L', '--languages',
-                      help='Set the property "languages" for the given documents.'
-                    )
-    pinit.add_argument('-R', '--release',
-                      help='Set the property "release" for the given documents.'
-                    )
+
+    for options in mainproperties:
+        pinit.add_argument(*options,
+                           help='Sets the property "{}"'.format(options[1][2:])
+                           )
+
     pinit.add_argument('--repository',
-                      help='Set the property "repository" for the given documents.'
+                      help='Sets the property "repository".'
                     )
-    pinit.add_argument('--bugtracker-url',
-                      help='Set the property "bugtracker/url" for the given documents.'
+    for item in BugtrackerElementList:
+        _, option = item.split('/')
+        pinit.add_argument('--bugtracker-{}'.format(option),
+                      help='Sets the property "bugtracker/{}".'.format(option)
                     )
-    pinit.add_argument('--bugtracker-component',
-                      help='Set the property "bugtracker/component" for the given documents.'
-                    )
-    pinit.add_argument('--bugtracker-product',
-                      help='Set the property "bugtracker/product" for the given documents.'
-                    )
-    pinit.add_argument('--bugtracker-assignee',
-                      help='Set the property "bugtracker/assignee" for the given documents.'
-                    )
-    pinit.add_argument('--bugtracker-version',
-                      help='Set the property "bugtracker/version" for the given documents.'
-                    )
+
     pinit.add_argument("files", **filesargs)
 
     # 'get' subparser
@@ -180,49 +165,25 @@ def parsecli(cliargs=None):
                     )
     pset.add_argument('-B', '--bugtracker',
                       action='store_true')
-    pset.add_argument('--stop-on-error',
-                       action='store_true'
-                      )
+    pset.add_argument('--stop-on-error', **stop_on_error)
     pset.add_argument('-p', '--properties', **propargs)
-    pset.add_argument('-M', '--maintainer',
-                      help='Set the property "maintainer" for the given documents.'
-                    )
-    pset.add_argument('-S', '--status',
-                      help='Set the property "status" for the given documents.'
-                    )
-    pset.add_argument('-D', '--deadline',
-                      help='Set the property "deadline" for the given documents.'
-                    )
-    pset.add_argument('-P', '--priority',
-                      help='Set the property "priority" for the given documents.'
-                    )
-    pset.add_argument('-T', '--translation',
-                      help='Set the property "translation" for the given documents.'
-                    )
-    pset.add_argument('-L', '--languages',
-                      help='Set the property "languages" for the given documents.'
-                    )
-    pset.add_argument('-R', '--release',
-                      help='Set the property "release" for the given documents.'
-                    )
+
+    for options in mainproperties:
+        pset.add_argument(*options,
+                           help='Sets the property "{}"'.format(options[1][2:])
+                           )
+
     pset.add_argument('--repository',
-                      help='Set the property "repository" for the given documents.'
+                      help='Sets the property "repository"'
                     )
-    pset.add_argument('--bugtracker-url',
-                      help='Set the property "bugtracker/url" for the given documents.'
+
+    for item in BugtrackerElementList:
+        _, option = item.split('/')
+        pset.add_argument('--bugtracker-{}'.format(option),
+                      help='Set the property "bugtracker/{}" '
+                           'for the given documents.'.format(option)
                     )
-    pset.add_argument('--bugtracker-component',
-                      help='Set the property "bugtracker/component" for the given documents.'
-                    )
-    pset.add_argument('--bugtracker-product',
-                      help='Set the property "bugtracker/product" for the given documents.'
-                    )
-    pset.add_argument('--bugtracker-assignee',
-                      help='Set the property "bugtracker/assignee" for the given documents.'
-                    )
-    pset.add_argument('--bugtracker-version',
-                      help='Set the property "bugtracker/version" for the given documents.'
-                    )
+
     pset.add_argument("files", **filesargs)
 
     # 'del' subparser
@@ -275,8 +236,8 @@ def parsecli(cliargs=None):
     # Use an empty list when args.properties = None
     args.properties = [] if args.properties is None else args.properties
     for item in args.properties:
-        m = re.split("[,;]", item)
-        _props.extend(m)
+        repl = re.split("[,;]", item)
+        _props.extend(repl)
     args.properties = _props
 
     # Fill "standard" properties (like status) also into properties list:
@@ -292,7 +253,7 @@ def parsecli(cliargs=None):
     }
 
     log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
-    log.debug("Arguments: %s", args)
+    log.info("CLI Parser results: %s", args)
 
     # check for input format
     input_format_check(args)
@@ -335,7 +296,7 @@ def show_langlist(columns=None, padding=2):
                 x.append("")
         print(fmt.format(*x))
     print(line)
-    
+
     sys.exit(ReturnCodes.E_OK)
 
 def input_format_check(args):
@@ -346,19 +307,21 @@ def input_format_check(args):
     logmgr_flog()
 
     if hasattr(args, 'status') and args.status is not None:
-        values = [ 'editing', 'edited', 'proofing', 'proofed', 'comment', 'ready' ]
-        if args.status not in values:
-            print("Value of 'status' is incorrect. Expecting one of these values: editing, edited, proofing, proofed, comment, or ready")
+        if args.status not in STATUSFLAGS:
+            print("Value of 'status' property is incorrect. "
+                  "Expecting one of these values: {}".format(", ".join(STATUSFLAGS)))
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'deadline') and args.deadline is not None:
         r = re.match("^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$", args.deadline)
         if r is None:
-            print("Value of 'deadline' is incorrect. Use this date format: YYYY-MM-DD")
+            print("Value of 'deadline' is incorrect. "
+                  "Use this date format: YYYY-MM-DD")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'priority') and args.priority is not None:
-        errmsg = "Value of 'priority' is incorrect. Expecting a value between 1 and 10."
+        errmsg = ("Value of 'priority' is incorrect. "
+                  "Expecting a value between 1 and 10." )
 
         if args.priority.isnumeric() == False:
             print(errmsg)
@@ -370,9 +333,10 @@ def input_format_check(args):
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'translation') and args.translation is not None:
-        values = [ 'yes', 'no' ]
+        values = ( 'yes', 'no' )
         if args.translation not in values:
-            print("Value of 'translation' is incorrect. Expecting one of these values: yes or no")
+            print("Value of 'translation' is incorrect. "
+                  "Expecting one of these values: yes or no")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'languages') and args.languages is not None:
@@ -394,11 +358,15 @@ def input_format_check(args):
         except urllib.error.URLError as err:
             if hasattr(err, 'code') and err.code is not None:
                 if err.code is not 200:
-                    log.warn("The remote server returns an error code for this request: {} - Please double check if"
-                             " the URL is correct. Nevertheless the URL will be written into the given files.".format(err.code))
+                    log.warn("The remote server returns an error code for this "
+                             "request: {} - Please double check if "
+                             "the URL is correct. Nevertheless the URL will "
+                             "be written into the given files.".format(err.code))
             else:
-                log.warn("The given URL '{}' seems to be invalid or the remote server is not online. Please double check if"
-                         " the URL is correct. Nevertheless the URL will be written into the given files.".format(args.repository))
+                log.warn("The given URL '{}' seems to be invalid or the "
+                         "remote server is not online. Please double check if "
+                         "the URL is correct. Nevertheless the URL will be "
+                         "written into the given files.".format(args.repository))
 
         if hasattr(request, 'close'):
             request.close()

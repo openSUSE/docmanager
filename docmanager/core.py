@@ -40,6 +40,8 @@ BugtrackerElementList = (
     "bugtracker/version"
 )
 
+STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment', 'ready')
+
 class ReturnCodes(object):
     E_OK = 0
     E_FILE_NOT_FOUND = 1

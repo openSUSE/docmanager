@@ -153,7 +153,7 @@ def findinfo_pos(root):
     logmgr_flog()
 
     titles = root.xpath("(d:title|d:subtitle|d:titleabbrev)[last()]",
-                                namespaces=NS)
+                        namespaces=NS)
     if not titles:
         # Just in case we didn't find any titles at all, return null
         return 0
@@ -186,7 +186,7 @@ def ensurefileobj(source):
                 res = StringIO(open(source, 'r').read())
             # pylint: disable=undefined-variable
             except FileNotFoundError as err:
-                log.error("Could not find file '{}'.".format(err.filename))
+                log.error("Could not find file %r.", err.filename)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
             # pylint: enable=undefined-variable
 

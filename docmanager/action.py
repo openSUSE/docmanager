@@ -39,18 +39,21 @@ class Actions(object):
         self.__files = args.files
         self.__args = args
         self.configfile = Config()
-        
+
         if hasattr(self.__args, 'stop_on_error'):
             self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
         else:
             self.__xml = [ XmlHandler(x) for x in self.__files ]
+#        self.__xml = [ XmlHandler(x, self.__args.stop_on_error) \
+#                       for x in self.__files ]
+
 
     def parse(self):
         logmgr_flog()
-        
+
         action = self.__args.action
         if hasattr(self, action) and getattr(self, action) is not None:
-            log.debug("Action.__init__: {}".format(self.__args))
+            log.debug("Action.__init__: %s", self.__args)
             return getattr(self, action)(self.__args.properties)
         else:
             log.error("Method \"%s\" is not implemented.", action)
@@ -59,40 +62,45 @@ class Actions(object):
 
     def init(self, arguments):
         logmgr_flog()
-        log.debug("Arguments {}".format(arguments))
+        log.debug("Arguments %s", arguments)
 
         _set = dict()
         props = list(DefaultDocManagerProperties)
-        validFiles = 0
-        invalidFiles = 0
+        validfiles = 0
+        invalidfiles = 0
 
         # append bugtracker properties if needed
         if self.__args.with_bugtracker:
-            for p in BugtrackerElementList:
-                props.append(p)
+            for item in BugtrackerElementList:
+                props.append(item)
 
         # set default properties
-        for d in props:
-            rprop = d.replace("/", "_")
+        for item in props:
+            rprop = item.replace("/", "_")
 
-            if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None:
-                _set[d] = getattr(self.__args, rprop)
+            if hasattr(self.__args, rprop) and \
+               getattr(self.__args, rprop) is not None:
+                _set[item] = getattr(self.__args, rprop)
 
         # iter through all xml handlers and init its properties
         for xh in self.__xml:
             if not xh.invalidXML:
-                validFiles += 1
+                validfiles += 1
 
-                log.debug("Trying to initialize the predefined DocManager properties for '{}'.".format(xh.filename))
-                if xh.init_default_props(self.__args.force, self.__args.with_bugtracker) == 0:
-                    print("[" + green("success") + "] Initialized default properties for '{}'.".format(xh.filename))
+                log.debug("Trying to initialize the predefined DocManager "
+                          "properties for %r.", xh.filename)
+                if xh.init_default_props(self.__args.force,
+                                         self.__args.with_bugtracker) == 0:
+                    print("[{}] Initialized default "
+                          "properties for {!r}.".format(green("success"),
+                                                        xh.filename))
                 else:
-                    log.warn("Could not initialize all properties for '{}' because "
+                    log.warn("Could not initialize all properties for %r because "
                           "there are already some properties in the XML file "
                           "which would be overwritten after this operation has been "
                           "finished. If you want to perform this operation and "
                           "overwrite the existing properties, you can add the "
-                          "'--force' option to your command.".format(xh.filename))
+                          "'--force' option to your command.", xh.filename)
 
                 # set default values for the given properties
                 for i in _set:
@@ -104,17 +112,22 @@ class Actions(object):
                 for i in BugtrackerElementList:
                     rprop = i.replace("/", "_")
 
-                    if hasattr(self.__args, rprop) and getattr(self.__args, rprop) is not None and len(getattr(self.__args, rprop)) >= 1:
-                        xh.set({ i: getattr(self.__args, rprop) })
+                    if hasattr(self.__args, rprop) and \
+                       getattr(self.__args, rprop) is not None and \
+                       len(getattr(self.__args, rprop)) >= 1:
+                           xh.set({ i: getattr(self.__args, rprop) })
 
                 # safe the xml file
                 xh.write()
             else:
-                invalidFiles += 1
-                print("[" + red("failed") + "] Initialized default properties for '{}'. ".format(xh.filename) + red(xh.xmlLogErrorString))
+                invalidfiles += 1
+                print("[{}] Initialized default properties for '{}{}'. ".format(\
+                    red("failed"),
+                    xh.filename),
+                    red(xh.xmlLogErrorString))
 
-        print("")
-        print("Initialized successfully {} files. {} files failed.".format(green(validFiles), red(invalidFiles)))
+        print("\nInitialized successfully {} files. {} files failed.".format(\
+              green(validfiles), red(invalidfiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -123,8 +136,8 @@ class Actions(object):
         """
         logmgr_flog()
 
-        invalidFiles = 0
-        validFiles = 0
+        invalidfiles = 0
+        validfiles = 0
 
         # init xml handlers for all given files
         handlers = OrderedDict()
@@ -134,9 +147,9 @@ class Actions(object):
             handlers[i] = self.__xml[idx]
 
             if handlers[i].invalidXML:
-                invalidFiles += 1
+                invalidfiles += 1
             else:
-                validFiles += 1
+                validfiles += 1
 
         # split key and value
         args = [ i.split("=") for i in arguments]
@@ -151,12 +164,13 @@ class Actions(object):
 
                 for f in self.__files:
                     if not handlers[f].invalidXML:
-                        log.debug("[{}] Trying to set value for property '{}' to '{}'.".format(f, key, value))
+                        log.debug("[%s] Trying to set value for property "
+                                  "%r to %r.", f, key, value)
                         if self.__args.bugtracker:
                             handlers[f].set({"bugtracker/" + key: value})
                         else:
                             handlers[f].set({key: value})
-                        print("[{}] Set value for property \"{}\" to \"{}\".".format(f, key, value))
+                        print("[{}] Set value for property {!r} to {!r}.".format(f, key, value))
 
             except ValueError:
                 log.error('Invalid usage. '
@@ -167,23 +181,18 @@ class Actions(object):
         # save the changes
         for f in self.__files:
             if not handlers[f].invalidXML:
-                log.debug("[{}] Trying to save the changes.".format(f))
+                log.debug("[%s] Trying to save the changes.", f)
                 handlers[f].write()
                 print("[{}] Saved changes.".format(f))
-        
-        print("")
-        if validFiles == 1:
-            print("Wrote in {} valid XML file.".format(green(validFiles)))
-        else:
-            print("Wrote in {} valid XML files.".format(green(validFiles)))
 
-        if invalidFiles > 0:
-            print("")
-            
-            if invalidFiles == 1:
-                print("Skipped {} XML file due to an error.".format(red(invalidFiles)))
-            else:
-                print("Skipped {} XML files due to errors.".format(red(invalidFiles)))
+        print("\nWrote {} valid XML file{}.".format(green(validfiles),
+              '' if validfiles == 1 else 's')
+             )
+
+        if invalidfiles > 0:
+            print("\nSkipped {} XML file{} due to errors.".format(red(invalidfiles),
+                  '' if invalidfiles == 1 else 's')
+                 )
 
             for f in self.__files:
                 if handlers[f].invalidXML:
@@ -198,7 +207,7 @@ class Actions(object):
         :rtype: list
         """
         logmgr_flog()
-        
+
         return [ (xh.filename, xh.get(arguments)) for xh in self.__xml ]
 
 
@@ -214,24 +223,24 @@ class Actions(object):
         for f in self.__files:
             handlers[f] = XmlHandler(f)
 
-            for a in arguments:
+            for arg in arguments:
                 prop = ""
                 cond = None
 
-                s = a.split("=")
-                if len(s) == 1:
-                    prop = s[0]
+                arglist = arg.split("=")
+                if len(arglist) == 1:
+                    prop = arglist[0]
                 else:
-                    prop = s[0]
-                    s.pop(0)
-                    cond = "".join(s)
+                    prop = arglist[0]
+                    arglist.pop(0)
+                    cond = "".join(arglist)
 
-                log.debug("[{}] Trying to delete property \"{}\".".format(f, a))
+                log.debug("[%s] Trying to delete property %r.", f, arg)
                 handlers[f].delete(prop, cond)
-                print("[{}] Property \"{}\" has been deleted.".format(f, a))
+                print("[{}] Property {!r} has been deleted.".format(f, arg))
 
         for f in self.__files:
-            log.debug("[{}] Trying to save the changes.".format(f))
+            log.debug("[%s] Trying to save the changes.", f)
             handlers[f].write()
             print("[{}] Saved changes.".format(f))
 

@@ -33,7 +33,8 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     if data is None:
         return
 
-    # print only the value of the given property if only one property and only one file are given
+    # print only the value of the given property if only one property and
+    # only one file are given
     if len(data) == 1:
         if len(data[0][1]) == 1:
             for v in data[0][1]:
@@ -43,7 +44,8 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     # if there are more than one file or one property
     for d in data:
         props = d[1]
-        props = " ".join([ "%s=%s" % (key, value) for key, value in props.items()])
+        props = " ".join(["%s=%s" % (key, value) \
+                          for key, value in props.items()])
         if len(props):
             print("{} -> {}".format(d[0], props))
 
