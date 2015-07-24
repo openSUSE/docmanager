@@ -123,8 +123,8 @@ class Actions(object):
                 invalidfiles += 1
                 print("[{}] Initialized default properties for '{}{}'. ".format(\
                     red("failed"),
-                    xh.filename),
-                    red(xh.xmlLogErrorString))
+                    xh.filename,
+                    red(xh.xmlLogErrorString)))
 
         print("\nInitialized successfully {} files. {} files failed.".format(\
               green(validfiles), red(invalidfiles)))
