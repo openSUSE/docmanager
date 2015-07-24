@@ -121,7 +121,7 @@ class Actions(object):
                 xh.write()
             else:
                 invalidfiles += 1
-                print("[{}] Initialized default properties for '{}{}'. ".format(\
+                print("[{}] Initialized default properties for {!r}: {}. ".format(\
                     red("failed"),
                     xh.filename,
                     red(xh.xmlLogErrorString)))
