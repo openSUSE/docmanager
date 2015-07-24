@@ -43,7 +43,7 @@ def ent2txt(match, start="[[[", end="]]]"):
     :rtype: str
     """
     logmgr_flog()
-    
+
     if match:
         return "{}{}{}".format(start,
                                match.group(2),
@@ -58,7 +58,7 @@ def txt2ent(match):
     :rtype: str
     """
     logmgr_flog()
-    
+
     if match:
         return "&{};".format(match.group(2))
 
@@ -71,7 +71,7 @@ def preserve_entities(text):
     :rtype: str
     """
     logmgr_flog()
-    
+
     return ENTS.sub(ent2txt, text)
 
 
@@ -83,7 +83,7 @@ def recover_entities(text):
     :rtype: str
     """
     logmgr_flog()
-    
+
     return STEN.sub(txt2ent, text)
 
 
@@ -97,7 +97,7 @@ def replaceinstream(stream, func):
     :rtype: StringIO
     """
     logmgr_flog()
-    
+
     result = StringIO()
 
     for line in stream:
@@ -108,11 +108,11 @@ def replaceinstream(stream, func):
 
 def check_root_element(rootelem, etree):
     """Checks if root element is valid
-    
+
     :param object: root element (object)
     :param object: etree element (etree object)"""
     logmgr_flog()
-    
+
     tag = etree.QName(rootelem.tag)
     if tag.localname not in VALIDROOTS:
         raise ValueError("Cannot add info element to %s. "
@@ -128,7 +128,7 @@ def isXML(text):
        :rtype: bool
     """
     logmgr_flog()
-    
+
     possiblestartstrings = (re.compile("<\?xml"),
                             re.compile("<!DOCTYPE"),
                             re.compile("<!--",),
@@ -151,9 +151,9 @@ def findinfo_pos(root):
     :rtype: int
     """
     logmgr_flog()
-    
+
     titles = root.xpath("(d:title|d:subtitle|d:titleabbrev)[last()]",
-                                namespaces=NS)
+                        namespaces=NS)
     if not titles:
         # Just in case we didn't find any titles at all, return null
         return 0
@@ -171,7 +171,7 @@ def ensurefileobj(source):
        :return: StringIO or file-like object
     """
     logmgr_flog()
-    
+
     # StringIO support:
     if hasattr(source, 'getvalue') and hasattr(source, 'tell'):
         # we return the source
@@ -184,10 +184,12 @@ def ensurefileobj(source):
             # so it has to be a filename
             try:
                 res = StringIO(open(source, 'r').read())
+            # pylint: disable=undefined-variable
             except FileNotFoundError as err:
-                log.error("Could not find file '{}'.".format(err.filename))
+                log.error("Could not find file %r.", err.filename)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
-            
+            # pylint: enable=undefined-variable
+
             return res
     # TODO: Check if source is an URL; should we allow this?
 
@@ -203,7 +205,7 @@ def localname(tag):
     :rtype:  str
     """
     logmgr_flog()
-    
+
     m = NAMESPACE_REGEX.search(tag)
     if m:
         return m.groupdict()['local']
@@ -218,7 +220,7 @@ def get_namespace(tag):
     :rtype:         str
     """
     logmgr_flog()
-    
+
     m = NAMESPACE_REGEX.search(tag)
     if m:
         return m.groupdict()['ns']
@@ -234,7 +236,7 @@ def compilestarttag(roottag=None):
        :rtype: _sre.SRE_Pattern
     """
     logmgr_flog()
-    
+
     # Taken from the xmllib.py
     # http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
     _S = '[ \t\r\n]+'                       # white space
@@ -262,7 +264,7 @@ class LocatingWrapper(object):
     """
     def __init__(self, f):
         logmgr_flog()
-        
+
         self.f = f
         self.offset = [0]
         self.curoffs = 0
@@ -270,7 +272,7 @@ class LocatingWrapper(object):
     def read(self, *a):
         """Read data"""
         logmgr_flog()
-        
+
         data = self.f.read(*a)
         self.offset.extend(accumulate(len(m)+1 for m in data.split('\n')))
         return data
@@ -283,7 +285,7 @@ class LocatingWrapper(object):
         :rtype:  int
         """
         logmgr_flog()
-        
+
         return self.offset[locator.getLineNumber() - 1] + locator.getColumnNumber()
 
     def close(self):
@@ -301,7 +303,7 @@ class Handler(xml.sax.handler.ContentHandler):
     """
     def __init__( self, context, locator):
         logmgr_flog()
-        
+
         # handler.ContentHandler.__init__( self )
         super().__init__()
         self.context = context
@@ -315,7 +317,7 @@ class Handler(xml.sax.handler.ContentHandler):
         :param LocatingWrapper loc: LocatingWrapper object
         """
         logmgr_flog()
-        
+
         self.loc = locator
 
     def startElement(self, name, attrs):
@@ -325,7 +327,7 @@ class Handler(xml.sax.handler.ContentHandler):
         :param Attributes attrs: attributes of the current element
         """
         logmgr_flog()
-        
+
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen < 2:
@@ -341,7 +343,7 @@ class Handler(xml.sax.handler.ContentHandler):
         :param str name:  XML 1.0 Name of the element
         """
         logmgr_flog()
-        
+
         eline = self.loc.getLineNumber()
         ecol = self.loc.getColumnNumber()
         last = self.locstm.where(self.loc)
@@ -358,7 +360,7 @@ class Handler(xml.sax.handler.ContentHandler):
         :param str data:   the data of the PI
         """
         logmgr_flog()
-        
+
         ctxlen = len(self.context)
         # Only append PIs when it's NOT before start-tag
         if ctxlen:
@@ -368,13 +370,13 @@ class Handler(xml.sax.handler.ContentHandler):
                             current)
             self.context.append(["?%s" % target, pos])
 
-    def comment(self, text): # pylint:unused-argument
+    def comment(self, text): # pylint: disable=unused-argument
         """Signals an XML comment
 
         :param str text: text content of the XML comment
         """
         logmgr_flog()
-        
+
         ctxlen = len(self.context)
         # We are only interested in the first two start tags
         if ctxlen:
@@ -391,7 +393,7 @@ class Handler(xml.sax.handler.ContentHandler):
 
     endCDATA = startCDATA
 
-    def startDTD(self,  doctype, publicID, systemID): # pylint:unused-argument
+    def startDTD(self,  doctype, publicID, systemID): # pylint:disable=unused-argument
         """Signals the start of an DTD declaration
 
         :param  doctype: name of the root element

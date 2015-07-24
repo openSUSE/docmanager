@@ -41,14 +41,14 @@ def main(cliargs=None):
             renderer = getrenderer('default')
         else:
             renderer = getrenderer(a.args.format)
-        
+
         renderer(res)
     except PermissionError as err: # noqa
-        log.error("{} on file {!r}.".format(err.args[1], err.filename))
+        log.error("%s on file %r.", err.args[1], err.filename)
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
     except ValueError as err:
         log.error(err)
         sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
     except FileNotFoundError as err: # noqa
-        log.error("Could not find file '{}'.".format(err.filename))
+        log.error("Could not find file %r.", err.filename)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
