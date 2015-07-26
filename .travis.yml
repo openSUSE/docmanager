@@ -6,6 +6,10 @@ python:
     - "3.3"
     - "3.4"
 
+env:
+    global:
+        - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+
 # command to install dependencies
 install:
     - pip install -r coverage_requirements.txt
