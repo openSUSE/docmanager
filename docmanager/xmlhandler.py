@@ -334,21 +334,33 @@ class XmlHandler(object):
 
         :param str key: element name to delete
         :param str condition: the condition for the deletion (the var condition has to be equal with the property value)
+        :return boolean: True = success | False = no property has been deleted
         """
         logmgr_flog()
+
         key = key.split("/")
-        key = "dm:".join(key)
-        key = "dm:" + key
+        lastnode = None
 
-        key_handler = self.__docmanager.find(key,
-                                             namespaces=NS)
+        key_handler = self.__docmanager.find("dm:{}".format(key[0]), namespaces=NS)
 
-        if key_handler is not None:
-            if condition is None:
+        for idx, prop in enumerate(key):
+            if lastnode is not None:
+                key_handler = lastnode.find("dm:{}".format(prop), namespaces=NS)
+
+            lastnode = key_handler
+
+            if key_handler is None:
+                break
+
+            if idx == len(key)-1:
+                if condition is not None:
+                    if condition != key_handler.text:
+                        break
+
                 key_handler.getparent().remove(key_handler)
-            else:
-                if key_handler.text == condition:
-                    key_handler.getparent().remove(key_handler)
+                return True
+
+        return False
 
     def get_indentation(self, node, indentation=""):
         """Calculates indentation level
