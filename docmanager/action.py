@@ -222,6 +222,8 @@ class Actions(object):
 
         for f in self.__files:
             handlers[f] = XmlHandler(f)
+            props_success = list()
+            props_failed = list()
 
             for arg in arguments:
                 prop = ""
@@ -236,13 +238,29 @@ class Actions(object):
                     cond = "".join(arglist)
 
                 log.debug("[%s] Trying to delete property %r.", f, arg)
-                handlers[f].delete(prop, cond)
-                print("[{}] Property {!r} has been deleted.".format(f, arg))
+                if handlers[f].delete(prop, cond) is True:
+                    props_success.append(prop)
+                else:
+                    props_failed.append(prop)
+
+            props_success_c = len(props_success)
+            props_failed_c = len(props_failed)
+
+            if props_success_c == 1:
+                props_str = "property has been deleted"
+            else:
+                props_str = "properties have been deleted"
+
+            print("[{}] {} {} and {} could not be deleted.".format(f, green(props_success_c), props_str, red(props_failed_c)))
+            if props_success_c > 0:
+                print("  - [{}] {}".format(green("success"), ", ".join(props_success)))
+
+            if props_failed_c > 0:
+                print("  - [{}] {}".format(red("failed"), ", ".join(props_failed)))
 
         for f in self.__files:
             log.debug("[%s] Trying to save the changes.", f)
             handlers[f].write()
-            print("[{}] Saved changes.".format(f))
 
     def remove_duplicate_langcodes(self, values):
         new_list = []
