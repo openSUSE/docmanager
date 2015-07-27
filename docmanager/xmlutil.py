@@ -184,8 +184,7 @@ def ensurefileobj(source):
             # so it has to be a filename
             try:
                 res = StringIO(open(source, 'r').read())
-            # pylint: disable=undefined-variable
-            except FileNotFoundError as err:
+            except FileNotFoundError as err: # pylint:disable=undefined-variable
                 log.error("Could not find file %r.", err.filename)
                 sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
             # pylint: enable=undefined-variable
@@ -406,7 +405,7 @@ class Handler(xml.sax.handler.ContentHandler):
         """Reports the end of a DTD declaration"""
         logmgr_flog()
 
-    def startEntity(self, name):  # pylint:unused-argument
+    def startEntity(self, name):  # pylint: disable=unused-argument
         """Reports the start of an entity"""
         logmgr_flog()
 

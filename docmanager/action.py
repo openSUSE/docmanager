@@ -115,7 +115,7 @@ class Actions(object):
                     if hasattr(self.__args, rprop) and \
                        getattr(self.__args, rprop) is not None and \
                        len(getattr(self.__args, rprop)) >= 1:
-                           xh.set({ i: getattr(self.__args, rprop) })
+                        xh.set({ i: getattr(self.__args, rprop) })
 
                 # safe the xml file
                 xh.write()
