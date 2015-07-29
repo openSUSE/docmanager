@@ -57,6 +57,8 @@ class ReturnCodes(object):
     E_PERMISSION_DENIED = 11
     E_NOT_DOCBOOK5_FILE = 12
     E_SOME_FILES_WERE_INVALID = 13
+    E_ANALYZE_FILTER_INVALID_SYNTAX = 14
+    E_INVALID_XML_PROPERTIES = 15
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

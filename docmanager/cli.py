@@ -177,6 +177,22 @@ def del_subcmd(subparsers, propargs, filesargs):
     pdel.add_argument('-p', '--properties', **propargs)
     pdel.add_argument("files", **filesargs)
 
+def analyze_subcmd(subparsers, queryformat, filters, sort, filesargs):
+    """Create the 'analyze' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    :param queryformat:          The queryformat
+    :param dict filesargs:       Dict for FILE argument
+
+    """
+    panalyze = subparsers.add_parser('analyze',
+                        aliases=['a'],
+                        help='Analyzes the given XML files.'
+                    )
+    panalyze.add_argument('-qf', '--queryformat', **queryformat)
+    panalyze.add_argument('-f', '--filter', **filters)
+    panalyze.add_argument('-s', '--sort', **sort)
+    panalyze.add_argument("files", **filesargs)
 
 def rewrite_alias(args):
     """Rewrite aliases
@@ -190,7 +206,9 @@ def rewrite_alias(args):
                 "d":       "delete",
                 "del":     "delete",
                 "s":       "set",
-                "set":     "set"
+                "set":     "set",
+                "a":       "analyze",
+                "analyze": "analyze"
                }
     args.action = actions.get(args.action)
 
@@ -229,7 +247,6 @@ def fix_properties(args):
         args.properties.extend(populate_properties(args))
         args.properties.extend(populate_bugtracker_properties(args))
 
-
 def parsecli(cliargs=None):
     """Parse command line arguments
 
@@ -253,7 +270,16 @@ def parsecli(cliargs=None):
                        default=False,
                        help='Stop if an (XML) error is found '
                             'in a XML file (default: %(default)s)'
-               )
+                )
+    queryformat = dict(action='store',
+                       help='The output query format. For more information, have a look into the manual page.'
+                )
+    sort = dict(action='store',
+                       help='Sorts the output by XML properties.'
+                )
+    filters = dict(action='append',
+                       help='Filters the analyzed data. For more information, have a look into the manual page.'
+                )
     mainproperties = (
         ('-M', '--maintainer'),  ('-S', '--status'),
         ('-D', '--deadline'),    ('-P', '--priority'),
@@ -290,6 +316,7 @@ def parsecli(cliargs=None):
     get_subcmd(subparsers, propargs, filesargs)
     set_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
+    analyze_subcmd(subparsers, queryformat, filters, sort, filesargs)
 
     ## -----
     args = parser.parse_args(args=cliargs)
@@ -306,7 +333,7 @@ def parsecli(cliargs=None):
         parser.print_help()
         sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
 
-    if args.action == "init":
+    if args.action == "init" or args.action == "analyze":
         args.properties = []
 
     # Clean file list

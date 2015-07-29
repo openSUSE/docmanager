@@ -17,13 +17,14 @@
 # you may find current contact information at www.suse.com
 
 import sys
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+from docmanager.analyzer import Analyzer
 from docmanager.config import Config
-from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList
+from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList, NS
+from docmanager.exceptions import DMInvalidXMLHandlerObject
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green
 from docmanager.xmlhandler import XmlHandler
-
 
 class Actions(object):
     """An Actions instance represents an action event
@@ -261,6 +262,52 @@ class Actions(object):
         for f in self.__files:
             log.debug("[%s] Trying to save the changes.", f)
             handlers[f].write()
+
+    def analyze(self, arguments):
+        handlers = dict()
+
+        qformat = self.args.queryformat
+
+        if qformat is None:
+            qformat = "-- default query format --"
+
+        file_data = list()
+        NT_FileData = namedtuple("FileData", "file,out_formatted,data")
+
+        for f in self.__files:
+            handlers[f] = XmlHandler(f)
+
+            try:
+                analyzer = Analyzer(handlers[f])
+            except DMInvalidXMLHandlerObject:
+                log.critical("XML Handler object is None.")
+
+            out = qformat[:]
+            out = analyzer.replace_constants(out)
+            fields = analyzer.extract_fields(out)
+            data = analyzer.fetch_data(self.__args.filter, self.__args.sort)
+
+            if not self.__args.sort and data:
+                print(analyzer.format_output(out, data))
+            else:
+                file_data.append(NT_FileData(file=f, out_formatted=out, data=data))
+
+        if self.__args.sort:
+            values = None
+
+            if self.__args.sort == 'filename':
+                values = sorted(file_data, key=lambda x: x.file)
+            else:
+                try:
+                    values = sorted(file_data, key=lambda x: int(x.data[self.__args.sort]) \
+                        if x.data[self.__args.sort].isnumeric() \
+                        else \
+                        x.data[self.__args.sort])
+                except KeyError:
+                    log.error("Could not find key '{}' in -qf for sort.")
+            
+            for i in values:
+                print(analyzer.format_output(i.out_formatted, i.data))
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

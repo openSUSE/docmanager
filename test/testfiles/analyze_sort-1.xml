@@ -1,0 +1,15 @@
+<article version="5.0" xml:lang="en"
+        xmlns:dm="urn:x-suse:ns:docmanager"
+        xmlns="http://docbook.org/ns/docbook"
+        xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Example</title>
+  <info>
+    <dm:docmanager>
+      <dm:maintainer>b</dm:maintainer>
+      <dm:status>a</dm:status>
+      <dm:priority>1</dm:priority>
+      <dm:abc>A</dm:abc>
+    </dm:docmanager>
+  </info>
+  <para>Bla</para>
+</article>

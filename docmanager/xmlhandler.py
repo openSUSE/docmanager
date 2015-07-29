@@ -484,3 +484,7 @@ class XmlHandler(object):
     @root.deleter
     def root(self):
         raise ValueError("root cannot be deleted")
+
+    @property
+    def dm(self):
+        return self.__docmanager
