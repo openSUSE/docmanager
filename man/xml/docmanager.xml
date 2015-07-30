@@ -56,12 +56,12 @@
  </refsynopsisdiv>
  <refsect1 id="docmanager.description">
   <title>Description</title>
-  <para>
-   &progname; is a tool to manage meta-information within DocBook5 documents. It
-   is possible to add new information as well as editing and deleting. The main advantage
-   of this tool is the analyze feature. This feature creates a table with all wanted
-   information. You can restrict the information with a lightweight SQL syntax.
-  </para>
+  <para> &progname; is a tool to manage meta-information within DocBook5
+      documents. It is possible to add new information as well as
+      editing and deleting. The main advantage of this tool is the
+      analyze feature. This feature creates a table with all wanted
+      information. You can restrict the information with specific
+      options. </para>
   <para>
    Here is an example of what an XML file can look like after being edited with &progname;:
   </para>
@@ -73,8 +73,8 @@
 &lt;/info></screen>
   <para>
    In this example, we used these commands:
-   <screen>$ &progcmd; set -p test1=value1 example.xml</screen>
-   <screen>$ &progcmd; set -p test2=value2 example.xml</screen>
+   <screen>$ <command>&progcmd;</command> set -p test1=value1 example.xml</screen>
+   <screen>$ <command>&progcmd;</command> set -p test2=value2 example.xml</screen>
   </para>
  </refsect1>
  <refsect1 id="docmanager.optionaloptions">
@@ -108,6 +108,9 @@
  </refsect1>
  <refsect1 id="docmanager.commands">
   <title>Commands</title>
+
+  <!-- init command -->
+  
   <refsect2>
    <title><command>init</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Initializes an XML document with all relevant properties. Property is the name of an XML tag.</para>
@@ -250,6 +253,9 @@
     </varlistentry>
    </variablelist>
   </refsect2>
+
+  <!-- set command -->
+  
   <refsect2>
    <title><command>set</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Setting one or more properties.</para>
@@ -261,13 +267,11 @@
       <para>
         It's possible to use sub properties. For example: "-p property1/property2/property3=value" would result in:
       </para>
-      <screen>
-       &lt;dm:property1>
-          &lt;dm:property2>
-            &lt;dm:property3>value&lt;/dm:property3>
-          &lt;/dm:property2>
-        &lt;/dm:property1>
-      </screen>
+      <screen>&lt;dm:property1>
+ &lt;dm:property2>
+  &lt;dm:property3>value&lt;/dm:property3>
+ &lt;/dm:property2>
+&lt;/dm:property1></screen>
      </listitem>
     </varlistentry>
     <varlistentry>
@@ -395,6 +399,9 @@
     </varlistentry>
    </variablelist>
   </refsect2>
+
+  <!-- get command -->
+  
   <refsect2>
    <title><command>get</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
    <para>Getting one or more property values.</para>
@@ -407,13 +414,11 @@
         It is possible to access sub properties with a / between each property. For example: "property1/property2/property3"
         would try to access the value "foo" in the following schema:
       </para>
-      <screen>
-       &lt;dm:property1>
-          &lt;dm:property2>
-            &lt;dm:property3>foo&lt;/dm:property3>
-          &lt;/dm:property2>
-        &lt;/dm:property1>
-      </screen>
+      <screen>&lt;dm:property1>
+ &lt;dm:property2>
+  &lt;dm:property3>foo&lt;/dm:property3>
+ &lt;/dm:property2>
+&lt;/dm:property1></screen>
      </listitem>
     </varlistentry>
     <varlistentry>
@@ -439,7 +444,75 @@
     </varlistentry>
    </variablelist>
   </refsect2>
+
+  <!-- analyze command -->
+
+  <refsect2>
+   <title><command>analyze</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <para>Analyzes one or more DocBook 5 files.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>--queryformat/-qf</option> <replaceable>QUERY_FORMAT_STRING</replaceable></term>
+     <listitem>
+      <para>
+        The query format string is used for the output of each analyzed file.
+      </para>
+      <screen>$ <command>&progcmd;</command> analyze -qf "Hi {maintainer}" example1.xml example2.xml</screen>
+      <para>
+        {maintainer} is a placeholder for the &lt;maintainer&gt; property. The example above prints two outputs: The first
+        is for example1.xml and the second for example2.xml. If in example1.xml the &lt;maintainer&gt; property is set to mschnitzer and
+        in example2.xml &lt;maintainer&gt; is set (for example) to toms, the output would be:
+      </para>
+      <screen>Hi mschnitzer
+Hi toms</screen>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--filter/-f</option> <replaceable>FILTER</replaceable></term>
+     <listitem>
+      <para>The filter option allows you to reduce your data to specific
+              properties. For example:</para>
+      <screen>+maintainer=mschnitzer
+-maintainer=toms
+maintainer=mschnitzer</screen>
+      <para>
+       You might wonder why we don't used an operator in example three. If no or an invalid operator is set, &progname; will use
+       by default the + operator.
+      </para>
+      <para>
+       Operator definitions:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term>+</term>
+        <listitem>
+         <para>The property must have that content.</para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>-</term>
+        <listitem>
+         <para>The property must not have that content.</para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--sort/-s</option> <replaceable>PROPERTY</replaceable></term>
+     <listitem>
+      <para>
+        Sorts the output of your analyzed data by a property. You can also specifiy <option>filename</option> as sort
+        method. The output will be then sorted by the name of your files.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>
  </refsect1>
+
+ <!-- Exit Codes -->
+
  <refsect1 id="docmanager.exitcodes">
   <title>Exit Codes</title>
   <variablelist>
@@ -534,8 +607,18 @@
      </para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term>14</term>
+    <listitem>
+     <para>
+      Invalid syntax in at least one analyze filter. A filter has the following syntax: [OPERATOR][PROPERTY]=[CONDITION] - Read the
+      help text for the <option>--filter/-f</option> option for more information about filters.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
+
  <refsect1 id="docmanager.examples">
   <title>Examples</title>
   <variablelist>
