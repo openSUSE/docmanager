@@ -16,19 +16,7 @@ install:
 
 # command to run tests
 script:
-    - coverage run setup.py test
-    - python3 setup.py install
-    
-    # test with real SUSE documentation
-    - git remote add upstream git://github.com/openSUSE/docmanager.git
-    - git fetch upstream test-data
-    - git checkout test-data
-    - cd doc-sle
-    - docmanager init *
-    - cd ../doc-sleha
-    - docmanager init *
-    - cd ../doc-cloud
-    - docmanager init *
+    - ./.travis-script.sh
 
 after_success:
     codecov
