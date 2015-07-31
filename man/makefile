@@ -10,8 +10,8 @@ OUTFILE := docmanager.1
 .PHONY: all clean
 
 all: clean $(BUILDDIR)
-	xmllint --noout --valid xml/$(XMLFILE)
-	xsltproc --nonet $(DB)/manpages/docbook.xsl xml/$(XMLFILE)
+	xmllint --noout --xinclude --postvalid xml/$(XMLFILE)
+	xsltproc --xinclude --nonet $(DB)/manpages/docbook.xsl xml/$(XMLFILE)
 	mv $(OUTFILE) $(BUILDDIR)
 
 clean:

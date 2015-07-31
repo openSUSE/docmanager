@@ -4,10 +4,10 @@
 [![Code Health](https://landscape.io/github/openSUSE/docmanager/develop/landscape.svg?style=flat)](https://landscape.io/github/openSUSE/docmanager/develop)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/openSUSE/docmanager/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/openSUSE/docmanager/?branch=develop)
 
-DocManager is a tool for managing meta information within DocBook 5 documents.
-You can add, delete, edit, and analyze meta information. The meta information
-tracks several information about the file itself and for example who is responsible
-for the input.
+DocManager is a tool to manage meta-information within DocBook 5
+documents. You can add, delete, edit, and query meta information.
+Each meta-information is stored in the `info` element in the
+DocManager namespace.
 
 ### Repositories
   1. Stable Repository: https://build.opensuse.org/package/show/Documentation:Tools/docmanager

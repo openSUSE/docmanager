@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect2 PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+
+  <refsect2>
+   <title><command>analyze</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <para>Analyzes one or more DocBook 5 files.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>--queryformat/-qf</option> <replaceable>QUERY_FORMAT_STRING</replaceable></term>
+     <listitem>
+      <para>
+        The query format string is used for the output of each analyzed file.
+      </para>
+      <screen>$ <command>&progcmd;</command> analyze -qf "Hi {maintainer}" example1.xml example2.xml</screen>
+      <para>
+        {maintainer} is a placeholder for the &lt;maintainer&gt; property. The example above prints two outputs: The first
+        is for example1.xml and the second for example2.xml. If in example1.xml the &lt;maintainer&gt; property is set to mschnitzer and
+        in example2.xml &lt;maintainer&gt; is set (for example) to toms, the output would be:
+      </para>
+      <screen>Hi mschnitzer
+Hi toms</screen>
+      <para>
+        There are also pre defined placeholders:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term>{os.file}</term>
+        <listitem>
+         <para>Will be replaced with the current file name.</para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--filter/-f</option> <replaceable>FILTER</replaceable></term>
+     <listitem>
+      <para>The filter option allows you to reduce your data to specific
+              properties. For example:</para>
+      <screen>+maintainer=mschnitzer
+-maintainer=toms
+maintainer=mschnitzer</screen>
+      <para>
+       You might wonder why we don't used an operator in example three. If no or an invalid operator is set, &progname; will use
+       by default the + operator.
+      </para>
+      <para>
+       Operator definitions:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term>+</term>
+        <listitem>
+         <para>The property must have that content.</para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>-</term>
+        <listitem>
+         <para>The property must not have that content.</para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--sort/-s</option> <replaceable>PROPERTY</replaceable></term>
+     <listitem>
+      <para>
+        Sorts the output of your analyzed data by a property. You can also specifiy <option>filename</option> as sort
+        method. The output will be then sorted by the name of your files.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>

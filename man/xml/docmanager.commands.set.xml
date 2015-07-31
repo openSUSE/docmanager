@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect2 PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+
+  <refsect2>
+   <title><command>set</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <para>Setting one or more properties.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>-p</option> <replaceable>PROPERTY=VALUE</replaceable></term>
+     <listitem>
+      <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;dm:property&gt;value&lt;/dm:property&gt;</para>
+      <para>
+        It's possible to use sub properties. For example: "-p property1/property2/property3=value" would result in:
+      </para>
+      <screen>&lt;dm:property1>
+ &lt;dm:property2>
+  &lt;dm:property3>value&lt;/dm:property3>
+ &lt;/dm:property2>
+&lt;/dm:property1></screen>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--stop-on-error</option></term>
+     <listitem>
+      <para>
+       In case of errors in the XML files, this option exits the script without writing any changes. If not specified, files causing errors will
+       be reported and otherwise be ignored.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable></term>
+     <listitem>
+      <para>
+       Set the maintainer for the given XML files. Note: If you use <option>-p</option> maintainer=FOO, <option>--maintainer</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable></term>
+     <listitem>
+      <para>
+       Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--deadline</option> <replaceable>YYYY-MM-DD</replaceable></term>
+     <listitem>
+      <para>
+       Set the deadline for the given XML files. Note: If you use <option>-p</option> deadline=FOO, <option>--deadline</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--priority</option> <replaceable>1-10</replaceable></term>
+     <listitem>
+      <para>
+       Set the priority for the given XML files. Note: If you use <option>-p</option> priority=FOO, <option>--priority</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--translation</option> <replaceable>[yes|no]</replaceable></term>
+     <listitem>
+      <para>
+       Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
+       than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--languages</option> <replaceable>LANGUAGE_CODE</replaceable></term>
+     <listitem>
+      <para>
+       Set the languages for the given XML files. You can get a list of language codes if you call <command>&progcmd; </command> <option>--langlist</option>
+       Note: If you use <option>-p</option> languages=FOO, <option>--languages</option> has a higher priority than
+       <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--release</option> <replaceable>RELEASE</replaceable></term>
+     <listitem>
+      <para>
+       Set the release type (Example: SUSE Linux Enterprise Server 12) for the given XML files. Note: If you use <option>-p</option> release=FOO, <option>--release</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--repository</option> <replaceable>URL</replaceable></term>
+     <listitem>
+      <para>
+       Set the repository URL (maybe a GitHub URL?) for this document. Note: If you use <option>-p</option> repository=FOO, <option>--repository</option> has a higher priority than <option>-p</option>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-url</option>  <replaceable>URL</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker URL. (Works for Bugzilla and GitHub)
+      </para>
+      <para>
+          For Bugzilla, for example: https://bugzilla.suse.com/enter_bug.cgi
+      </para>
+      <para>
+          For GitHub, for example: https://github.com/openSUSE/suse-xsl/issues/new (Please let the URL point to the "new issue" site
+          of your documentation repository - otherwise, it will not work)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-component</option> <replaceable>COMPONENT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker component. Example: Documentation (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-product</option> <replaceable>PRODUCT</replaceable></term>
+     <listitem>
+      <para>
+       Sets the bugtracker product. Example: SUSE Cloud 4 (Only available for Bugzilla)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-assignee</option> <replaceable>ASSIGNEE</replaceable></term>
+     <listitem>
+      <para>
+       Sets the assignee either for GitHub or Bugzilla. Example: the login name of the user like "mschnitzer"
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--bugtracker-version</option> <replaceable>VERSION</replaceable></term>
+     <listitem>
+      <para>
+       Sets the version of the product release. Example: Beta 3 (The version is the milestone on GitHub)
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>

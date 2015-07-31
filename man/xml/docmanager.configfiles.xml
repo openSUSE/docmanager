@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://docbook.org/xml/4.5/docbookx.dtd"[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+<refsect1 id="docmanager.configfiles">
+  <title>Configuration Files</title>
+  <para>The following configuration files are searched (in this order,
+    from lowest to highest): </para>
+  <variablelist>
+    <varlistentry>
+      <term><filename>/etc/docmanager/docmanager.conf</filename></term>
+      <listitem>
+        <para>System-wide configuration file</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><filename><envar>$XDG_CONFIG_HOME</envar>/docmanager/docmanager.conf</filename></term>
+      <listitem>
+        <para>User-specific configuration file. If
+          <envar>$XDG_CONFIG_HOME</envar> is not set or empty,
+          <filename>$HOME/.config/docmanager/docmanager.conf</filename> will be used.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><filename><varname>$REPO_DIR</varname>/.git/docmanager.conf</filename></term>
+      <listitem>
+        <para>Repository-specific configuration file.</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>If no <option>--config</option> option was given, &progname; will
+    read  all of these files that are available in the listed order above.
+    Files which are not available will be ignored.
+  </para>
+  <para> The files are read in the order given above, with last value
+    found taking precedence over values read earlier.</para>
+
+  <refsect2 id="docmanager.configfiles.syntax">
+    <title>Syntax</title>
+    <para>The &progname; configuration file uses the INI format, for example:</para>
+    <screen>[general]
+# General options, used for all subcommands
+foo=bar</screen>
+    <para>The <literal>general</literal> section contains an entry with the
+    name <varname>foo</varname> and its value <literal>bar</literal>.</para>
+  </refsect2>
+
+  <refsect2 id="docmanager.configfiles.sec_a_var">
+    <title>Section and Variable Names</title>
+    <para>Note that this list is non-comprehensive and not necessarily
+      complete. The following sections can be set:</para>
+    <variablelist>
+      <varlistentry>
+        <term><varname>general</varname></term>
+        <listitem>
+          <para>Currently not used.</para>
+        </listitem>
+      </varlistentry>
+      <!--  -->
+      <varlistentry>
+        <term><varname>analyze</varname></term>
+        <listitem>
+          <para>Controls several options for the analzye feature and contains
+            the following variables:</para>
+          <variablelist>
+            <varlistentry>
+              <term><varname>queryformat</varname></term>
+              <listitem>
+                <para>Defines the standard query format when the user didn't
+                  use one with <option>-qf</option>.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
+      </varlistentry>
+      <!--  -->
+      <varlistentry>
+        <term><varname>alias</varname></term>
+        <listitem>
+          <para>Aliases (shortcuts) for several commands. <emphasis
+            role="strong">This is currently work in progress!</emphasis>
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect2>
+
+</refsect1>

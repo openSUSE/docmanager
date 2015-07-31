@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE variablelist PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+
+  <variablelist>
+   <varlistentry>
+    <term><command>&progcmd;</command> set -p hello=world example.xml</term>
+    <listitem>
+     <para>Set the information value "world" in the property "hello".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> set --maintainer mschnitzer example.xml</term>
+    <listitem>
+     <para>Set the maintainer element in the example.xml file to "mschnitzer".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml</term>
+    <listitem>
+     <para>Reads the value of the property "hello". If you followed the first example, the output would be "hello=world".</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format json</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output format is JSON.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> get -p hello example.xml --format table</term>
+    <listitem>
+     <para>Reads the value of the property "hello". The output will be shown as table.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> del -p hello example.xml</term>
+    <listitem>
+     <para>Deletes the "hello" in example.xml.</para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><command>&progcmd;</command> -vv set --maintainer mschnitzer example.xml</term>
+    <listitem>
+     <para>Increase the "verbosity level" for the "set" command. You can increase the "verbosity level" if you add more "v" behind the dash.</para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
