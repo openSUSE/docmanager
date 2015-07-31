@@ -153,7 +153,7 @@ class Analyzer(object):
         self.fields = fields
         return self.fields
 
-    def fetch_data(self, filter=None, sort=None):
+    def fetch_data(self, filter=None, sort=None, default_output=None):
         """Fetches the requested properties from self.extract_fields()
 
         :param list filter: The filter list from args.filter (can be None if we don't need the filter function)
@@ -190,8 +190,10 @@ class Analyzer(object):
                 data.setdefault(f, data.get(f, ""))
 
                 if data[f] is None:
-                    data[f] = ''
-
+                    if default_output is None:
+                        data[f] = ''
+                    else:
+                        data[f] = default_output
 
             if filter:
                 filters = dict()

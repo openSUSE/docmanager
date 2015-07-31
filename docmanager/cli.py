@@ -177,7 +177,7 @@ def del_subcmd(subparsers, propargs, filesargs):
     pdel.add_argument('-p', '--properties', **propargs)
     pdel.add_argument("files", **filesargs)
 
-def analyze_subcmd(subparsers, queryformat, filters, sort, filesargs):
+def analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs):
     """Create the 'analyze' subcommand
 
     :param subparsers:           Subparser for all subcommands
@@ -192,6 +192,7 @@ def analyze_subcmd(subparsers, queryformat, filters, sort, filesargs):
     panalyze.add_argument('-qf', '--queryformat', **queryformat)
     panalyze.add_argument('-f', '--filter', **filters)
     panalyze.add_argument('-s', '--sort', **sort)
+    panalyze.add_argument('-do', '--default-output', **sort)
     panalyze.add_argument("files", **filesargs)
 
 def rewrite_alias(args):
@@ -280,6 +281,9 @@ def parsecli(cliargs=None):
     filters = dict(action='append',
                        help='Filters the analyzed data. For more information, have a look into the manual page.'
                 )
+    default_output = dict(action='store',
+                       help='Sets the default output for properties which are not available in a file. By default, Docmanager prints nothing.'
+                )
     mainproperties = (
         ('-M', '--maintainer'),  ('-S', '--status'),
         ('-D', '--deadline'),    ('-P', '--priority'),
@@ -316,7 +320,7 @@ def parsecli(cliargs=None):
     get_subcmd(subparsers, propargs, filesargs)
     set_subcmd(subparsers, stop_on_error, propargs, mainproperties, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
-    analyze_subcmd(subparsers, queryformat, filters, sort, filesargs)
+    analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs)
 
     ## -----
     args = parser.parse_args(args=cliargs)

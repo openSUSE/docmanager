@@ -9,6 +9,8 @@
       <dm:status>wip</dm:status>
       <dm:priority>1</dm:priority>
       <dm:abc>A</dm:abc>
+      <dm:emptytest/>
+      <dm:emptytest2></dm:emptytest2>
     </dm:docmanager>
   </info>
   <para>Bla</para>

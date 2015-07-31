@@ -285,7 +285,7 @@ class Actions(object):
             out = qformat[:]
             out = analyzer.replace_constants(out)
             fields = analyzer.extract_fields(out)
-            data = analyzer.fetch_data(self.__args.filter, self.__args.sort)
+            data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
 
             if not self.__args.sort and data:
                 print(analyzer.format_output(out, data))
