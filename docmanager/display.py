@@ -38,7 +38,8 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     if len(data) == 1:
         if len(data[0][1]) == 1:
             for v in data[0][1]:
-                print(data[0][1][v])
+                if data[0][1][v] is not None:
+                    print(data[0][1][v])
                 return
 
     # if there are more than one file or one property
