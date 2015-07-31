@@ -1,7 +1,18 @@
-# include DESCRIPTION.rst
+graft docmanager/template
 
+# include DESCRIPTION.rst
 # Include the test suite (FIXME: does not work yet)
 # recursive-include tests *
 # If using Python 2.6 or less, then have to include package data, even though
 # it's already declared in setup.py
 # include sample/*.dat
+
+include ChangeLog
+include README*
+
+include .coverage*
+include .landscape.yml
+include .travis.yml
+include *requirements.txt
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib

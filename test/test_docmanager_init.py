@@ -30,7 +30,7 @@ def test_docmanager_init_0(tmp_valid_xml):
     ('languages', 'en,de'),
     ('release', 'SLES'),
     ('release', 'SUSE Linux Enterprise Server 12'),
-    ('repository', 'https://github.com/openSUSE/docmanager'),
+#    ('repository', 'https://github.com/openSUSE/docmanager'),
     ('bugtracker/url', 'https://github.com')
 ])
 def test_docmanager_init_1(tmp_valid_xml, option, value):

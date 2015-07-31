@@ -19,7 +19,6 @@
 import sys
 from collections import OrderedDict, namedtuple
 from docmanager.analyzer import Analyzer
-from docmanager.config import Config
 from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList, NS
 from docmanager.exceptions import DMInvalidXMLHandlerObject
 from docmanager.logmanager import log, logmgr_flog
@@ -39,7 +38,6 @@ class Actions(object):
 
         self.__files = args.files
         self.__args = args
-        self.configfile = Config()
 
         if hasattr(self.__args, 'stop_on_error'):
             self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]

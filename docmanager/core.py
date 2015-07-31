@@ -16,11 +16,17 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import os
+
 NS = {
         "d":"http://docbook.org/ns/docbook",
         "dm":"urn:x-suse:ns:docmanager"
 }
 
+# If you add new default properties:
+# * should start with a different character
+# * are used to create options
+#
 DefaultDocManagerProperties = (
         "maintainer",
         "status",
@@ -29,7 +35,7 @@ DefaultDocManagerProperties = (
         "translation",
         "languages",
         "release",
-        "repository"
+#         "repository" # ??
 )
 
 BugtrackerElementList = (
@@ -176,3 +182,10 @@ LANGUAGES = (
     # Z
     'zh_CN', 'zh', 'zh_HK', 'zh_SG', 'zh_TW', 'zu_ZA', 'zu'
     )
+
+# Extract value of XDG_CONFIG_HOME variable; if not set, fallback
+# to ~/.config
+CONFIG_NAME = 'docmanager/docmanager.conf'
+XDG_CONFIG_HOME = os.path.expanduser(os.environ.get('XDG_CONFIG_HOME',
+                                                    '~/.config/'))
+USER_CONFIG = os.path.join(XDG_CONFIG_HOME, CONFIG_NAME)

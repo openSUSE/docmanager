@@ -130,7 +130,7 @@ class XmlHandler(object):
                     log.info("No docmanager element found")
                     self.create_group()
                 else:
-                    log.info("Found docmanager element %s", self.__docmanager.getparent())
+                    log.debug("Found docmanager element %s", self.__docmanager.getparent())
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
