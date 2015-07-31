@@ -15,5 +15,6 @@ fi
 cd $SCRIPTDIR
 pyvenv env
 source env/bin/activate
-pip install -r requirements.txt
+pip install --upgrade pip setuptools
+pip install -r test_requirements.txt
 python3 setup.py install
