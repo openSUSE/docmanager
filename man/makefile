@@ -2,7 +2,8 @@
 # this make file builds the docmanager man page
 #
 
-DB := /usr/share/xml/docbook/stylesheet/nwalsh/current
+#DB := /usr/share/xml/docbook/stylesheet/nwalsh/current
+DB := http://docbook.sourceforge.net/release/xsl/current/
 BUILDDIR := build
 XMLFILE := docmanager.xml
 OUTFILE := docmanager.1
