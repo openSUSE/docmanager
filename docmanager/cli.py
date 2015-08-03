@@ -276,12 +276,23 @@ def parsecli(cliargs=None):
     """
 
     # parse just --config and --verbose
+    configfile = None
+
     confparser = argparse.ArgumentParser(add_help=False)
     confparser.add_argument('--config', dest='configfile', metavar='CONFIGFILE',
                             help='user config file location, uses also XDG_CONFIG_HOME '
                             'env variable if set')
     confparser.add_argument('-v', '--verbose', action='count', help="Increase verbosity level")
     args, remaining_argv = confparser.parse_known_args(cliargs)
+
+    configfile = args.configfile
+
+    # Read in the config files
+    if args.configfile is None:
+        config = docmanagerconfig()
+        create_userconfig()
+    else:
+        config = docmanagerconfig([args.configfile], include_etc=False)
 
     if remaining_argv:
         alias = remaining_argv[0]
@@ -364,6 +375,11 @@ def parsecli(cliargs=None):
     # -----
     args = parser.parse_args(args=cliargs)
 
+    if args.configfile is None:
+        args.configfile = configfile
+
+    args.config = config
+
     ##
     rewrite_alias(args)
 
@@ -384,13 +400,6 @@ def parsecli(cliargs=None):
 
     # Fix properties
     fix_properties(args)
-
-    # Read in the config files
-    if args.configfile is None:
-        args.config = docmanagerconfig()
-        create_userconfig()
-    else:
-        args.config = docmanagerconfig([args.configfile], include_etc=False)
 
     # check for input format
     input_format_check(args)
