@@ -35,41 +35,35 @@
    <varlistentry>
     <term>4</term>
     <listitem>
-     <para>An error occurred while running daps.</para>
+     <para>Invalid usage of key=value in --set</para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term>5</term>
     <listitem>
-     <para>Invalid usage of key=value in --set</para>
+     <para>(For development only): Method "..." is not implemented.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term>6</term>
     <listitem>
-     <para>(For development only): Method "..." is not implemented.</para>
+     <para>The info element could not be found in one of the given XML files.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term>7</term>
     <listitem>
-     <para>The info element could not be found in one of the given XML files.</para>
+     <para>&progname; was called without any arguments.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term>8</term>
     <listitem>
-     <para>&progname; was called without any arguments.</para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>9</term>
-    <listitem>
      <para>One of the given XML documents is not valid.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>10</term>
+    <term>9</term>
     <listitem>
      <para>
       The format for the given option of the <command>set</command> subcommand is not correct. (Wrong usage of <option>--status</option>
@@ -78,19 +72,19 @@
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>11</term>
+    <term>10</term>
     <listitem>
      <para>File permission error. (For example: Could not write into the given XML file)</para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>12</term>
+    <term>11</term>
     <listitem>
      <para>The given XML document is not a DocBook 5 document. The start tag has to be in the official DocBook 5 namespace.</para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>13</term>
+    <term>12</term>
     <listitem>
      <para>
       This error code appears only when the 'set' sub command and the if <option>--stop-on-error</option> were not used. If there are
@@ -100,7 +94,7 @@
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>14</term>
+    <term>13</term>
     <listitem>
      <para>
       Invalid syntax in at least one analyze filter. A filter has the following syntax: [OPERATOR][PROPERTY]=[CONDITION] - Read the
@@ -109,10 +103,26 @@
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>15</term>
+    <term>14</term>
     <listitem>
      <para>
       One property name in either --sort or --filter is not a valid XML property. (Syntax Error)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>15</term>
+    <listitem>
+     <para>
+      The syntax of the configuration property is wrong. (Example for a correct syntax: section.property)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>16</term>
+    <listitem>
+     <para>
+      No method was specified. Use either --system, --user, --repo, or --repo.
      </para>
     </listitem>
    </varlistentry>
