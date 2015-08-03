@@ -46,6 +46,19 @@ BugtrackerElementList = (
     "bugtracker/version"
 )
 
+DefaultSubCommands = {
+    "i":       "init",
+    "init":    "init",
+    "g":       "get",
+    "get":     "get",
+    "d":       "delete",
+    "del":     "delete",
+    "s":       "set",
+    "set":     "set",
+    "a":       "analyze",
+    "analyze": "analyze"
+}
+
 STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment', 'ready')
 
 class ReturnCodes(object):

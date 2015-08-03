@@ -19,13 +19,17 @@
 import argparse
 import logging
 import re
+import shlex
 import sys
+import os
 import os.path
 import urllib.request
+from configparser import NoOptionError, NoSectionError
 from docmanager import __version__
 from docmanager.config import docmanagerconfig, create_userconfig
 from docmanager.core import ReturnCodes, LANGUAGES, STATUSFLAGS, \
-    DefaultDocManagerProperties, BugtrackerElementList
+    DefaultDocManagerProperties, BugtrackerElementList, DefaultSubCommands
+from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log, logmgr_flog
 
 
@@ -210,17 +214,7 @@ def rewrite_alias(args):
 
     :param argparse.Namespace args: Parsed arguments
     """
-    actions = { "i":       "init",
-                "init":    "init",
-                "g":       "get",
-                "get":     "get",
-                "d":       "delete",
-                "del":     "delete",
-                "s":       "set",
-                "set":     "set",
-                "a":       "analyze",
-                "analyze": "analyze"
-               }
+    actions = DefaultSubCommands
     args.action = actions.get(args.action)
 
 
@@ -258,6 +252,21 @@ def fix_properties(args):
         args.properties.extend(populate_properties(args))
         args.properties.extend(populate_bugtracker_properties(args))
 
+def is_alias(subcmd):
+    """Check if subcmd is an alias
+    :rtype: bool
+    """
+    return subcmd not in DefaultSubCommands
+
+def parse_alias_value(value):
+    """Parse pre defined constants
+
+    :param str value: alias
+    :return: parsed alias
+    :rtype: str
+    """
+    return value.replace("{USER}", os.environ['USER'])
+
 def parsecli(cliargs=None):
     """Parse command line arguments
 
@@ -266,6 +275,31 @@ def parsecli(cliargs=None):
     :rtype: argparse.Namespace
     """
 
+    # parse just --config and --verbose
+    confparser = argparse.ArgumentParser(add_help=False)
+    confparser.add_argument('--config', dest='configfile', metavar='CONFIGFILE',
+                            help='user config file location, uses also XDG_CONFIG_HOME '
+                            'env variable if set')
+    confparser.add_argument('-v', '--verbose', action='count', help="Increase verbosity level")
+    args, remaining_argv = confparser.parse_known_args(cliargs)
+
+    if remaining_argv:
+        alias = remaining_argv[0]
+
+        loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+        log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
+
+        # parse aliases
+        if is_alias(alias):
+            try:
+                c = docmanagerconfig(args.configfile)
+                value = parse_alias_value(c.get("alias", alias))
+                cliargs = shlex.split(value)
+
+            except (DMConfigFileNotFound, NoSectionError, NoOptionError):
+                pass
+
+    # parse cli parameters
     filesargs = dict(nargs='+',
                      metavar="FILE",
                      help='One or more DocBook XML or DC files.'
@@ -301,6 +335,7 @@ def parsecli(cliargs=None):
 
     parser = argparse.ArgumentParser(
         prog="docmanager",
+        parents=[confparser],
         # usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]\n",
         description="Docmanager sets, gets, delets, or queries "
                     "meta-information for DocBook5 XML files.")
@@ -308,20 +343,8 @@ def parsecli(cliargs=None):
                         action='version',
                         version='%(prog)s ' + __version__
                         )
-    parser.add_argument('-v', '--verbose',
-                        action='count',
-                        help="Increase verbosity level"
-                        )
     parser.add_argument('--langlist',
                         action='store_true'
-                        )
-    parser.add_argument('--config',
-                        dest='configfile',
-                        # default=USER_CONFIG,
-                        metavar='CONFIGFILE',
-                        help='user config file location, '
-                             'uses also XDG_CONFIG_HOME env variable if set '
-                             # '(default: %(default)s)'
                         )
 
     # Create a subparser for all of our subcommands,
@@ -361,17 +384,6 @@ def parsecli(cliargs=None):
 
     # Fix properties
     fix_properties(args)
-
-
-    # args.arguments = args.properties
-    loglevel = {
-        None: logging.NOTSET,
-        1: logging.INFO,
-        2: logging.DEBUG
-    }
-
-    log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
-    log.info("CLI Parser results: %s", args)
 
     # Read in the config files
     if args.configfile is None:

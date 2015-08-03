@@ -21,3 +21,6 @@ class DMInvalidXMLHandlerObject(Exception):
 
 class DMAnalyzeInvalidFilterSyntax(Exception):
 	pass
+
+class DMConfigFileNotFound(Exception):
+	pass

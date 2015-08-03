@@ -16,13 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from configparser import ConfigParser
-from docmanager.core import USER_CONFIG, CONFIG_NAME
-from docmanager.logmanager import log
 import os
 import shlex
 import subprocess
 import sys
+from configparser import ConfigParser
+from docmanager.core import USER_CONFIG, CONFIG_NAME
+from docmanager.exceptions import DMConfigFileNotFound
+from docmanager.logmanager import log
 
 
 def docmanagerconfig(cfgfiles=None, include_etc=True):
@@ -88,6 +89,10 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
 
     config = ConfigParser()
     x = config.read(configfiles)
+
+    if not x:
+        raise DMConfigFileNotFound(x)
+
     log.debug("All configfiles %s", configfiles)
     log.debug("Used config file: %s", x)
 
