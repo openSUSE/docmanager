@@ -287,6 +287,10 @@ def parsecli(cliargs=None):
 
     configfile = args.configfile
 
+    # set log level
+    loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+    log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
+
     # Read in the config files
     if args.configfile is None:
         config = docmanagerconfig()
@@ -296,9 +300,6 @@ def parsecli(cliargs=None):
 
     if remaining_argv:
         alias = remaining_argv[0]
-
-        loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
-        log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
 
         # parse aliases
         if is_alias(alias):
