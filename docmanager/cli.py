@@ -209,6 +209,22 @@ def analyze_subcmd(subparsers, queryformat, filters, sort, default_output, files
     panalyze.add_argument('-do', '--default-output', **sort)
     panalyze.add_argument("files", **filesargs)
 
+def config_subcmd(subparsers):
+    """Create the 'config' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    """
+
+    pconfig = subparsers.add_parser('config', aliases=['c'], help='Modify tool for config files.')
+    pconfig.add_argument('-s', '--system', action='store_true', help='Uses the system config file.')
+    pconfig.add_argument('-u', '--user', action='store_true', help='Uses the user config file.')
+    pconfig.add_argument('-r', '--repo', action='store_true', help='Uses the repository config file of the current repository.'
+                                                                   ' (The user has to be in a git repository!)')
+    pconfig.add_argument('-o', '--own', action='store', help='Uses a specified config file.')
+    pconfig.add_argument('property', metavar='PROPERTY', help='Property (Syntax: secion.property)')
+    pconfig.add_argument('value', metavar='VALUE', nargs='?', help='Value of the property.')
+
+
 def rewrite_alias(args):
     """Rewrite aliases
 
@@ -340,7 +356,7 @@ def parsecli(cliargs=None):
                        help='Filters the analyzed data. For more information, have a look into the manual page.'
                 )
     default_output = dict(action='store',
-                       help='Sets the default output for properties which are not available in a file. By default, Docmanager prints nothing.'
+                       help='Sets the default output for properties which are not available in a file. By default, DocManager prints nothing.'
                 )
     mainprops = tuple(("-{}".format(i.upper()[0]), "--{}".format(i))
                       for i in DefaultDocManagerProperties)
@@ -349,7 +365,7 @@ def parsecli(cliargs=None):
         prog="docmanager",
         parents=[confparser],
         # usage="%(prog)s COMMAND [OPTIONS] FILE [FILE ...]\n",
-        description="Docmanager sets, gets, delets, or queries "
+        description="Docmanager sets, gets, deletes, or queries "
                     "meta-information for DocBook5 XML files.")
     parser.add_argument('--version',
                         action='version',
@@ -372,6 +388,7 @@ def parsecli(cliargs=None):
     set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
     analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs)
+    config_subcmd(subparsers)
 
     # -----
     args = parser.parse_args(args=cliargs)
@@ -393,11 +410,14 @@ def parsecli(cliargs=None):
         parser.print_help()
         sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
 
-    if args.action == "init" or args.action == "analyze":
+    if args.action == "init" or args.action == "analyze" or args.action == "config":
         args.properties = []
 
     # Clean file list
-    clean_filelist(args)
+    if hasattr(args, 'files'):
+        clean_filelist(args)
+    else:
+        args.files = None
 
     # Fix properties
     fix_properties(args)

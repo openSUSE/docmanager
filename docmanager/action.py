@@ -16,9 +16,12 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import os.path
 import sys
 from collections import OrderedDict, namedtuple
+from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
+from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList, NS
 from docmanager.exceptions import DMInvalidXMLHandlerObject
 from docmanager.logmanager import log, logmgr_flog
@@ -39,13 +42,11 @@ class Actions(object):
         self.__files = args.files
         self.__args = args
 
-        if hasattr(self.__args, 'stop_on_error'):
-            self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
-        else:
-            self.__xml = [ XmlHandler(x) for x in self.__files ]
-#        self.__xml = [ XmlHandler(x, self.__args.stop_on_error) \
-#                       for x in self.__files ]
-
+        if self.__files:
+            if hasattr(self.__args, 'stop_on_error'):
+                self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
+            else:
+                self.__xml = [ XmlHandler(x) for x in self.__files ]
 
     def parse(self):
         logmgr_flog()
@@ -306,6 +307,70 @@ class Actions(object):
             
             for i in values:
                 print(analyzer.format_output(i.out_formatted, i.data))
+
+    def config(self, values):
+        if not self.__args.system and not self.__args.user and not self.__args.repo and not self.__args.own:
+            log.error("No config file specified. Please choice between either '--system', '--user', '--repo', or '--own'.")
+            sys.exit(ReturnCodes().E_CONFIGCMD_NO_METHOD_SPECIFIED)
+
+        prop = self.__args.property
+        value = self.__args.value
+
+        # search for the section, the property and the value
+        pos = prop.find(".")
+        if pos == -1:
+            log.error("Invalid property syntax. Use: section.property")
+            sys.exit(ReturnCodes().E_INVALID_CONFIG_PROPERTY_SYNTAX)
+
+        section = prop[:pos]
+        prop = prop[pos+1:]
+
+        confname = None
+
+        # determine config file
+        if self.__args.system:
+            confname = GLOBAL_CONFIG[0]
+        elif self.__args.user:
+            confname = USER_CONFIG
+        elif self.__args.repo:
+            confname = GIT_CONFIG
+        elif self.__args.own:
+            confname = self.__args.own
+
+        # open the config file with the ConfigParser
+        c = ConfigParser()
+        if c.read(confname) is []:
+            if os.path.exists(confname):
+                log.error("Permission denied for file '{}'! Maybe you need sudo rights?".format(confname))
+                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+
+        # handle the 'get' method
+        if value is None:
+            if c.has_section(section):
+                try:
+                    print(c.get(section, prop))
+                except NoOptionError:
+                    pass
+
+            sys.exit(ReturnCodes().E_OK)
+
+        # add the section if its not available
+        if not c.has_section(section):
+            c.add_section(section)
+
+        # set the property
+        c.set(section, prop, value)
+
+        # save the changes
+        try:
+            if not os.path.exists(confname):
+                c.write(open(confname, 'x'))
+            else:
+                c.write(open(confname, 'w'))
+        except PermissionError:
+            log.error("Permission denied for file '{}'! Maybe you need sudo rights?".format(confname))
+            sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

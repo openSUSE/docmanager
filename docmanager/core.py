@@ -56,7 +56,9 @@ DefaultSubCommands = {
     "s":       "set",
     "set":     "set",
     "a":       "analyze",
-    "analyze": "analyze"
+    "analyze": "analyze",
+    "c":       "config",
+    "config":  "config"
 }
 
 STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment', 'ready')
@@ -78,6 +80,8 @@ class ReturnCodes(object):
     E_SOME_FILES_WERE_INVALID = 13
     E_ANALYZE_FILTER_INVALID_SYNTAX = 14
     E_INVALID_XML_PROPERTIES = 15
+    E_INVALID_CONFIG_PROPERTY_SYNTAX = 16
+    E_CONFIGCMD_NO_METHOD_SPECIFIED = 17
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
@@ -195,10 +199,3 @@ LANGUAGES = (
     # Z
     'zh_CN', 'zh', 'zh_HK', 'zh_SG', 'zh_TW', 'zu_ZA', 'zu'
     )
-
-# Extract value of XDG_CONFIG_HOME variable; if not set, fallback
-# to ~/.config
-CONFIG_NAME = 'docmanager/docmanager.conf'
-XDG_CONFIG_HOME = os.path.expanduser(os.environ.get('XDG_CONFIG_HOME',
-                                                    '~/.config/'))
-USER_CONFIG = os.path.join(XDG_CONFIG_HOME, CONFIG_NAME)

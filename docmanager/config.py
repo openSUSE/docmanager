@@ -21,10 +21,33 @@ import shlex
 import subprocess
 import sys
 from configparser import ConfigParser
-from docmanager.core import USER_CONFIG, CONFIG_NAME
 from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 
+def get_git_repo_config():
+  try:
+      cmd = shlex.split("git rev-parse --show-toplevel")
+      git = subprocess.Popen(cmd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+      gitrepo = git.communicate()
+      # Not a git repository?
+      if git.returncode != 128:
+          gitrepo = gitrepo[0].decode("utf-8").strip()
+          return os.path.join(gitrepo, '.git/docmanager.conf')
+
+  except FileNotFoundError:
+      # If we don't find the git command, we skip the local config file
+      # alltogether
+      pass
+
+  return None
+
+CONFIG_NAME = 'docmanager/docmanager.conf'
+GLOBAL_CONFIG = [os.path.join('/etc', CONFIG_NAME)]
+GIT_CONFIG = get_git_repo_config()
+XDG_CONFIG_HOME = os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config/'))
+USER_CONFIG = os.path.join(XDG_CONFIG_HOME, CONFIG_NAME)
 
 def docmanagerconfig(cfgfiles=None, include_etc=True):
     """Read DocManager configuration files. The following files are
@@ -50,7 +73,7 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
 
     """
     # Start with the global ones
-    configfiles = [os.path.join('/etc', CONFIG_NAME)]
+    configfiles = GLOBAL_CONFIG[:]
 
     if cfgfiles is None:
         # We need to assemble our configuration file list
@@ -59,21 +82,9 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
         configfiles.append(USER_CONFIG)
 
         # Append config when a .git repo is found
-        try:
-            cmd = shlex.split("git rev-parse --show-toplevel")
-            git = subprocess.Popen(cmd,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-            gitrepo = git.communicate()
-            # Not a git repository?
-            if git.returncode != 128:
-                gitrepo = gitrepo[0].decode("utf-8").strip()
-                configfiles.append(os.path.join(gitrepo,
-                                                '.git/docmanager.conf'))
-        except FileNotFoundError:
-            # If we don't find the git command, we skip the local config file
-            # alltogether
-            pass
+        gitcfg = get_git_repo_config()
+        if gitcfg:
+          configfiles.append(gitcfg)
     else:
         log.debug("Using own config file %s", cfgfiles)
         # In case the user passes its own config file list, use it:
