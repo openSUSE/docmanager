@@ -30,7 +30,7 @@ class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename, stopOnError=True):
+    def __init__(self, filename, stopOnError=False):
         """Initializes the XmlHandler class
 
         :param str filename: filename of XML file
@@ -116,7 +116,7 @@ class XmlHandler(object):
                 self.xmlLogErrorString = err
 
                 if self.stopOnError:
-                    log.error(self.xmlErrorString)
+                    log.error(err)
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
             if not self.invalidXML:
