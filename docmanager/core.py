@@ -58,7 +58,9 @@ DefaultSubCommands = {
     "a":       "analyze",
     "analyze": "analyze",
     "c":       "config",
-    "config":  "config"
+    "config":  "config",
+    "al":      "alias",
+    "alias":   "alias"
 }
 
 STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment',
@@ -83,6 +85,7 @@ class ReturnCodes(object):
     E_INVALID_CONFIG_PROPERTY_SYNTAX = 15
     E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
     E_USER_EXIT = 17
+    E_FILE_IS_DIRECTORY = 18
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

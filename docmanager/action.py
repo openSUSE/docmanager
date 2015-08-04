@@ -376,6 +376,60 @@ class Actions(object):
                       "Maybe you need sudo rights?".format(confname))
             sys.exit(ReturnCodes().E_PERMISSION_DENIED)
 
+    def alias(self, values):
+        action = self.__args.alias_action
+        alias = self.__args.alias
+        value = self.__args.command
+        m = { 0: None, 1: GLOBAL_CONFIG, 2: USER_CONFIG, 3: GIT_CONFIG }
+        config = m.get(self.__args.method, self.__args.own)[0]
+        save = False
+
+        if not value:
+            value = ""
+
+        # parse the config file
+        conf = ConfigParser()
+        if not conf.read(config):
+            if os.path.exists(config):
+                log.error("Permission denied for file '{}'! "
+                          "Maybe you need sudo rights?".format(config))
+                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+
+        # exit if the config file is a directory
+        if os.path.isdir(config):
+            log.error("File '{}' is a directory. Cannot write "
+                      "into directories!".format(config))
+            sys.exit(ReturnCodes().E_FILE_IS_DIRECTORY)
+
+        # add alias section if it's not found
+        if not conf.has_section("alias"):
+            conf.add_section("alias")
+
+        # handle actions
+        if action == "set":
+            conf.set("alias", alias, value)
+            save = True
+        elif action == "get":
+            try:
+                print(conf.get("alias", alias))
+            except NoOptionError:
+                pass
+        elif action == "del":
+            save = True
+            conf.remove_option("alias", alias)
+
+        # save the changes
+        if save:
+            try:
+                if not os.path.exists(config):
+                    log.error("The config file does not exists.")
+                    sys.exit(ReturnCodes().E_FILE_NOT_FOUND)
+                
+                conf.write(open(config, 'w'))
+            except PermissionError:
+                log.error("Permission denied for file '{}'! "
+                          "Maybe you need sudo rights?".format(config))
+                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

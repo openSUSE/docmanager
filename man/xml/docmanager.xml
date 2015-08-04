@@ -83,6 +83,7 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="docmanager.commands.del.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="docmanager.commands.analyze.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="docmanager.commands.config.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="docmanager.commands.alias.xml"/>
  </refsect1>
 
  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="docmanager.configfiles.xml"/>

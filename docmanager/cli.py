@@ -220,9 +220,26 @@ def config_subcmd(subparsers):
     pconfig.add_argument('-u', '--user', action='store_true', help='Uses the user config file.')
     pconfig.add_argument('-r', '--repo', action='store_true', help='Uses the repository config file of the current repository.'
                                                                    ' (The user has to be in a git repository!)')
-    pconfig.add_argument('-o', '--own', action='store', help='Uses a specified config file.')
+    pconfig.add_argument('-o', '--own', metavar='FILE', action='store', help='Uses a specified config file.')
     pconfig.add_argument('property', metavar='PROPERTY', help='Property (Syntax: secion.property)')
     pconfig.add_argument('value', metavar='VALUE', nargs='?', help='Value of the property.')
+
+def alias_subcmd(subparsers):
+    """Create the 'alias' subcommand
+
+    :param subparsers:           Subparser for all subcommands
+    """
+
+    palias = subparsers.add_parser('alias', aliases=['al'], help='Modify tool for aliases.')
+    palias.add_argument('alias_action', metavar='ACTION', choices=['set', 'del', 'get'], help='The action you want to perform.')
+    cfgfile_group = palias.add_mutually_exclusive_group(required=True)
+    cfgfile_group.add_argument('-s', '--system', action='store_const', const=1, dest="method", help='Uses the system config file.')
+    cfgfile_group.add_argument('-u', '--user', action='store_const', const=2, dest="method", help='Uses the user config file.')
+    cfgfile_group.add_argument('-r', '--repo', action='store_const', const=3, dest="method", help='Uses the repository config file of the current repository.'
+                                                                   ' (The user has to be in a git repository!)')
+    cfgfile_group.add_argument('-o', '--own', metavar='FILE', action='store', help='Uses a specified config file.')
+    palias.add_argument('alias', metavar='ALIAS', help='Name of the alias')
+    palias.add_argument('command', metavar='COMMAND', nargs='?', help='Command for the alias.')
 
 
 def rewrite_alias(args):
@@ -395,6 +412,7 @@ def parsecli(cliargs=None, error_on_config=False):
     del_subcmd(subparsers, propargs, filesargs)
     analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs)
     config_subcmd(subparsers)
+    alias_subcmd(subparsers)
 
     # -----
     args = parser.parse_args(args=cliargs)
@@ -416,8 +434,8 @@ def parsecli(cliargs=None, error_on_config=False):
         parser.print_help()
         sys.exit(ReturnCodes.E_CALL_WITHOUT_PARAMS)
 
-    if args.action == "init" or args.action == "analyze" or args.action == "config":
-        args.properties = []
+    if not hasattr(args, 'properties'):
+        args.properties = None
 
     if not hasattr(args, 'stop_on_error'):
         args.stop_on_error = False
