@@ -24,7 +24,7 @@ colorize=True
 # Options for the analyze/query subcommand:
 [analzye]
 ## Standard query format
-querformat="{os.file} {maintainer} {priority} {status}"
+querformat={os.file} {maintainer} {priority} {status}
 
 # Aliases
 [alias]
