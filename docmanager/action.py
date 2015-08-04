@@ -342,7 +342,7 @@ class Actions(object):
 
         # open the config file with the ConfigParser
         conf = ConfigParser()
-        if conf.read(confname) is []:
+        if not conf.read(confname):
             if os.path.exists(confname):
                 log.error("Permission denied for file '{}'! "
                           "Maybe you need sudo rights?".format(confname))
