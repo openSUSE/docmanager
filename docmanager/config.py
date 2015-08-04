@@ -87,8 +87,12 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
           configfiles.append(gitcfg)
     else:
         log.debug("Using own config file %s", cfgfiles)
-        # In case the user passes its own config file list, use it:
-        configfiles = cfgfiles
+        # In case the user passes its own config file list, use it but
+        # take care, it's a list:
+        if isinstance(cfgfiles, str):
+            configfiles = [cfgfiles]
+        else:
+            configfiles = cfgfiles
 
     # Support pyvenv virtual environments; add it as a last item
     #
@@ -102,8 +106,11 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
     x = config.read(configfiles)
 
     if not x:
-        raise DMConfigFileNotFound(x)
+        raise DMConfigFileNotFound(configfiles)
 
+    # Save state of configuration files
+    config.configfiles = configfiles
+    config.usedconfigfile = x
     log.debug("All configfiles %s", configfiles)
     log.debug("Used config file: %s", x)
 
