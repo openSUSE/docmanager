@@ -61,7 +61,8 @@ DefaultSubCommands = {
     "config":  "config"
 }
 
-STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment', 'ready')
+STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment',
+               'locdrop', 'ready')
 
 class ReturnCodes(object):
     E_OK = 0
