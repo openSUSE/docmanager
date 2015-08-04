@@ -309,7 +309,6 @@ def parsecli(cliargs=None, error_on_config=False):
     confparser.add_argument('-v', '--verbose', action='count',
                             help="Increase verbosity level")
     args, remaining_argv = confparser.parse_known_args(cliargs)
-    log.debug("parsecli: remaining_argv=%s", remaining_argv)
 
     # Store configuration filename for further usage:
     configfile = args.configfile
@@ -317,6 +316,7 @@ def parsecli(cliargs=None, error_on_config=False):
 
     # set log level
     setloglevel(args.verbose)
+    # log.debug("parsecli: remaining_argv=%s", remaining_argv)
 
     if remaining_argv:
         alias = remaining_argv[0]
