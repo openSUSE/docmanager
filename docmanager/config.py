@@ -76,8 +76,12 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
             pass
     else:
         log.debug("Using own config file %s", cfgfiles)
-        # In case the user passes its own config file list, use it:
-        configfiles = cfgfiles
+        # In case the user passes its own config file list, use it but
+        # take care, it's a list:
+        if isinstance(cfgfiles, str):
+            configfiles = [cfgfiles]
+        else:
+            configfiles = cfgfiles
 
     # Support pyvenv virtual environments; add it as a last item
     #
