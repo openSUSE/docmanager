@@ -126,4 +126,13 @@
      </para>
     </listitem>
    </varlistentry>
+   <varlistentry id="E_USER_EXIT">
+    <term>17</term>
+    <listitem>
+     <para> User interrupted program by pressing <keycombo>
+          <keycap function="control">Ctrl</keycap>
+          <keycap> C</keycap>
+        </keycombo></para>
+    </listitem>
+   </varlistentry>
   </variablelist>

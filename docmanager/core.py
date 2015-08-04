@@ -82,6 +82,7 @@ class ReturnCodes(object):
     E_INVALID_XML_PROPERTIES = 14
     E_INVALID_CONFIG_PROPERTY_SYNTAX = 15
     E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
+    E_USER_EXIT = 17
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
