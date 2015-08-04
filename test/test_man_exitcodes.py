@@ -1,3 +1,6 @@
+#
+
+from lxml import etree
 import os
 import re
 import shlex
@@ -29,7 +32,7 @@ def test_man_exitcodes_0():
             if i.find('E_') == 0:
                 v = ReturnCodes.__getattribute__(ReturnCodes, i)
                 found = False
-                
+
                 for x in content:
                     if '<term>{}</term>\n'.format(v) in x:
                         found = True
@@ -77,3 +80,31 @@ def test_man_exitcodes_1():
                             break
 
                 assert found == True, "Exit Code {} is documented but does not exist!".format(code)
+
+
+def test_man_exitcodes_3():
+    try:
+        cmd = shlex.split("git rev-parse --show-toplevel")
+        git = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        gitrepo = git.communicate()
+
+        # Not a git repository?
+        if git.returncode != 128:
+            gitrepo = gitrepo[0].decode("utf-8").strip()
+    except FileNotFoundError:
+        gitrepo = None
+
+    assert gitrepo
+
+    root = etree.parse(os.path.join(gitrepo, 'man/xml/docmanager.exitcodes.xml'))
+    vl = root.xpath("/variablelist[@id='dm.exitcodes']")
+    assert vl
+    vl = vl[0]
+    # Check for <varlistentry>s without @id attribute
+    assert not vl.xpath("varlistentry[not(@id)]")
+    # Create dictionary: @id: int(<text from term>)
+    manpagecodes = {i.attrib['id']: int(i.find("term").text) for i in vl.iterchildren() }
+    dmcodes = { i: getattr(ReturnCodes, i) for i in ReturnCodes.__dict__ \
+                if not i.startswith("__") }
+    # Compare both dictionaries
+    assert manpagecodes == dmcodes

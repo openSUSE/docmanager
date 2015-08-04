@@ -7,62 +7,62 @@
 %entities;
 ]>
 
-  <variablelist>
-   <varlistentry>
+  <variablelist id="dm.exitcodes">
+   <varlistentry id="E_OK">
     <term>0</term>
     <listitem>
      <para>Everything went fine.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_FILE_NOT_FOUND">
     <term>1</term>
     <listitem>
      <para>A file could not be found.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_COULD_NOT_SET_VALUE">
     <term>2</term>
     <listitem>
      <para>Could not set the given value for a property.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_XML_PARSE_ERROR">
     <term>3</term>
     <listitem>
      <para>Error during parsing an XML file.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_INVALID_USAGE_KEYVAL">
     <term>4</term>
     <listitem>
      <para>Invalid usage of key=value in --set</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_METHOD_NOT_IMPLEMENTED">
     <term>5</term>
     <listitem>
      <para>(For development only): Method "..." is not implemented.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_INFO_ELEMENT_MISSING">
     <term>6</term>
     <listitem>
      <para>The info element could not be found in one of the given XML files.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_CALL_WITHOUT_PARAMS">
     <term>7</term>
     <listitem>
      <para>&progname; was called without any arguments.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_INVALID_XML_DOCUMENT">
     <term>8</term>
     <listitem>
      <para>One of the given XML documents is not valid.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_WRONG_INPUT_FORMAT">
     <term>9</term>
     <listitem>
      <para>
@@ -71,19 +71,19 @@
      </para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_PERMISSION_DENIED">
     <term>10</term>
     <listitem>
      <para>File permission error. (For example: Could not write into the given XML file)</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_NOT_DOCBOOK5_FILE">
     <term>11</term>
     <listitem>
      <para>The given XML document is not a DocBook 5 document. The start tag has to be in the official DocBook 5 namespace.</para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_SOME_FILES_WERE_INVALID">
     <term>12</term>
     <listitem>
      <para>
@@ -93,7 +93,7 @@
      </para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_ANALYZE_FILTER_INVALID_SYNTAX">
     <term>13</term>
     <listitem>
      <para>
@@ -102,7 +102,7 @@
      </para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_INVALID_XML_PROPERTIES">
     <term>14</term>
     <listitem>
      <para>
@@ -110,7 +110,7 @@
      </para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_INVALID_CONFIG_PROPERTY_SYNTAX">
     <term>15</term>
     <listitem>
      <para>
@@ -118,7 +118,7 @@
      </para>
     </listitem>
    </varlistentry>
-   <varlistentry>
+   <varlistentry id="E_CONFIGCMD_NO_METHOD_SPECIFIED">
     <term>16</term>
     <listitem>
      <para>
