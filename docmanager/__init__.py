@@ -24,6 +24,7 @@ from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
+from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 # from xml.sax._exceptions import SAXParseException
 
@@ -51,4 +52,7 @@ def main(cliargs=None):
         sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
     except FileNotFoundError as err: # noqa
         log.error("Could not find file %r.", err.filename)
+        sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+    except DMConfigFileNotFound as err: #noqa
+        log.error("Couldn't find config file '%s'", err)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)

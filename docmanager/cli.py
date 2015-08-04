@@ -267,7 +267,17 @@ def parse_alias_value(value):
     """
     return value.replace("{USER}", os.environ['USER'])
 
-def parsecli(cliargs=None):
+
+def setloglevel(verbose):
+    """Set log level according to verbose argument
+
+    :param int verbose: verbose level to set
+    """
+    loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+    log.setLevel(loglevel.get(verbose, logging.DEBUG))
+
+
+def parsecli(cliargs=None, error_on_config=False):
     """Parse command line arguments
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
@@ -276,40 +286,36 @@ def parsecli(cliargs=None):
     """
 
     # parse just --config and --verbose
-    configfile = None
-
     confparser = argparse.ArgumentParser(add_help=False)
     confparser.add_argument('--config', dest='configfile', metavar='CONFIGFILE',
-                            help='user config file location, uses also XDG_CONFIG_HOME '
-                            'env variable if set')
-    confparser.add_argument('-v', '--verbose', action='count', help="Increase verbosity level")
+                            help='user config file location, uses also '
+                                 'XDG_CONFIG_HOME env variable if set')
+    confparser.add_argument('-v', '--verbose', action='count',
+                            help="Increase verbosity level")
     args, remaining_argv = confparser.parse_known_args(cliargs)
+    log.debug("parsecli: remaining_argv=%s", remaining_argv)
 
+    # Store configuration filename for further usage:
     configfile = args.configfile
+    config = None
 
     # set log level
-    loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
-    log.setLevel(loglevel.get(args.verbose, logging.DEBUG))
-
-    # Read in the config files
-    if args.configfile is None:
-        config = docmanagerconfig()
-        create_userconfig()
-    else:
-        config = docmanagerconfig([args.configfile], include_etc=False)
+    setloglevel(args.verbose)
 
     if remaining_argv:
         alias = remaining_argv[0]
+        # Exception handled in __init__.py
+        config = docmanagerconfig(args.configfile)
 
         # parse aliases
         if is_alias(alias):
             try:
-                c = docmanagerconfig(args.configfile)
-                value = parse_alias_value(c.get("alias", alias))
+                value = parse_alias_value(config.get("alias", alias))
                 cliargs = shlex.split(value)
-
-            except (DMConfigFileNotFound, NoSectionError, NoOptionError):
-                pass
+            except (NoSectionError, NoOptionError) as err:
+                log.warn(err)
+                if error_on_config:
+                    raise
 
     # parse cli parameters
     filesargs = dict(nargs='+',

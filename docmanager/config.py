@@ -91,8 +91,11 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
     x = config.read(configfiles)
 
     if not x:
-        raise DMConfigFileNotFound(x)
+        raise DMConfigFileNotFound(configfiles)
 
+    # Save state of configuration files
+    config.configfiles = configfiles
+    config.usedconfigfile = x
     log.debug("All configfiles %s", configfiles)
     log.debug("Used config file: %s", x)
 
