@@ -135,4 +135,12 @@
         </keycombo></para>
     </listitem>
    </varlistentry>
+   <varlistentry id="E_FILE_IS_DIRECTORY">
+    <term>18</term>
+    <listitem>
+     <para>
+      The given file is a directory.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>
