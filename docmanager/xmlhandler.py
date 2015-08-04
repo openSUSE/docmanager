@@ -30,7 +30,7 @@ class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename, stopOnError=False):
+    def __init__(self, filename, stopOnError=True):
         """Initializes the XmlHandler class
 
         :param str filename: filename of XML file

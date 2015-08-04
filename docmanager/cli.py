@@ -419,6 +419,9 @@ def parsecli(cliargs=None, error_on_config=False):
     if args.action == "init" or args.action == "analyze" or args.action == "config":
         args.properties = []
 
+    if not hasattr(args, 'stop_on_error'):
+        args.stop_on_error = False
+
     # Clean file list
     if hasattr(args, 'files'):
         clean_filelist(args)
