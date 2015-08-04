@@ -265,13 +265,16 @@ class Actions(object):
     def analyze(self, arguments):
         handlers = dict()
 
-        qformat = self.args.queryformat
-
-        if qformat is None:
-            qformat = "-- default query format --"
+        # Set default query format
+        try:
+            qformat = self.args.config['analzye']['querformat']
+        except KeyError:
+            pass
+        if self.args.queryformat:
+            qformat = self.args.queryformat
 
         file_data = list()
-        NT_FileData = namedtuple("FileData", "file,out_formatted,data")
+        NTFILEDATA = namedtuple("FileData", "file,out_formatted,data")
 
         for f in self.__files:
             handlers[f] = XmlHandler(f)
@@ -289,7 +292,7 @@ class Actions(object):
             if not self.__args.sort and data:
                 print(analyzer.format_output(out, data))
             else:
-                file_data.append(NT_FileData(file=f, out_formatted=out, data=data))
+                file_data.append(NTFILEDATA(file=f, out_formatted=out, data=data))
 
         if self.__args.sort:
             values = None
@@ -338,37 +341,39 @@ class Actions(object):
             confname = self.__args.own
 
         # open the config file with the ConfigParser
-        c = ConfigParser()
-        if c.read(confname) is []:
+        conf = ConfigParser()
+        if conf.read(confname) is []:
             if os.path.exists(confname):
-                log.error("Permission denied for file '{}'! Maybe you need sudo rights?".format(confname))
+                log.error("Permission denied for file '{}'! "
+                          "Maybe you need sudo rights?".format(confname))
                 sys.exit(ReturnCodes().E_PERMISSION_DENIED)
 
         # handle the 'get' method
         if value is None:
-            if c.has_section(section):
+            if conf.has_section(section):
                 try:
-                    print(c.get(section, prop))
+                    print(conf.get(section, prop))
                 except NoOptionError:
                     pass
 
-            sys.exit(ReturnCodes().E_OK)
+            sys.exit(ReturnCodes.E_OK)
 
         # add the section if its not available
-        if not c.has_section(section):
-            c.add_section(section)
+        if not conf.has_section(section):
+            conf.add_section(section)
 
         # set the property
-        c.set(section, prop, value)
+        conf.set(section, prop, value)
 
         # save the changes
         try:
             if not os.path.exists(confname):
-                c.write(open(confname, 'x'))
+                conf.write(open(confname, 'x'))
             else:
-                c.write(open(confname, 'w'))
+                conf.write(open(confname, 'w'))
         except PermissionError:
-            log.error("Permission denied for file '{}'! Maybe you need sudo rights?".format(confname))
+            log.error("Permission denied for file '{}'! "
+                      "Maybe you need sudo rights?".format(confname))
             sys.exit(ReturnCodes().E_PERMISSION_DENIED)
 
 
