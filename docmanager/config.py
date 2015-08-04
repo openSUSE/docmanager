@@ -24,30 +24,38 @@ from configparser import ConfigParser
 from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 
-def get_git_repo_config():
-  try:
-      cmd = shlex.split("git rev-parse --show-toplevel")
-      git = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-      gitrepo = git.communicate()
-      # Not a git repository?
-      if git.returncode != 128:
-          gitrepo = gitrepo[0].decode("utf-8").strip()
-          return os.path.join(gitrepo, '.git/docmanager.conf')
-
-  except FileNotFoundError:
-      # If we don't find the git command, we skip the local config file
-      # alltogether
-      pass
-
-  return None
-
-CONFIG_NAME = 'docmanager/docmanager.conf'
+BASECONFIG_NAME = 'docmanager.conf'
+CONFIG_NAME = os.path.join('docmanager', BASECONFIG_NAME)
 GLOBAL_CONFIG = [os.path.join('/etc', CONFIG_NAME)]
-GIT_CONFIG = get_git_repo_config()
+GIT_CONFIG = None # Will be set below
 XDG_CONFIG_HOME = os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config/'))
 USER_CONFIG = os.path.join(XDG_CONFIG_HOME, CONFIG_NAME)
+
+def get_git_repo_config():
+    """Return root Git repository, if available
+
+    :return: absolut path to Git repository
+    :rtype: str
+    """
+    try:
+        cmd = shlex.split("git rev-parse --show-toplevel")
+        git = subprocess.Popen(cmd,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        gitrepo = git.communicate()
+        # Not a git repository?
+        if git.returncode != 128:
+            gitrepo = gitrepo[0].decode("utf-8").strip()
+            return os.path.join(gitrepo, os.path.join('.git', BASECONFIG_NAME))
+
+    except FileNotFoundError:
+        # If we don't find the git command, we skip the local config file
+        # alltogether
+        return None
+
+
+GIT_CONFIG = get_git_repo_config()
+
 
 def docmanagerconfig(cfgfiles=None, include_etc=True):
     """Read DocManager configuration files. The following files are
