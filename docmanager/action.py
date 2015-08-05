@@ -380,8 +380,8 @@ class Actions(object):
         action = self.__args.alias_action
         alias = self.__args.alias
         value = self.__args.command
-        m = { 0: None, 1: GLOBAL_CONFIG, 2: USER_CONFIG, 3: GIT_CONFIG }
-        config = m.get(self.__args.method, self.__args.own)[0]
+        m = { 0: None, 1: GLOBAL_CONFIG[0], 2: USER_CONFIG, 3: GIT_CONFIG }
+        config = m.get(self.__args.method, self.__args.own)
         save = False
 
         if not value:
