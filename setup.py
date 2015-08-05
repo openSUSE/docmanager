@@ -84,6 +84,13 @@ setupdict = dict(
     # What does your project relate to?
     keywords='docbook5 metainformation',
 
+    # Includes data files from MANIFEST.in
+    #
+    # See also:
+    # http://stackoverflow.com/a/16576850
+    # https://pythonhosted.org/setuptools/setuptools.html#including-data-files
+    include_package_data = True,
+
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['contrib', 'docs']),
@@ -131,16 +138,6 @@ setupdict = dict(
     #
     cmdclass = {'test': PyTest},
 )
-
-
-# Only use this for Travis:
-# From http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
-if environ.get('CI') or environ.get('TRAVIS') or hasattr(sys, 'base_prefix'):
-    setupdict.update(# data_files specifies a sequence of (directory, files) pairs
-        data_files=[
-            ('docmanager/', ['docmanager/docmanager.conf']),
-            ],
-        )
 
 # Call it:
 setup(**setupdict)
