@@ -108,7 +108,7 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
     if (cfgfiles is None) and include_etc and hasattr(sys, 'base_prefix'):
         log.debug("Running inside a virtual env.")
         dname = os.path.dirname(__file__)
-        configfiles.append(os.path.join(dname, 'template/config'))
+        configfiles.append(os.path.join(dname, BASECONFIG_NAME))
 
     config = ConfigParser()
     x = config.read(configfiles)
