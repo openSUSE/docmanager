@@ -24,8 +24,10 @@ def test_analyze_sort_0(testdir, tmpdir, capsys):
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
     out, err = capsys.readouterr()
+    out = out.split("\n")
     
-    expected_output = "mschnitzer wip 1\ntoms done 10\nfs editing 4\n"
+    expected_output = [ "mschnitzer wip 1", "toms done 10", "fs editing 4" ]
 
     assert not err
-    assert expected_output == out
+    for i in expected_output:
+        assert i in out

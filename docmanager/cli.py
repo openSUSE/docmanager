@@ -306,12 +306,14 @@ def fix_filelist(files):
 
     :param list files: file list from args.files
     """
-    for idx, i in enumerate(files):
-        filelist = glob(i)
-        if filelist:
-            files.pop(idx)
-            for x in filelist:
-                files.append(x)
+
+    if files:
+        for idx, i in enumerate(files):
+            filelist = glob(i)
+            if filelist:
+                files.pop(idx)
+                for x in filelist:
+                    files.append(x)
 
 def parsecli(cliargs=None, error_on_config=False):
     """Parse command line arguments
