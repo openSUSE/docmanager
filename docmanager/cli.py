@@ -17,6 +17,7 @@
 # you may find current contact information at www.suse.com
 
 import argparse
+from glob import glob
 import logging
 import re
 import shlex
@@ -300,6 +301,18 @@ def parse_alias_value(value):
     """
     return value.replace("{USER}", os.environ['USER'])
 
+def fix_filelist(files):
+    """Replaces * with all files in a directory (shell like)
+
+    :param list files: file list from args.files
+    """
+    for idx, i in enumerate(files):
+        filelist = glob(i)
+        if filelist:
+            files.pop(idx)
+            for x in filelist:
+                files.append(x)
+
 def parsecli(cliargs=None, error_on_config=False):
     """Parse command line arguments
 
@@ -451,6 +464,9 @@ def parsecli(cliargs=None, error_on_config=False):
         clean_filelist(args)
     else:
         args.files = None
+
+    # Fix file list - this is needed for aliases - issue#67
+    fix_filelist(args.files)
 
     # Fix properties
     fix_properties(args)
