@@ -30,7 +30,7 @@ from docmanager.config import docmanagerconfig, create_userconfig
 from docmanager.core import ReturnCodes, LANGUAGES, STATUSFLAGS, \
     DefaultDocManagerProperties, BugtrackerElementList, DefaultSubCommands
 from docmanager.exceptions import DMConfigFileNotFound
-from docmanager.logmanager import log, logmgr_flog
+from docmanager.logmanager import log, logmgr_flog, setloglevel
 
 
 def populate_properties(args):
@@ -300,16 +300,6 @@ def parse_alias_value(value):
     """
     return value.replace("{USER}", os.environ['USER'])
 
-
-def setloglevel(verbose):
-    """Set log level according to verbose argument
-
-    :param int verbose: verbose level to set
-    """
-    loglevel = {None: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
-    log.setLevel(loglevel.get(verbose, logging.DEBUG))
-
-
 def parsecli(cliargs=None, error_on_config=False):
     """Parse command line arguments
 
@@ -331,14 +321,30 @@ def parsecli(cliargs=None, error_on_config=False):
     configfile = args.configfile
     config = None
 
-    # set log level
+    # init log module
     setloglevel(args.verbose)
-    # log.debug("parsecli: remaining_argv=%s", remaining_argv)
+
+    # init config module
+    # Exception handled in __init__.py
+    config = docmanagerconfig(args.configfile)
+
+    # Read the log level from the config files
+    try:
+        verbosity_level = int(config["general"]["verbosity_level"])
+            
+        if args.verbose is not None:
+            if verbosity_level > args.verbose:
+                args.verbose =  verbosity_level
+        else:
+            args.verbose = verbosity_level
+        
+        # set log level
+        setloglevel(args.verbose)
+    except KeyError:
+        pass
 
     if remaining_argv:
         alias = remaining_argv[0]
-        # Exception handled in __init__.py
-        config = docmanagerconfig(args.configfile)
 
         # parse aliases
         if is_alias(alias):

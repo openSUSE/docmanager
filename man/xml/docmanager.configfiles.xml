@@ -56,7 +56,35 @@ foo=bar</screen>
       <varlistentry>
         <term><varname>general</varname></term>
         <listitem>
-          <para>Currently not used.</para>
+          <para>Relevant settings for all sub commands.</para>
+          <variablelist>
+            <varlistentry>
+              <term><option>verbosity_level</option></term>
+              <listitem>
+                <para>Sets the default verbosity level.</para>
+                <variablelist>
+                  <varlistentry>
+                    <term>0</term>
+                    <listitem>
+                      <para>Show only WARNINGS, ERRORS, and CRITICAL messages.</para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>1</term>
+                    <listitem>
+                      <para>Show only INFOS, WARNINGS, ERRORS, and CRITICAL messages.</para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>2</term>
+                    <listitem>
+                      <para>Shows everything.</para>
+                    </listitem>
+                  </varlistentry>
+                </variablelist>
+              </listitem>
+            </varlistentry>
+          </variablelist>
         </listitem>
       </varlistentry>
       <!--  -->
@@ -67,7 +95,7 @@ foo=bar</screen>
             the following variables:</para>
           <variablelist>
             <varlistentry>
-              <term><varname>queryformat</varname></term>
+              <term><option>queryformat</option></term>
               <listitem>
                 <para>Defines the standard query format when the user didn't
                   use one with <option>-qf</option>.</para>

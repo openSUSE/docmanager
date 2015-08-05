@@ -32,6 +32,8 @@ _ch.setFormatter(_frmt)
 log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
+loglevels = {None: logging.NOTSET, 0: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+
 def logmgr_flog():
     """Prints debug information about the last called function.
     """
@@ -41,3 +43,10 @@ def logmgr_flog():
     log.debug('Called function "%s" in file %s/%s (line: %d).',
               func, os.getcwd(), os.path.basename(filename), line
              )
+
+def setloglevel(verbose):
+    """Set log level according to verbose argument
+
+    :param int verbose: verbose level to set
+    """
+    log.setLevel(loglevels.get(verbose, logging.DEBUG))
