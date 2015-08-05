@@ -232,14 +232,15 @@ def alias_subcmd(subparsers):
     """
 
     palias = subparsers.add_parser('alias', aliases=['al'], help='Modify tool for aliases.')
-    palias.add_argument('alias_action', metavar='ACTION', choices=['set', 'del', 'get'], help='The action you want to perform.')
+    palias.add_argument('alias_action', metavar='ACTION', choices=['set', 'del', 'get', 'list'], help='The action you want to perform.')
     cfgfile_group = palias.add_mutually_exclusive_group(required=True)
     cfgfile_group.add_argument('-s', '--system', action='store_const', const=1, dest="method", help='Uses the system config file.')
     cfgfile_group.add_argument('-u', '--user', action='store_const', const=2, dest="method", help='Uses the user config file.')
     cfgfile_group.add_argument('-r', '--repo', action='store_const', const=3, dest="method", help='Uses the repository config file of the current repository.'
                                                                    ' (The user has to be in a git repository!)')
     cfgfile_group.add_argument('-o', '--own', metavar='FILE', action='store', help='Uses a specified config file.')
-    palias.add_argument('alias', metavar='ALIAS', help='Name of the alias')
+    palias.add_argument('-f', '--format', choices=['table', 'json', 'xml'], help='Set the output format.')
+    palias.add_argument('alias', metavar='ALIAS', nargs='?', help='Name of the alias')
     palias.add_argument('command', metavar='COMMAND', nargs='?', help='Command for the alias.')
 
 

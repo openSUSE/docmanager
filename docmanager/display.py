@@ -63,24 +63,39 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
     if data is None:
         return
 
-    index = 0
-    for i in data:
-        if len(i[1]):
-            filename = i[0]
-            print("File: {}".format(filename))
-            t = PrettyTable(["Property", "Value"])
-            t.align["Property"] = "l" # left align
-            t.align["Value"] = "l" # left align
+    args = kwargs["args"]
 
-            for prop in i[1]:
-                value = i[1][prop]
-                t.add_row([prop, value])
+    if args.action == "alias":
+        if len(data['aliases']) == 0:
+            print("There are no aliases in config file: {}".format(data["configfile"]))
+        else:
+            t = PrettyTable(["Alias", "Command"])
+            t.align["Alias"] = "l" # left align
+            t.align["Command"] = "l" # left align
+
+            for i in data['aliases']:
+                t.add_row([i, data['aliases'][i]])
 
             print(t)
-            if (len(data)-1) is not index:
-                print("")
+    else:
+        index = 0
+        for i in data:
+            if len(i[1]):
+                filename = i[0]
+                print("File: {}".format(filename))
+                t = PrettyTable(["Property", "Value"])
+                t.align["Property"] = "l" # left align
+                t.align["Value"] = "l" # left align
 
-        index += 1
+                for prop in i[1]:
+                    value = i[1][prop]
+                    t.add_row([prop, value])
+
+                print(t)
+                if (len(data)-1) is not index:
+                    print("")
+
+            index += 1
 
 
 def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
@@ -92,12 +107,23 @@ def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
     :return: rendered output
     :rtype: str
     """
-    json_out = OrderedDict()
-    for i in data:
-        json_out[i[0]] = {}
-        json_out[i[0]] = i[1]
-    
-    print(json.dumps(json_out))
+
+    args = kwargs["args"]
+
+    if args.action == "alias":
+        json_out = OrderedDict()
+        for i in data['aliases'].keys():
+            json_out[i] = {}
+            json_out[i] = data['aliases'][i]
+        
+        print(json.dumps(json_out))
+    else:
+        json_out = OrderedDict()
+        for i in data:
+            json_out[i[0]] = {}
+            json_out[i[0]] = i[1]
+        
+        print(json.dumps(json_out))
 
 
 def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
@@ -112,37 +138,58 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
 
     root = etree.Element("docmanager")
     tree = root.getroottree()
-    
-    fileselem = etree.Element("files")
-    root.append(fileselem)
 
+    args = kwargs["args"]
     index = 0
 
-    for i in data:
-        if len(i[1]):
-            filename = i[0]
+    if args.action == "alias":
+        aliaseselem = etree.Element("aliases")
+        root.append(aliaseselem)
 
-            elem = etree.Element("file")
+        for i in data['aliases'].keys():
+            name = i
+            value = data['aliases'][i]
+
+            elem = etree.Element("alias")
             root[0].append(elem)
 
             child = root[0][index]
-            child.set("name", filename)
+            child.set("name", name)
 
-            for x in i[1]:
-                prop = x
-                value = i[1][x]
-
-                elem = etree.Element(prop)
-                elem.text = value
-
-                child.append(elem)
+            child.text = value
 
             index += 1
 
+
+    else:
+        fileselem = etree.Element("files")
+        root.append(fileselem)
+
+        for i in data:
+            if len(i[1]):
+                filename = i[0]
+
+                elem = etree.Element("file")
+                root[0].append(elem)
+
+                child = root[0][index]
+                child.set("name", filename)
+
+                for x in i[1]:
+                    prop = x
+                    value = i[1][x]
+
+                    elem = etree.Element(prop)
+                    elem.text = value
+
+                    child.append(elem)
+
+                index += 1
+
     print(etree.tostring(tree,
-                         encoding="unicode",
-                         pretty_print=True,
-                         doctype="<!DOCTYPE docmanager>"))
+            encoding="unicode",
+            pretty_print=True,
+            doctype="<!DOCTYPE docmanager>"))
 
 
 DEFAULTRENDERER = textrenderer

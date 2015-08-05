@@ -23,7 +23,7 @@ def test_docmanager_jsonout(tmp_valid_xml, capsys):
     a = Actions(parsecli(shlex.split(clicmd)))
     res = a.parse()
     renderer = getrenderer('json')
-    renderer(res)
+    renderer(res, args=a.args)
 
     out, err = capsys.readouterr()
 
@@ -45,7 +45,7 @@ def test_docmanager_jsonout(tmp_valid_xml, capsys):
     a = Actions(parsecli(shlex.split(clicmd)))
     res = a.parse()
     renderer = getrenderer('json')
-    renderer(res)
+    renderer(res, args=a.args)
 
     out, err = capsys.readouterr()
 

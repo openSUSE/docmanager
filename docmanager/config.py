@@ -106,6 +106,10 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
     #
     # See http://stackoverflow.com/a/1883251
     if (cfgfiles is None) and include_etc and hasattr(sys, 'base_prefix'):
+        #dd = os.path.dirname(__file__)
+        #cc = os.path.join(dd, BASECONFIG_NAME)
+        #configfiles.append(cc)
+        #log.debug("Running inside a virtual env, using %s", cc)
         #
         # When code with __file__ is packed inside a zipfile, it can no longer
         # assume that __file__ or __path__ contain filenames or directory
@@ -134,7 +138,7 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
     x = config.read(configfiles)
 
     if not x:
-        # This shouldn't happen...
+
         raise DMConfigFileNotFound(configfiles)
 
     # Save state of configuration files

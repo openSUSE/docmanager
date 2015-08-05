@@ -143,4 +143,12 @@
      </para>
     </listitem>
    </varlistentry>
+   <varlistentry id="E_INVALID_PARAMETERS">
+    <term>19</term>
+    <listitem>
+     <para>
+      The given parameters are wrong.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>

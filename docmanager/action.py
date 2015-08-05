@@ -384,6 +384,11 @@ class Actions(object):
         config = m.get(self.__args.method, self.__args.own)
         save = False
 
+        if action != 'list':
+            if alias is None and value is None:
+                log.error("You have to provide an alias name for method '{}'.".format(action))
+                sys.exit(ReturnCodes.E_INVALID_PARAMETERS)
+
         if not value:
             value = ""
 
@@ -417,6 +422,12 @@ class Actions(object):
         elif action == "del":
             save = True
             conf.remove_option("alias", alias)
+        elif action == "list":
+            data = dict()
+            data["configfile"] = config
+            data["aliases"] = conf['alias']
+
+            return data
 
         # save the changes
         if save:

@@ -86,6 +86,7 @@ class ReturnCodes(object):
     E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
     E_USER_EXIT = 17
     E_FILE_IS_DIRECTORY = 18
+    E_INVALID_PARAMETERS = 19
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

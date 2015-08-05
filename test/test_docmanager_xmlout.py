@@ -23,7 +23,7 @@ def test_docmanager_xmlout(tmp_valid_xml, capsys):
     a = Actions(parsecli(shlex.split(clicmd)))
     res = a.parse()
     renderer = getrenderer('xml')
-    renderer(res)
+    renderer(res, args=a.args)
 
     out, err = capsys.readouterr()
 
