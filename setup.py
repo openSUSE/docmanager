@@ -9,7 +9,7 @@ https://github.com/pypa/sampleproject
 """
 
 import sys
-from os import path
+from os import path, environ
 # To use a consistent encoding
 from codecs import open
 
@@ -38,13 +38,7 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-
-
-# Get the long description from the relevant file
-#with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
-#    long_description = f.read()
-
-setup(
+setupdict = dict(
     name='docmanager',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
@@ -100,11 +94,6 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['lxml'],
 
-    # data_files specifies a sequence of (directory, files) pairs
-    #data_files=[
-    #    ('etc/docmanager', ['docmanager/docmanager.conf']),
-    #],
-
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
@@ -142,3 +131,16 @@ setup(
     #
     cmdclass = {'test': PyTest},
 )
+
+
+# Only use this for Travis:
+# From http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
+if environ.get('CI') or environ.get('TRAVIS') or hasattr(sys, 'base_prefix'):
+    setupdict.update(# data_files specifies a sequence of (directory, files) pairs
+        data_files=[
+            ('docmanager/', ['docmanager/docmanager.conf']),
+            ],
+        )
+
+# Call it:
+setup(**setupdict)
