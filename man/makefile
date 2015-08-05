@@ -16,7 +16,7 @@ all: clean $(BUILDDIR)
 	mv $(OUTFILE) $(BUILDDIR)
 
 clean:
-	-rm -r $(BUILDDIR)
+	-rm -rf $(BUILDDIR)
 
 $(BUILDDIR):
 	mkdir $(BUILDDIR)

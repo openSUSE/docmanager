@@ -100,6 +100,11 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['lxml'],
 
+    # data_files specifies a sequence of (directory, files) pairs
+    #data_files=[
+    #    ('etc/docmanager', ['docmanager/docmanager.conf']),
+    #],
+
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
