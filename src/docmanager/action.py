@@ -42,6 +42,9 @@ class Actions(object):
         self.__files = args.files
         self.__args = args
 
+        if args.action == "alias":
+            args.format = "table"
+
         if self.__files:
             if hasattr(self.__args, 'stop_on_error'):
                 self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
