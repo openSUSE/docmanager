@@ -30,6 +30,8 @@ travisfoldend coverage
 travisfoldstart setup.py
 echo "--- Executing setup.py install ---"
 python3 setup.py install
+mkdir -p ~/.config/docmanager/
+cp -vi src/docmanager/docmanager.conf ~/.config/docmanager/
 check_exitcode $?
 travisfoldend setup.py_install
 
