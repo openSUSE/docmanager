@@ -8,7 +8,7 @@
 ]>
 
   <refsect2>
-   <title><command>alias</command> <replaceable>[-h] (-s|-u|-r|-o_FILE) ACTION ALIAS [COMMAND]</replaceable></title>
+   <title><command>alias</command> <replaceable>[-h] (-s|-u|-r|-o_FILE) [-f {table,json,xml}] ACTION [ALIAS] [COMMAND]</replaceable></title>
    <para>Tool for modifying aliases.</para>
    <variablelist>
     <varlistentry>
@@ -65,6 +65,14 @@
         </listitem>
        </varlistentry>
       </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--format/-f</option> <replaceable>(table|json|xml)</replaceable></term>
+     <listitem>
+      <para>
+        This function sets the output format. The default output format is: <command>table</command>
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
