@@ -1,4 +1,30 @@
 -------------------------------------------------------------------
+Fri Aug 07 15:40:00 UTC 2015 - toms@opensuse.org
+
+Stable release DocManager 3.2.0:
+
+* Bugfixes:
+  - Del Subcommand Should Really Delete Properties (#60)
+  - Output of not available properties is 'None' (#65)
+  - Resolve * in aliases (#67)
+  - Catch KeyboardInterrupt exception (#77)
+  - 'config' subcommand does not show 'Permission denied' error (#80)
+  - alias subcommand: "Permission denied for file '/' [...]" (#86)
+
+* New features:
+  - Adapt DocManager with Configuration File (#27)
+  - Implement Query/Analyze Feature (#49)
+  - Support Aliases (#64)
+  - Default aliases (#66)
+  - Implement 'config' subcommand (#70)
+  - Implement 'alias' subcommand (#72)
+  - Allow to set verbosity level through config file (#81)
+
+* Miscellaneous:
+  - documented several new features in manpage (#36, #82)
+  - Prepared setup.py for OBS (5f6990b)
+
+-------------------------------------------------------------------
 Thu Jun 23 15:44:00 UTC 2015 - toms@opensuse.org
 
 Stable release DocManager 3.1.0:

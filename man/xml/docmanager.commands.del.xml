@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect2 PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+ 
+  <refsect2>
+   <title><command>del</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <para>Deleting one or more existing properties.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>-p</option> <replaceable>PROPERTY</replaceable></term>
+     <listitem>
+      <para>
+       Delete a property in all given XML files. Note: You can build conditions with "=" like: del -p property=value - This means, DocManager will only
+       delete the properties in the given XML files if they have the value set to "value".
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>

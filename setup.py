@@ -9,7 +9,7 @@ https://github.com/pypa/sampleproject
 """
 
 import sys
-from os import path
+from os import path, environ
 # To use a consistent encoding
 from codecs import open
 
@@ -38,19 +38,13 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-
-
-# Get the long description from the relevant file
-#with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
-#    long_description = f.read()
-
-setup(
+setupdict = dict(
     name='docmanager',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='3.1.0',
+    version='3.2.0',
 
     description='Manage Meta Information in DocBook5-XML Files',
     # long_description=long_description,
@@ -71,7 +65,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
         'Topic :: Documentation',
@@ -90,9 +84,17 @@ setup(
     # What does your project relate to?
     keywords='docbook5 metainformation',
 
+    # Includes data files from MANIFEST.in
+    #
+    # See also:
+    # http://stackoverflow.com/a/16576850
+    # https://pythonhosted.org/setuptools/setuptools.html#including-data-files
+    include_package_data = True,
+
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs']),
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
@@ -112,9 +114,9 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    #package_data={
-    #    'sample': ['package_data.dat'],
-    #},
+    package_data={
+        'docmanager': ['template/*'],
+    },
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
@@ -137,3 +139,6 @@ setup(
     #
     cmdclass = {'test': PyTest},
 )
+
+# Call it:
+setup(**setupdict)

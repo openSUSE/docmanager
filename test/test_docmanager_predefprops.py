@@ -20,7 +20,7 @@ from docmanager.display import getrenderer
     ('languages', 'en,de'),
     ('release', 'SLES'),
     ('release', 'SUSE Linux Enterprise Server 12'),
-    ('repository', 'https://github.com/openSUSE/docmanager')
+#    ('repository', 'https://github.com/openSUSE/docmanager')
 ])
 def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     """Check predefined property actions"""

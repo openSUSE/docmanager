@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect2 PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+
+  <refsect2>
+   <title><command>alias</command> <replaceable>[-h] (-s|-u|-r|-o_FILE) [-f {table,json,xml}] ACTION [ALIAS] [COMMAND]</replaceable></title>
+   <para>Tool for modifying aliases.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>--help/-h</option></term>
+     <listitem>
+      <para>
+        Shows the help page.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>CONFIG_FILE</option></term>
+     <listitem>
+      <variablelist>
+       <varlistentry>
+        <term><option>--system/-s</option></term>
+        <listitem>
+         <para>
+           This option let the <command>alias</command> feature use the system configuration file from /etc
+         </para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><option>--system/-s</option></term>
+        <listitem>
+         <para>
+           This option let the <command>alias</command> feature use the system configuration file from /etc
+         </para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><option>--user/-u</option></term>
+        <listitem>
+         <para>
+           This option let the <command>alias</command> feature use the user configuration file from /home/{user}/.config/docmanager
+         </para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><option>--repo/-r</option></term>
+        <listitem>
+         <para>
+           This option let the <command>alias</command> feature use the repository configuration file from the current git repository.
+           The user has to be in a git repository otherwise it won't work.
+         </para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><option>--own/-o</option> <replaceable>FILE</replaceable></term>
+        <listitem>
+         <para>
+           This option let the <command>alias</command> feature use an own configuration file.
+         </para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--format/-f</option> <replaceable>(table|json|xml)</replaceable></term>
+     <listitem>
+      <para>
+        This function sets the output format (does only work for <command>list</command>).
+      </para>
+      <para>The default output format is: <command>table</command></para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>ACTION</option> <replaceable>(set|get|del)</replaceable></term>
+     <listitem>
+      <para>
+        The action method for the <command>alias</command> command.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>ALIAS</option></term>
+     <listitem>
+      <para>
+        The name of the alias.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>COMMAND</option></term>
+     <listitem>
+      <para>
+        The command which has to be executed.
+      </para>
+
+      <para>
+        Examples:
+      </para>
+      <screen>get -p maintainer example.xml
+set --maintainer mschnitzer example.xml
+analyze -qf "{maintainer}" -f "maintainer=mschnitzer" *</screen>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>

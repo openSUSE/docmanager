@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -21,7 +21,11 @@ NS = {
         "dm":"urn:x-suse:ns:docmanager"
 }
 
-DefaultDocManagerProperties = (
+# If you add new default properties:
+# * should start with a different character
+# * are used to create options
+#
+DEFAULT_DM_PROPERTIES = (
         "maintainer",
         "status",
         "deadline",
@@ -29,10 +33,10 @@ DefaultDocManagerProperties = (
         "translation",
         "languages",
         "release",
-        "repository"
+#         "repository" # ??
 )
 
-BugtrackerElementList = (
+BT_ELEMENTLIST = (
     "bugtracker/url",
     "bugtracker/component",
     "bugtracker/product",
@@ -40,21 +44,47 @@ BugtrackerElementList = (
     "bugtracker/version"
 )
 
+DEFAULTSUBCOMMANDS = {
+    "i":       "init",
+    "init":    "init",
+    "g":       "get",
+    "get":     "get",
+    "d":       "delete",
+    "del":     "delete",
+    "s":       "set",
+    "set":     "set",
+    "a":       "analyze",
+    "analyze": "analyze",
+    "c":       "config",
+    "config":  "config",
+    "al":      "alias",
+    "alias":   "alias"
+}
+
+STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment',
+               'locdrop', 'ready')
+
 class ReturnCodes(object):
     E_OK = 0
     E_FILE_NOT_FOUND = 1
     E_COULD_NOT_SET_VALUE = 2
     E_XML_PARSE_ERROR = 3
-    E_DAPS_ERROR = 4
-    E_INVALID_USAGE_KEYVAL = 5
-    E_METHOD_NOT_IMPLEMENTED = 6
-    E_INFO_ELEMENT_MISSING = 7
-    E_CALL_WITHOUT_PARAMS = 8
-    E_INVALID_XML_DOCUMENT = 9
-    E_WRONG_INPUT_FORMAT = 10
-    E_PERMISSION_DENIED = 11
-    E_NOT_DOCBOOK5_FILE = 12
-    E_SOME_FILES_WERE_INVALID = 13
+    E_INVALID_USAGE_KEYVAL = 4
+    E_METHOD_NOT_IMPLEMENTED = 5
+    E_INFO_ELEMENT_MISSING = 6
+    E_CALL_WITHOUT_PARAMS = 7
+    E_INVALID_XML_DOCUMENT = 8
+    E_WRONG_INPUT_FORMAT = 9
+    E_PERMISSION_DENIED = 10
+    E_NOT_DOCBOOK5_FILE = 11
+    E_SOME_FILES_WERE_INVALID = 12
+    E_ANALYZE_FILTER_INVALID_SYNTAX = 13
+    E_INVALID_XML_PROPERTIES = 14
+    E_INVALID_CONFIG_PROPERTY_SYNTAX = 15
+    E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
+    E_USER_EXIT = 17
+    E_FILE_IS_DIRECTORY = 18
+    E_INVALID_PARAMETERS = 19
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

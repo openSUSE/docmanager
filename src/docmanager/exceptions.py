@@ -16,33 +16,14 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-from functools import wraps
+class DMInvalidXMLHandlerObject(Exception):
+	pass
 
-def shellcolor(func):
-    """Decorator for shell color functions
+class DMAnalyzeInvalidFilterSyntax(Exception):
+	pass
 
-    :param func: Function to decorate
-    :return: decorated function
-    """
-    @wraps(func)
-    def wrapped(text):
-        return "\033[01;{0}\033[00m".format(func(text))
-    return wrapped
+class DMConfigFileNotFound(Exception):
+	pass
 
-@shellcolor
-def green(text):
-    """Create green text string
-
-    :param string text: text to print in green
-    :return: greenified string
-    """
-    return "32m{0}".format(text)
-
-@shellcolor
-def red(text):
-    """Create red text string
-
-    :param string text: text to print in red
-    :return: redified string
-    """
-    return "31m{0}".format(text)
+class DMNotDocBook5File(Exception):
+	pass

@@ -17,13 +17,14 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.1.0"
+__version__="3.2.0"
 
 import sys
 from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.core import ReturnCodes
 from docmanager.display import getrenderer
+from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 # from xml.sax._exceptions import SAXParseException
 
@@ -41,14 +42,20 @@ def main(cliargs=None):
             renderer = getrenderer('default')
         else:
             renderer = getrenderer(a.args.format)
-        
-        renderer(res)
+
+        renderer(res, args=a.args)
     except PermissionError as err: # noqa
-        log.error("{} on file {!r}.".format(err.args[1], err.filename))
+        log.error("%s on file %r.", err.args[1], err.filename)
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
     except ValueError as err:
         log.error(err)
         sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
     except FileNotFoundError as err: # noqa
-        log.error("Could not find file '{}'.".format(err.filename))
+        log.error("Could not find file %r.", err.filename)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+    except DMConfigFileNotFound as err: #noqa
+        log.error("Couldn't find config file '%s'", err)
+        sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+    except KeyboardInterrupt:
+        log.warn("Exited by user.")
+        sys.exit()

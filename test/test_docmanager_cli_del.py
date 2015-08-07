@@ -4,7 +4,7 @@ import pytest
 import shlex
 from docmanager.action import Actions
 from docmanager.cli import parsecli
-from docmanager.core import DefaultDocManagerProperties
+from docmanager.core import DEFAULT_DM_PROPERTIES
 
 def test_docmanager_cli_del_0(tmp_valid_xml):
     """Checks if the delete command works

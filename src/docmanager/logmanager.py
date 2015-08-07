@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -32,6 +32,8 @@ _ch.setFormatter(_frmt)
 log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
+LOGLEVELS = {None: logging.NOTSET, 0: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+
 def logmgr_flog():
     """Prints debug information about the last called function.
     """
@@ -41,3 +43,10 @@ def logmgr_flog():
     log.debug('Called function "%s" in file %s/%s (line: %d).',
               func, os.getcwd(), os.path.basename(filename), line
              )
+
+def setloglevel(verbose):
+    """Set log level according to verbose argument
+
+    :param int verbose: verbose level to set
+    """
+    log.setLevel(LOGLEVELS.get(verbose, logging.DEBUG))

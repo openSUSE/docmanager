@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://docbook.org/xml/4.5/docbookx.dtd"[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+<refsect1 id="docmanager.configfiles">
+  <title>Configuration Files</title>
+  <para>The following configuration files are searched (in this order,
+    from lowest to highest priority): </para>
+  <variablelist>
+    <varlistentry>
+      <term><filename>/etc/docmanager/docmanager.conf</filename></term>
+      <listitem>
+        <para>System-wide configuration file</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><filename><envar>$XDG_CONFIG_HOME</envar>/docmanager/docmanager.conf</filename></term>
+      <listitem>
+        <para>User-specific configuration file. If
+          <envar>$XDG_CONFIG_HOME</envar> is not set or empty,
+          <filename>$HOME/.config/docmanager/docmanager.conf</filename> will be used.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><filename><varname>$REPO_DIR</varname>/.git/docmanager.conf</filename></term>
+      <listitem>
+        <para>Git repository-specific configuration file.</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>If no <option>--config</option> option was given, &progname; will
+    read  all of these files that are available in the listed order above.
+    Files which are not available will be ignored.
+  </para>
+  <para> The files are read in the order given above, with last value
+    found taking precedence over values read earlier.</para>
+
+  <refsect2 id="docmanager.configfiles.syntax">
+    <title>Syntax</title>
+    <para>The &progname; configuration file uses the INI format, for example:</para>
+    <screen>[general]
+# General options, used for all subcommands
+foo=bar</screen>
+    <para>The <literal>general</literal> section contains an entry with
+      the name <varname>foo</varname> and its value
+        <literal>bar</literal>. Spaces around the equal sign are
+      ignored.</para>
+  </refsect2>
+
+  <refsect2 id="docmanager.configfiles.sec_a_var">
+    <title>Section and Variable Names</title>
+    <para>&progname; supports the following sections:</para>
+    <variablelist>
+      <varlistentry id="dm.configfiles.sec.general">
+        <term><varname>general</varname></term>
+        <listitem>
+          <para>Relevant settings for all sub commands.</para>
+          <variablelist>
+            <varlistentry>
+              <term><option>verbosity_level</option></term>
+              <listitem>
+                <para>Sets the default verbosity level.</para>
+                <variablelist>
+                  <varlistentry>
+                    <term>0</term>
+                    <listitem>
+                      <para>Show only WARNINGS, ERRORS, and CRITICAL
+                        messages, but hides INFO and DEBUG
+                        messages.</para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>1</term>
+                    <listitem>
+                      <para>Show only INFOS, WARNINGS, ERRORS, and
+                        CRITICAL messages, but hides DEBUG
+                        messages.</para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>2</term>
+                    <listitem>
+                      <para>Shows everything.</para>
+                    </listitem>
+                  </varlistentry>
+                </variablelist>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
+      </varlistentry>
+      <!--  -->
+      <varlistentry id="dm.configfiles.sec.analyze">
+        <term><varname>analyze</varname></term>
+        <listitem>
+          <para>Controls behaviour of the analzye feature. This section
+            contains the following variables:</para>
+          <variablelist>
+            <varlistentry>
+              <term><option>queryformat</option></term>
+              <listitem>
+                <para>Defines the standard query format when the user didn't
+                  use one with <option>-qf</option>.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
+      </varlistentry>
+      <!--  -->
+      <varlistentry id="dm.configfiles.sec.alias">
+        <term><varname>alias</varname></term>
+        <listitem>
+          <para>There are several aliases (shortcuts) which are globally
+            definied:</para>
+
+          <variablelist>
+            <varlistentry id="myfiles">
+              <term><command>myfiles</command></term>
+              <listitem>
+                <para>Lists all files where current user is equal to the
+                  <sgmltag>dm:maintainer</sgmltag> element. Current user name
+                  is taken from the environment variable <envar>USER</envar></para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="myediting">
+              <term><command>myediting</command></term>
+              <listitem>
+                <para>Lists all files where current user is equal to the
+                  <sgmltag>dm:maintainer</sgmltag> element and
+                  <sgmltag>dm:status</sgmltag> is equal to <literal>editing</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="myedited">
+              <term><command>myedited</command></term>
+              <listitem>
+                <para>Lists all files where current user is equal to the
+                  <sgmltag>dm:maintainer</sgmltag> element and
+                  <sgmltag>dm:status</sgmltag> is equal to <literal>edited</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="dmediting">
+              <term><command>dmediting</command></term>
+              <listitem>
+                <para>Lists all files where  <sgmltag>dm:status</sgmltag> is
+                  equal to <literal>editing</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="dmedited">
+              <term><command>dmedited</command></term>
+              <listitem>
+                <para>Lists all files where  <sgmltag>dm:status</sgmltag> is
+                  equal to <literal>edited</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="dmproofing">
+              <term><command>dmproofing</command></term>
+              <listitem>
+                <para>Lists all files where  <sgmltag>dm:status</sgmltag> is
+                  equal to <literal>proofing</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="dmproofed">
+              <term><command>dmproofed</command></term>
+              <listitem>
+                <para>Lists all files where  <sgmltag>dm:status</sgmltag> is
+                  equal to <literal>proofed</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="locdrop">
+              <term><command>locdrop</command></term>
+              <listitem>
+                <para>Lists all files where <sgmltag>dm:status</sgmltag> is
+                  equal to <literal>locdrop</literal>.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="transyes">
+              <term><command>transyes</command></term>
+              <listitem>
+                <para>Lists all files where <sgmltag>dm:trans</sgmltag> is
+                  not empty.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry id="transno">
+              <term><command>transno</command></term>
+              <listitem>
+                <para>Lists all files where <sgmltag>dm:trans</sgmltag> is
+                  empty or not set.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect2>
+
+</refsect1>

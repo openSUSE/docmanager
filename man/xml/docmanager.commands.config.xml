@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refsect2 PUBLIC
+"-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.docbook.org/xml/4.5/docbookx.dtd"
+[
+<!ENTITY % entities SYSTEM "entity-decl.ent">
+%entities;
+]>
+
+  <refsect2>
+   <title>
+    <command>config</command> <replaceable>OPTION(--system|--user|--repo|--own)</replaceable> <replaceable>PROPERTY</replaceable> <replaceable>VALUE</replaceable>
+   </title>
+   <para>Manage the configuration files.</para>
+   <variablelist>
+    <varlistentry>
+     <term><option>--system/-s</option></term>
+     <listitem>
+      <para>
+        Uses the system configuration file from /etc/docmanager/docmanager.conf.
+        If the file was not found, &progname; will create that file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--user/-u</option></term>
+     <listitem>
+      <para>
+        Uses the user configuration file from /home/{user}/.config/docmanager/docmanager.conf.
+        If the file was not found, &progname; will create that file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--repo/-r</option></term>
+     <listitem>
+      <para>
+        Uses the git repository configuration file from {current_git_director}/.git/docmanager/docmanager.conf.
+        If the file was not found, &progname; will create that file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--own/-o</option> <replaceable>FILE</replaceable></term>
+     <listitem>
+      <para>Uses an own configuration file. If the file was not found, &progname; will create that file.</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>PROPERTY</option></term>
+     <listitem>
+      <para>The property of the configuration file. You have to separate the section from the property with a dot. For example: section.property</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>VALUE</option></term>
+     <listitem>
+      <para>The value of the property.</para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </refsect2>

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -17,12 +17,13 @@
 # you may find current contact information at www.suse.com
 
 import sys
-from docmanager.core import DefaultDocManagerProperties, \
-     NS, ReturnCodes, VALIDROOTS, BugtrackerElementList
+from docmanager.core import DEFAULT_DM_PROPERTIES, \
+     NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
+from docmanager.exceptions import DMNotDocBook5File
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import check_root_element, compilestarttag, ensurefileobj, \
-     findprolog, get_namespace, localname, recover_entities, replaceinstream, preserve_entities, \
-     findinfo_pos, xml_indent
+from docmanager.xmlutil import check_root_element, compilestarttag, \
+     ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
+     replaceinstream, preserve_entities, findinfo_pos, xml_indent
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -30,30 +31,31 @@ class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename, stopOnError=True):
+    def __init__(self, filename, stoponerror=True):
         """Initializes the XmlHandler class
 
         :param str filename: filename of XML file
         """
         logmgr_flog()
-        log.debug("Initialized a new XML Handler for file '{}'.".format(filename))
+        log.debug("Initialized a new XML Handler for file %r.", filename)
 
         # general
         self._filename = ""
         self._buffer = None # StringIO
-        
+
         # prolog
         self._offset = 0
         self._header = ""
         self._root = ""
         self.roottag = ""
-        
+
         # parser
         self.__xmlparser = None
-        self.invalidXML = False
-        self.xmlErrorString = ""
-        self.stopOnError = stopOnError
-        
+        self.invalidfile = False
+        self.fileerror = ""
+        self.xmlerrorstring = ""
+        self.stoponerror = stoponerror
+
         # lxml
         self.__tree = None
         self.__root = None
@@ -64,8 +66,8 @@ class XmlHandler(object):
         self._buffer = ensurefileobj(self._filename)
 
         # log
-        self.xmlLogErrorString = ""
-        
+        self.xmllogerrorstring = ""
+
         # parse the given file with lxml
         self.parse()
 
@@ -73,94 +75,104 @@ class XmlHandler(object):
         """This function parses the whole XML file
         """
         logmgr_flog()
-        
+
         # find the prolog of the XML file (everything before the start tag)
         try:
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
-            self.invalidXML = True
-            self.xmlLogErrorString = "<{}:{}> {} in {!r}.".format(err.getLineNumber(), \
-                                      err.getColumnNumber(), \
-                                      err.getMessage(), \
-                                      self.filename,)
-            
-            if self.stopOnError:
-                log.error(self.xmlLogErrorString)
+            self.invalidfile = True
+            self.fileerror = "<{}:{}> {} in {!r}.".format(\
+                                            err.getLineNumber(), \
+                                            err.getColumnNumber(), \
+                                            err.getMessage(), \
+                                            self.filename,)
+
+            if self.stoponerror:
+                log.error(self.fileerror)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-        if not self.invalidXML:
+        if not self.invalidfile:
             # save prolog details
             self._offset, self._header, self._root, self._roottag = prolog['offset'], \
                 prolog['header'], \
                 prolog['root'], \
                 prolog['roottag']
-    
+
             # replace any entities
             self.replace_entities()
-    
+
             # register namespace
             # etree.register_namespace("dm", "{dm}".format(**NS))
             self.__xmlparser = etree.XMLParser(remove_blank_text=False,
                                                resolve_entities=False,
                                                dtd_validation=False)
-            
+
             # load the file and set a reference to the dm group
             self.__tree = etree.parse(self._buffer, self.__xmlparser)
             self.__root = self.__tree.getroot()
-            
+
             try:
                 check_root_element(self.__root, etree)
             except ValueError as err:
-                self.invalidXML = True
-                self.xmlLogErrorString = err
+                self.invalidfile = True
+                self.fileerror = err
 
-                if self.stopOnError:
-                    log.error(self.xmlErrorString)
+                if self.stoponerror:
+                    log.error(err)
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-            if not self.invalidXML:
+            if not self.invalidfile:
                 # check for DocBook 5 namespace in start tag
-                self.check_docbook5_ns()
-                
-                # check for docmanager element
-                self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
-                
-                if self.__docmanager is None:
-                    log.info("No docmanager element found")
-                    self.create_group()
-                else:
-                    log.info("Found docmanager element %s", self.__docmanager.getparent() )
+                try:
+                    self.check_docbook5_ns()
+
+                    # check for docmanager element
+                    self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
+
+                    if self.__docmanager is None:
+                        log.info("No docmanager element found")
+                        self.create_group()
+                    else:
+                        log.debug("Found docmanager element %s", self.__docmanager.getparent())
+                except DMNotDocBook5File:
+                    self.invalidfile = True
+                    self.fileerror = "%s is not a DocBook 5 XML document. " \
+                                     "The start tag of the document has to be in the official " \
+                                     "DocBook 5 namespace: %s", self._filename, NS['d']
+
+                    if self.stoponerror == True:
+                        log.error(self.fileerror)
+                        sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
         """
         rootns = get_namespace(self.__root.tag)
         if rootns != NS['d']:
-            log.error("{} is not a DocBook 5 XML document. The start tag of the document has to be in the official " \
-                      "DocBook 5 namespace: {}".format(self._filename, NS['d']))
-            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
-    
+            raise DMNotDocBook5File()
+
     def replace_entities(self):
         """This function replaces entities in the StringIO buffer
         """
         logmgr_flog()
-        
+
         self._buffer.seek(self._offset)
         self._buffer = replaceinstream(self._buffer, preserve_entities)
 
     def init_default_props(self, force=False, bugtracker=False):
         """Initializes the default properties for the given XML files
-    
-        :param bool force: Ignore if there are already properties in an XML - just overwrite them
+
+        :param bool force: Ignore if there are already properties in an
+                           XML - just overwrite them
         """
         logmgr_flog()
 
-        props = list(DefaultDocManagerProperties)
+        props = list(DEFAULT_DM_PROPERTIES)
 
-        if bugtracker == True:
-            for i in BugtrackerElementList:
+        if bugtracker:
+            for i in BT_ELEMENTLIST:
                 props.append(i)
-        
+
         ret = 0
         for i in props:
             if (i not in self.get(i)) or \
@@ -174,11 +186,13 @@ class XmlHandler(object):
     def check_root_element(self):
         """Checks if root element is valid"""
         logmgr_flog()
-        
+
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
-            raise ValueError("Cannot add info element to file '{}'. '{}' is not a valid root "
-                             "element.".format(self._filename, localname(self.__root.tag)))
+            raise ValueError("Cannot add info element to file %r. "
+                             "This file does not contain a valid "
+                             "DocBook 5 root element. Found %s",
+                             self._filename, localname(self.__root.tag))
 
     def create_group(self):
         """Creates the docmanager group element"""
@@ -188,17 +202,17 @@ class XmlHandler(object):
         info = self.__tree.find("//d:info", namespaces=NS)
         # TODO: We need to check for a --force option
         if info is None:
-            log.info("No <info> element found!")
+            log.debug("No <info> element found!")
             pos = findinfo_pos(self.__root)
-            log.info("Using position %d", pos)
+            log.debug("Using position %d", pos)
             info = etree.Element("{%s}info" % NS["d"])
             info.tail = '\n'
             info.text = '\n'
             self.__root.insert(pos, info)
 
-            log.info("Adding <info> element in '%s'", self.filename)
+            log.debug("Adding <info> element in '%s'", self.filename)
 
-        log.info("Adding <dm:docmanager> to <info>")
+        log.debug("Adding <dm:docmanager> to <info>")
         # dm = etree.Element("{%s}docmanager" % NS["dm"])
         # self.__docmanager = info.insert(0, dm)
         self.__docmanager = etree.SubElement(info,
@@ -261,18 +275,18 @@ class XmlHandler(object):
     def is_prop_set(self, prop):
         """
         Checks if a property is set in an XML element
-        
+
         :param str prop: the property
-        
+
         :return: if property is set
         :rtype: bool
         """
         logmgr_flog()
-        
+
         element = self.__docmanager.find("./dm:{}".format(prop), namespaces=NS)
         if element is not None:
             return True
-        
+
         return False
 
     def get(self, keys=None):
@@ -290,7 +304,6 @@ class XmlHandler(object):
 
         dm = self.__docmanager
         dmelem = list()
-        lastnode = dm
         values = {}
 
         if not isinstance(keys, list):
@@ -298,7 +311,6 @@ class XmlHandler(object):
 
         for key in keys:
             elemlist = key.split("/")
-            lastnode = dm
             dmelem = list()
 
             for e in elemlist:
@@ -310,12 +322,7 @@ class XmlHandler(object):
                 if node is None:
                     break
 
-                lastnode = node
-
-            if node is None:
-                values.update({ key: None })
-            else:
-                values.update({key: node.text})
+            values.update({key: None if node is None else node.text})
 
         return values
 
@@ -335,21 +342,33 @@ class XmlHandler(object):
 
         :param str key: element name to delete
         :param str condition: the condition for the deletion (the var condition has to be equal with the property value)
+        :return boolean: True = success | False = no property has been deleted
         """
         logmgr_flog()
+
         key = key.split("/")
-        key = "/dm:".join(key)
-        key = "/dm:" + key
+        lastnode = None
 
-        key_handler = self.__docmanager.find("." + key,
-                                             namespaces=NS)
+        key_handler = self.__docmanager.find("dm:{}".format(key[0]), namespaces=NS)
 
-        if key_handler is not None:
-            if condition is None:
+        for idx, prop in enumerate(key):
+            if lastnode is not None:
+                key_handler = lastnode.find("dm:{}".format(prop), namespaces=NS)
+
+            lastnode = key_handler
+
+            if key_handler is None:
+                break
+
+            if idx == len(key)-1:
+                if condition is not None:
+                    if condition != key_handler.text:
+                        break
+
                 key_handler.getparent().remove(key_handler)
-            else:
-                if key_handler.text == condition:
-                    key_handler.getparent().remove(key_handler)
+                return True
+
+        return False
 
     def get_indentation(self, node, indentation=""):
         """Calculates indentation level
@@ -369,7 +388,7 @@ class XmlHandler(object):
     def indent_dm(self):
         """Indents only dm:docmanager element and its children"""
         logmgr_flog()
-        
+
         dmindent='    '
         dm = self.__tree.find("//dm:docmanager",
                               namespaces=NS)
@@ -393,7 +412,6 @@ class XmlHandler(object):
         #log.info("prev: %s", prev)
         if prev is not None:
             log.info("prev: %s", prev)
-            previndent = "".join(prev.tail.split('\n'))
             prev.tail = '\n' + infoindent
         indent=self.get_indentation(dm.getprevious())
         dm.text = '\n' + indent + '    '
@@ -405,7 +423,7 @@ class XmlHandler(object):
     def write(self):
         """Write XML tree to original filename"""
         logmgr_flog()
-        
+
         # Only indent docmanager child elements
         self.indent_dm()
 
@@ -474,3 +492,7 @@ class XmlHandler(object):
     @root.deleter
     def root(self):
         raise ValueError("root cannot be deleted")
+
+    @property
+    def dm(self):
+        return self.__docmanager
