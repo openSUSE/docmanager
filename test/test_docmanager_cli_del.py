@@ -6,7 +6,7 @@ from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.core import DEFAULT_DM_PROPERTIES
 
-def test_docmanager_cli_del_0(tmp_valid_xml, capsys):
+def test_docmanager_cli_del_0(tmp_valid_xml):
     """Checks if the delete command works
     """
 
@@ -15,9 +15,6 @@ def test_docmanager_cli_del_0(tmp_valid_xml, capsys):
 
     prepare_file(file, ustr)
     content = ""
-
-    out, err = capsys.readouterr()
-    print(out)
 
     with open(file, 'r') as f:
         content = f.read()
