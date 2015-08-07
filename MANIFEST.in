@@ -16,6 +16,6 @@ include .landscape.yml
 include .travis.yml
 include *requirements.txt
 include make_devsetup.sh 
-include docmanager/docmanager.conf
+include src/docmanager/docmanager.conf
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib
