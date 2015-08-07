@@ -19,6 +19,7 @@
 import sys
 from docmanager.core import DEFAULT_DM_PROPERTIES, \
      NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
+from docmanager.exceptions import DMNotDocBook5File
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
@@ -50,7 +51,8 @@ class XmlHandler(object):
 
         # parser
         self.__xmlparser = None
-        self.invalidxml = False
+        self.invalidfile = False
+        self.fileerror = ""
         self.xmlerrorstring = ""
         self.stoponerror = stoponerror
 
@@ -78,18 +80,18 @@ class XmlHandler(object):
         try:
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
-            self.invalidxml = True
-
-            if self.stoponerror:
-                self.xmllogerrorstring = "<{}:{}> {} in {!r}.".format(\
+            self.invalidfile = True
+            self.fileerror = "<{}:{}> {} in {!r}.".format(\
                                             err.getLineNumber(), \
                                             err.getColumnNumber(), \
                                             err.getMessage(), \
                                             self.filename,)
-                log.error(self.xmllogerrorstring)
+
+            if self.stoponerror:
+                log.error(self.fileerror)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-        if not self.invalidxml:
+        if not self.invalidfile:
             # save prolog details
             self._offset, self._header, self._root, self._roottag = prolog['offset'], \
                 prolog['header'], \
@@ -112,35 +114,42 @@ class XmlHandler(object):
             try:
                 check_root_element(self.__root, etree)
             except ValueError as err:
-                self.invalidxml = True
-                self.xmllogerrorstring = err
+                self.invalidfile = True
+                self.fileerror = err
 
                 if self.stoponerror:
                     log.error(err)
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-            if not self.invalidxml:
+            if not self.invalidfile:
                 # check for DocBook 5 namespace in start tag
-                self.check_docbook5_ns()
+                try:
+                    self.check_docbook5_ns()
 
-                # check for docmanager element
-                self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
+                    # check for docmanager element
+                    self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
 
-                if self.__docmanager is None:
-                    log.info("No docmanager element found")
-                    self.create_group()
-                else:
-                    log.debug("Found docmanager element %s", self.__docmanager.getparent())
+                    if self.__docmanager is None:
+                        log.info("No docmanager element found")
+                        self.create_group()
+                    else:
+                        log.debug("Found docmanager element %s", self.__docmanager.getparent())
+                except DMNotDocBook5File:
+                    self.invalidfile = True
+                    self.fileerror = "%s is not a DocBook 5 XML document. " \
+                                     "The start tag of the document has to be in the official " \
+                                     "DocBook 5 namespace: %s", self._filename, NS['d']
+
+                    if self.stoponerror == True:
+                        log.error(self.fileerror)
+                        sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
         """
         rootns = get_namespace(self.__root.tag)
         if rootns != NS['d']:
-            log.error("%s is not a DocBook 5 XML document. "
-                      "The start tag of the document has to be in the official "
-                      "DocBook 5 namespace: %s", self._filename, NS['d'])
-            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
+            raise DMNotDocBook5File()
 
     def replace_entities(self):
         """This function replaces entities in the StringIO buffer

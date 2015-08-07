@@ -24,3 +24,6 @@ class DMAnalyzeInvalidFilterSyntax(Exception):
 
 class DMConfigFileNotFound(Exception):
 	pass
+
+class DMNotDocBook5File(Exception):
+	pass

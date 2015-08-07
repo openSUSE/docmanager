@@ -25,7 +25,7 @@ from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
 from docmanager.exceptions import DMInvalidXMLHandlerObject
 from docmanager.logmanager import log, logmgr_flog
-from docmanager.shellcolors import red, green
+from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
 
 class Actions(object):
@@ -87,7 +87,7 @@ class Actions(object):
 
         # iter through all xml handlers and init its properties
         for xh in self.__xml:
-            if not xh.invalidxml:
+            if not xh.invalidfile:
                 validfiles += 1
 
                 log.debug("Trying to initialize the predefined DocManager "
@@ -149,57 +149,58 @@ class Actions(object):
             log.debug("Trying to initialize the XmlHandler for file '{}'.".format(i))
             handlers[i] = self.__xml[idx]
 
-            if handlers[i].invalidxml:
+            if handlers[i].invalidfile:
                 invalidfiles += 1
             else:
                 validfiles += 1
 
         # split key and value
-        args = [ i.split("=") for i in arguments]
+        args = [i.split("=") for i in arguments]
 
         # iter through all key and values
-        for arg in args:
-            key, value = arg
-            try:
-                if key == "languages":
-                    value = value.split(",")
-                    value = ",".join(self.remove_duplicate_langcodes(value))
+        if validfiles > 0:
+            for f in self.__files:
+                if handlers[f].invalidfile:
+                    print("[ {} ] {} -> {}".format(red("error"), f, red(handlers[f].fileerror)))
+                else:
+                    for arg in args:
+                        try:
+                            key, value = arg
 
-                for f in self.__files:
-                    if not handlers[f].invalidxml:
-                        log.debug("[%s] Trying to set value for property "
-                                  "%r to %r.", f, key, value)
-                        if self.__args.bugtracker:
-                            handlers[f].set({"bugtracker/" + key: value})
-                        else:
-                            handlers[f].set({key: value})
-                        print("[{}] Set value for property {!r} to {!r}.".format(f, key, value))
+                            if key == "languages":
+                                value = value.split(",")
+                                value = ",".join(self.remove_duplicate_langcodes(value))
 
-            except ValueError:
-                log.error('Invalid usage. '
-                          'Set values with the following format: '
-                          'property=value')
-                sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+                            log.debug("[%s] Trying to set value for property "
+                                      "%r to %r.", f, key, value)
+                            
+                            if self.__args.bugtracker:
+                                handlers[f].set({"bugtracker/" + key: value})
+                            else:
+                                handlers[f].set({key: value})
+                        except ValueError:
+                            log.error('Invalid usage. '
+                                      'Set values with the following format: '
+                                      'property=value')
+                            sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+
+                    print("[ {} ] Set data for file {}.".format(green("ok"), f))
 
         # save the changes
         for f in self.__files:
-            if not handlers[f].invalidxml:
+            if not handlers[f].invalidfile:
                 log.debug("[%s] Trying to save the changes.", f)
                 handlers[f].write()
-                print("[{}] Saved changes.".format(f))
 
-        print("\nWrote {} valid XML file{}.".format(green(validfiles),
-              '' if validfiles == 1 else 's')
+        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
+                green(validfiles),
+                '' if validfiles == 1 else 's',
+                red(invalidfiles),
+                '' if invalidfiles == 1 else 's'
+                )
              )
 
         if invalidfiles > 0:
-            print("\nSkipped {} XML file{} due to errors.".format(red(invalidfiles),
-                  '' if invalidfiles == 1 else 's')
-                 )
-
-            for f in self.__files:
-                if handlers[f].invalidxml:
-                    print("{}: {}".format(f, red(handlers[f].xmlerrorstring)))
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get(self, arguments):

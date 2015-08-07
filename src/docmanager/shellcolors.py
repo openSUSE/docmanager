@@ -34,7 +34,7 @@ def green(text):
     """Create green text string
 
     :param string text: text to print in green
-    :return: greenified string
+    :return: a green string
     """
     return "32m{0}".format(text)
 
@@ -43,6 +43,15 @@ def red(text):
     """Create red text string
 
     :param string text: text to print in red
-    :return: redified string
+    :return: a red string
     """
     return "31m{0}".format(text)
+
+@shellcolor
+def yellow(text):
+    """Create yellow text string
+
+    :param string text: text to print in yellow
+    :return: a yellow string
+    """
+    return "33m{0}".format(text)
