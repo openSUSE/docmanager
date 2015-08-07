@@ -29,7 +29,7 @@ from configparser import NoOptionError, NoSectionError
 from docmanager import __version__
 from docmanager.config import docmanagerconfig, create_userconfig
 from docmanager.core import ReturnCodes, LANGUAGES, STATUSFLAGS, \
-    DefaultDocManagerProperties, BugtrackerElementList, DefaultSubCommands
+    DEFAULT_DM_PROPERTIES, BT_ELEMENTLIST, DEFAULTSUBCOMMANDS
 from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log, logmgr_flog, setloglevel
 
@@ -43,7 +43,7 @@ def populate_properties(args):
     """
 
     result = []
-    for prop in DefaultDocManagerProperties:
+    for prop in DEFAULT_DM_PROPERTIES:
         proparg = prop.replace("/", "_")
         if hasattr(args, proparg) and getattr(args, proparg) is not None:
             result.append("{}={}".format(prop, getattr(args, proparg)))
@@ -60,7 +60,7 @@ def populate_bugtracker_properties(args):
     """
 
     result = []
-    for prop in BugtrackerElementList:
+    for prop in BT_ELEMENTLIST:
         proparg = prop.replace("/", "_")
         if hasattr(args, proparg) and getattr(args, proparg) is not None:
             result.append("{}={}".format(prop, getattr(args, proparg)))
@@ -104,7 +104,7 @@ def init_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs):
     pinit.add_argument('--repository',
                        help='Sets the property "repository".'
                        )
-    for item in BugtrackerElementList:
+    for item in BT_ELEMENTLIST:
         _, option = item.split('/')
         pinit.add_argument('--bugtracker-{}'.format(option),
                            help='Sets the property '
@@ -166,7 +166,7 @@ def set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs):
                       help='Sets the property "repository"'
                       )
 
-    for item in BugtrackerElementList:
+    for item in BT_ELEMENTLIST:
         _, option = item.split('/')
         pset.add_argument('--bugtracker-{}'.format(option),
                           help='Set the property "bugtracker/{}" '
@@ -249,7 +249,7 @@ def rewrite_alias(args):
 
     :param argparse.Namespace args: Parsed arguments
     """
-    actions = DefaultSubCommands
+    actions = DEFAULTSUBCOMMANDS
     args.action = actions.get(args.action)
 
 
@@ -291,7 +291,7 @@ def is_alias(subcmd):
     """Check if subcmd is an alias
     :rtype: bool
     """
-    return subcmd not in DefaultSubCommands
+    return subcmd not in DEFAULTSUBCOMMANDS
 
 def parse_alias_value(value):
     """Parse pre defined constants
@@ -404,7 +404,7 @@ def parsecli(cliargs=None, error_on_config=False):
                        help='Sets the default output for properties which are not available in a file. By default, DocManager prints nothing.'
                 )
     mainprops = tuple(("-{}".format(i.upper()[0]), "--{}".format(i))
-                      for i in DefaultDocManagerProperties)
+                      for i in DEFAULT_DM_PROPERTIES)
 
     parser = argparse.ArgumentParser(
         prog="docmanager",
@@ -535,8 +535,8 @@ def input_format_check(args):
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
 
     if hasattr(args, 'deadline') and args.deadline is not None:
-        r = re.match("^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$", args.deadline)
-        if r is None:
+        match = re.match("^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$", args.deadline)
+        if match is None:
             print("Value of 'deadline' is incorrect. "
                   "Use this date format: YYYY-MM-DD")
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)

@@ -5,7 +5,7 @@ import shlex
 
 from docmanager.cli import parsecli
 from docmanager.action import Actions
-from docmanager.core import DefaultDocManagerProperties, NS
+from docmanager.core import DEFAULT_DM_PROPERTIES, NS
 from docmanager.xmlhandler import XmlHandler
 from docmanager.xmlutil import localname
 
@@ -26,7 +26,7 @@ def test_docmanager_delcheck2(tmp_valid_xml):
     handler.init_default_props(False)
     dm = handler.tree.find("//dm:docmanager", namespaces=NS)
     dmset = set(localname(e.tag) for e in list(dm.iterchildren()) )
-    assert dmset == set(DefaultDocManagerProperties)
+    assert dmset == set(DEFAULT_DM_PROPERTIES)
 
 def test_docmanager_delcheck3(tmp_valid_xml):
     ustr = 'ArnLTVMp'

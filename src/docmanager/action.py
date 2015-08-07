@@ -22,7 +22,7 @@ from collections import OrderedDict, namedtuple
 from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
 from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
-from docmanager.core import DefaultDocManagerProperties, ReturnCodes, BugtrackerElementList, NS
+from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
 from docmanager.exceptions import DMInvalidXMLHandlerObject
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green
@@ -68,13 +68,13 @@ class Actions(object):
         log.debug("Arguments %s", arguments)
 
         _set = dict()
-        props = list(DefaultDocManagerProperties)
+        props = list(DEFAULT_DM_PROPERTIES)
         validfiles = 0
         invalidfiles = 0
 
         # append bugtracker properties if needed
         if self.__args.with_bugtracker:
-            for item in BugtrackerElementList:
+            for item in BT_ELEMENTLIST:
                 props.append(item)
 
         # set default properties
@@ -87,7 +87,7 @@ class Actions(object):
 
         # iter through all xml handlers and init its properties
         for xh in self.__xml:
-            if not xh.invalidXML:
+            if not xh.invalidxml:
                 validfiles += 1
 
                 log.debug("Trying to initialize the predefined DocManager "
@@ -112,7 +112,7 @@ class Actions(object):
                         xh.set({ i: str(_set[i]) })
 
                 # if bugtracker options are provided, set default values
-                for i in BugtrackerElementList:
+                for i in BT_ELEMENTLIST:
                     rprop = i.replace("/", "_")
 
                     if hasattr(self.__args, rprop) and \
@@ -127,7 +127,7 @@ class Actions(object):
                 print("[{}] Initialized default properties for {!r}: {}. ".format(\
                     red("failed"),
                     xh.filename,
-                    red(xh.xmlLogErrorString)))
+                    red(xh.xmllogerrorstring)))
 
         print("\nInitialized successfully {} files. {} files failed.".format(\
               green(validfiles), red(invalidfiles)))
@@ -149,7 +149,7 @@ class Actions(object):
             log.debug("Trying to initialize the XmlHandler for file '{}'.".format(i))
             handlers[i] = self.__xml[idx]
 
-            if handlers[i].invalidXML:
+            if handlers[i].invalidxml:
                 invalidfiles += 1
             else:
                 validfiles += 1
@@ -166,7 +166,7 @@ class Actions(object):
                     value = ",".join(self.remove_duplicate_langcodes(value))
 
                 for f in self.__files:
-                    if not handlers[f].invalidXML:
+                    if not handlers[f].invalidxml:
                         log.debug("[%s] Trying to set value for property "
                                   "%r to %r.", f, key, value)
                         if self.__args.bugtracker:
@@ -183,7 +183,7 @@ class Actions(object):
 
         # save the changes
         for f in self.__files:
-            if not handlers[f].invalidXML:
+            if not handlers[f].invalidxml:
                 log.debug("[%s] Trying to save the changes.", f)
                 handlers[f].write()
                 print("[{}] Saved changes.".format(f))
@@ -198,8 +198,8 @@ class Actions(object):
                  )
 
             for f in self.__files:
-                if handlers[f].invalidXML:
-                    print("{}: {}".format(f, red(handlers[f].xmlErrorString)))
+                if handlers[f].invalidxml:
+                    print("{}: {}".format(f, red(handlers[f].xmlerrorstring)))
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get(self, arguments):
@@ -265,7 +265,7 @@ class Actions(object):
             log.debug("[%s] Trying to save the changes.", f)
             handlers[f].write()
 
-    def analyze(self, arguments):
+    def analyze(self, arguments): # pylint:disable=unused-argument
         handlers = dict()
 
         # Set default query format
@@ -277,7 +277,7 @@ class Actions(object):
             qformat = self.args.queryformat
 
         file_data = list()
-        NTFILEDATA = namedtuple("FileData", "file,out_formatted,data")
+        ntfiledata = namedtuple("FileData", "file,out_formatted,data")
 
         for f in self.__files:
             handlers[f] = XmlHandler(f)
@@ -295,7 +295,7 @@ class Actions(object):
             if not self.__args.sort and data:
                 print(analyzer.format_output(out, data))
             else:
-                file_data.append(NTFILEDATA(file=f, out_formatted=out, data=data))
+                file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
 
         if self.__args.sort:
             values = None
@@ -310,14 +310,36 @@ class Actions(object):
                         x.data[self.__args.sort])
                 except KeyError:
                     log.error("Could not find key '{}' in -qf for sort.")
-            
+
             for i in values:
                 print(analyzer.format_output(i.out_formatted, i.data))
 
-    def config(self, values):
+    def _readconfig(self, confname):
+        """Read the configuration file
+
+        :param str confname: name of configuration file
+        :return: ConfigParser object
+        """
+
+        # exit if the config file is a directory
+        if os.path.isdir(confname):
+            log.error("File '{}' is a directory. Cannot write "
+                      "into directories!".format(confname))
+            sys.exit(ReturnCodes.E_FILE_IS_DIRECTORY)
+
+        # open the config file with the ConfigParser
+        conf = ConfigParser()
+        if not conf.read(confname):
+            if os.path.exists(confname):
+                log.error("Permission denied for file '{}'! "
+                          "Maybe you need sudo rights?".format(confname))
+                sys.exit(ReturnCodes.E_PERMISSION_DENIED)
+        return conf
+
+    def config(self, values): # pylint:disable=unused-argument
         if not self.__args.system and not self.__args.user and not self.__args.repo and not self.__args.own:
             log.error("No config file specified. Please choice between either '--system', '--user', '--repo', or '--own'.")
-            sys.exit(ReturnCodes().E_CONFIGCMD_NO_METHOD_SPECIFIED)
+            sys.exit(ReturnCodes.E_CONFIGCMD_NO_METHOD_SPECIFIED)
 
         prop = self.__args.property
         value = self.__args.value
@@ -326,7 +348,7 @@ class Actions(object):
         pos = prop.find(".")
         if pos == -1:
             log.error("Invalid property syntax. Use: section.property")
-            sys.exit(ReturnCodes().E_INVALID_CONFIG_PROPERTY_SYNTAX)
+            sys.exit(ReturnCodes.E_INVALID_CONFIG_PROPERTY_SYNTAX)
 
         section = prop[:pos]
         prop = prop[pos+1:]
@@ -344,12 +366,7 @@ class Actions(object):
             confname = self.__args.own
 
         # open the config file with the ConfigParser
-        conf = ConfigParser()
-        if not conf.read(confname):
-            if os.path.exists(confname):
-                log.error("Permission denied for file '{}'! "
-                          "Maybe you need sudo rights?".format(confname))
-                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+        conf = self._readconfig(confname)
 
         # handle the 'get' method
         if value is None:
@@ -371,20 +388,21 @@ class Actions(object):
         # save the changes
         try:
             if not os.path.exists(confname):
-                conf.write(open(confname, 'x'))
+                # 'x' for creating and writing to a new file
+                conf.write(open(confname, 'x')) # pylint:disable=bad-open-mode
             else:
                 conf.write(open(confname, 'w'))
-        except PermissionError:
+        except PermissionError: # pylint:disable=undefined-variable
             log.error("Permission denied for file '{}'! "
                       "Maybe you need sudo rights?".format(confname))
-            sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+            sys.exit(ReturnCodes.E_PERMISSION_DENIED)
 
     def alias(self, values):
         action = self.__args.alias_action
         alias = self.__args.alias
         value = self.__args.command
         m = { 0: None, 1: GLOBAL_CONFIG[0], 2: USER_CONFIG, 3: GIT_CONFIG }
-        config = m.get(self.__args.method, self.__args.own)
+        configname = m.get(self.__args.method, self.__args.own)
         save = False
 
         if action != 'list':
@@ -396,18 +414,7 @@ class Actions(object):
             value = ""
 
         # parse the config file
-        conf = ConfigParser()
-        if not conf.read(config):
-            if os.path.exists(config):
-                log.error("Permission denied for file '{}'! "
-                          "Maybe you need sudo rights?".format(config))
-                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
-
-        # exit if the config file is a directory
-        if os.path.isdir(config):
-            log.error("File '{}' is a directory. Cannot write "
-                      "into directories!".format(config))
-            sys.exit(ReturnCodes().E_FILE_IS_DIRECTORY)
+        conf = self._readconfig(configname)
 
         # add alias section if it's not found
         if not conf.has_section("alias"):
@@ -427,7 +434,7 @@ class Actions(object):
             conf.remove_option("alias", alias)
         elif action == "list":
             data = dict()
-            data["configfile"] = config
+            data["configfile"] = configname
             data["aliases"] = conf['alias']
 
             return data
@@ -435,15 +442,15 @@ class Actions(object):
         # save the changes
         if save:
             try:
-                if not os.path.exists(config):
+                if not os.path.exists(configname):
                     log.error("The config file does not exists.")
-                    sys.exit(ReturnCodes().E_FILE_NOT_FOUND)
-                
-                conf.write(open(config, 'w'))
+                    sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+
+                conf.write(open(configname, 'w'))
             except PermissionError:
                 log.error("Permission denied for file '{}'! "
-                          "Maybe you need sudo rights?".format(config))
-                sys.exit(ReturnCodes().E_PERMISSION_DENIED)
+                          "Maybe you need sudo rights?".format(configname))
+                sys.exit(ReturnCodes.E_PERMISSION_DENIED)
 
     def remove_duplicate_langcodes(self, values):
         new_list = []

@@ -17,8 +17,8 @@
 # you may find current contact information at www.suse.com
 
 import sys
-from docmanager.core import DefaultDocManagerProperties, \
-     NS, ReturnCodes, VALIDROOTS, BugtrackerElementList
+from docmanager.core import DEFAULT_DM_PROPERTIES, \
+     NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
@@ -30,7 +30,7 @@ class XmlHandler(object):
     """An XmlHandler instance represents an XML tree of a file
     """
 
-    def __init__(self, filename, stopOnError=True):
+    def __init__(self, filename, stoponerror=True):
         """Initializes the XmlHandler class
 
         :param str filename: filename of XML file
@@ -50,9 +50,9 @@ class XmlHandler(object):
 
         # parser
         self.__xmlparser = None
-        self.invalidXML = False
-        self.xmlErrorString = ""
-        self.stopOnError = stopOnError
+        self.invalidxml = False
+        self.xmlerrorstring = ""
+        self.stoponerror = stoponerror
 
         # lxml
         self.__tree = None
@@ -64,7 +64,7 @@ class XmlHandler(object):
         self._buffer = ensurefileobj(self._filename)
 
         # log
-        self.xmlLogErrorString = ""
+        self.xmllogerrorstring = ""
 
         # parse the given file with lxml
         self.parse()
@@ -78,18 +78,18 @@ class XmlHandler(object):
         try:
             prolog = findprolog(self._buffer)
         except SAXParseException as err:
-            self.invalidXML = True
+            self.invalidxml = True
 
-            if self.stopOnError:
-                self.xmlLogErrorString = "<{}:{}> {} in {!r}.".format(\
+            if self.stoponerror:
+                self.xmllogerrorstring = "<{}:{}> {} in {!r}.".format(\
                                             err.getLineNumber(), \
                                             err.getColumnNumber(), \
                                             err.getMessage(), \
                                             self.filename,)
-                log.error(self.xmlLogErrorString)
+                log.error(self.xmllogerrorstring)
                 sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-        if not self.invalidXML:
+        if not self.invalidxml:
             # save prolog details
             self._offset, self._header, self._root, self._roottag = prolog['offset'], \
                 prolog['header'], \
@@ -112,14 +112,14 @@ class XmlHandler(object):
             try:
                 check_root_element(self.__root, etree)
             except ValueError as err:
-                self.invalidXML = True
-                self.xmlLogErrorString = err
+                self.invalidxml = True
+                self.xmllogerrorstring = err
 
-                if self.stopOnError:
+                if self.stoponerror:
                     log.error(err)
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
-            if not self.invalidXML:
+            if not self.invalidxml:
                 # check for DocBook 5 namespace in start tag
                 self.check_docbook5_ns()
 
@@ -158,10 +158,10 @@ class XmlHandler(object):
         """
         logmgr_flog()
 
-        props = list(DefaultDocManagerProperties)
+        props = list(DEFAULT_DM_PROPERTIES)
 
         if bugtracker:
-            for i in BugtrackerElementList:
+            for i in BT_ELEMENTLIST:
                 props.append(i)
 
         ret = 0
@@ -302,7 +302,6 @@ class XmlHandler(object):
 
         for key in keys:
             elemlist = key.split("/")
-            lastnode = dm
             dmelem = list()
 
             for e in elemlist:

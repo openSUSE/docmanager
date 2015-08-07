@@ -5,7 +5,7 @@ import shlex
 from argparse import Namespace
 from docmanager.action import Actions
 from docmanager.cli import parsecli
-from docmanager.core import DefaultDocManagerProperties
+from docmanager.core import DEFAULT_DM_PROPERTIES
 from docmanager.xmlhandler import XmlHandler
 
 def test_docmanager_init_0(tmp_valid_xml):
@@ -18,7 +18,7 @@ def test_docmanager_init_0(tmp_valid_xml):
     a.parse()
 
     handler = XmlHandler(tmpfile)
-    for i in DefaultDocManagerProperties:
+    for i in DEFAULT_DM_PROPERTIES:
         assert handler.is_prop_set(i) == True, "property {} is not set.".format(i)
 
 @pytest.mark.parametrize("option,value", [

@@ -32,7 +32,7 @@ _ch.setFormatter(_frmt)
 log.setLevel(logging.DEBUG)
 log.addHandler(_ch)
 
-loglevels = {None: logging.NOTSET, 0: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
+LOGLEVELS = {None: logging.NOTSET, 0: logging.NOTSET, 1: logging.INFO, 2: logging.DEBUG}
 
 def logmgr_flog():
     """Prints debug information about the last called function.
@@ -49,4 +49,4 @@ def setloglevel(verbose):
 
     :param int verbose: verbose level to set
     """
-    log.setLevel(loglevels.get(verbose, logging.DEBUG))
+    log.setLevel(LOGLEVELS.get(verbose, logging.DEBUG))

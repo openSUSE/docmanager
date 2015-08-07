@@ -69,29 +69,29 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
         if len(data['aliases']) == 0:
             print("There are no aliases in config file: {}".format(data["configfile"]))
         else:
-            t = PrettyTable(["Alias", "Command"])
-            t.align["Alias"] = "l" # left align
-            t.align["Command"] = "l" # left align
+            table = PrettyTable(["Alias", "Command"])
+            table.align["Alias"] = "l" # left align
+            table.align["Command"] = "l" # left align
 
             for i in data['aliases']:
-                t.add_row([i, data['aliases'][i]])
+                table.add_row([i, data['aliases'][i]])
 
-            print(t)
+            print(table)
     else:
         index = 0
         for i in data:
             if len(i[1]):
                 filename = i[0]
                 print("File: {}".format(filename))
-                t = PrettyTable(["Property", "Value"])
-                t.align["Property"] = "l" # left align
-                t.align["Value"] = "l" # left align
+                table = PrettyTable(["Property", "Value"])
+                table.align["Property"] = "l" # left align
+                table.align["Value"] = "l" # left align
 
                 for prop in i[1]:
                     value = i[1][prop]
-                    t.add_row([prop, value])
+                    table.add_row([prop, value])
 
-                print(t)
+                print(table)
                 if (len(data)-1) is not index:
                     print("")
 
@@ -115,14 +115,14 @@ def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
         for i in data['aliases'].keys():
             json_out[i] = {}
             json_out[i] = data['aliases'][i]
-        
+
         print(json.dumps(json_out))
     else:
         json_out = OrderedDict()
         for i in data:
             json_out[i[0]] = {}
             json_out[i[0]] = i[1]
-        
+
         print(json.dumps(json_out))
 
 
@@ -146,12 +146,10 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
         aliaseselem = etree.Element("aliases")
         root.append(aliaseselem)
 
-        for i in data['aliases'].keys():
-            name = i
-            value = data['aliases'][i]
+        for name in data['aliases'].keys():
+            value = data['aliases'][name]
 
-            elem = etree.Element("alias")
-            root[0].append(elem)
+            root[0].append(etree.Element("alias"))
 
             child = root[0][index]
             child.set("name", name)
@@ -159,7 +157,6 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
             child.text = value
 
             index += 1
-
 
     else:
         fileselem = etree.Element("files")
@@ -169,8 +166,7 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
             if len(i[1]):
                 filename = i[0]
 
-                elem = etree.Element("file")
-                root[0].append(elem)
+                root[0].append(etree.Element("file"))
 
                 child = root[0][index]
                 child.set("name", filename)
@@ -187,9 +183,9 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
                 index += 1
 
     print(etree.tostring(tree,
-            encoding="unicode",
-            pretty_print=True,
-            doctype="<!DOCTYPE docmanager>"))
+                         encoding="unicode",
+                         pretty_print=True,
+                         doctype="<!DOCTYPE docmanager>"))
 
 
 DEFAULTRENDERER = textrenderer

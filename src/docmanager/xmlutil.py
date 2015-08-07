@@ -302,9 +302,7 @@ class Handler(xml.sax.handler.ContentHandler):
     """
     def __init__( self, context, locator):
         logmgr_flog()
-
-        # handler.ContentHandler.__init__( self )
-        super().__init__()
+        super().__init__()# pylint:disable=super-on-old-class
         self.context = context
         self.locstm = locator
         self.pos = namedtuple('Position', ['line', 'col', 'offset'])

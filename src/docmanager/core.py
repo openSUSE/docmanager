@@ -16,8 +16,6 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-import os
-
 NS = {
         "d":"http://docbook.org/ns/docbook",
         "dm":"urn:x-suse:ns:docmanager"
@@ -27,7 +25,7 @@ NS = {
 # * should start with a different character
 # * are used to create options
 #
-DefaultDocManagerProperties = (
+DEFAULT_DM_PROPERTIES = (
         "maintainer",
         "status",
         "deadline",
@@ -38,7 +36,7 @@ DefaultDocManagerProperties = (
 #         "repository" # ??
 )
 
-BugtrackerElementList = (
+BT_ELEMENTLIST = (
     "bugtracker/url",
     "bugtracker/component",
     "bugtracker/product",
@@ -46,7 +44,7 @@ BugtrackerElementList = (
     "bugtracker/version"
 )
 
-DefaultSubCommands = {
+DEFAULTSUBCOMMANDS = {
     "i":       "init",
     "init":    "init",
     "g":       "get",

@@ -45,12 +45,12 @@ class Analyzer(object):
         """
 
         # constants
-        QueryFormConstants = [
+        formatconst = [
             [ "{os.file}", self.xmlhandler.filename ]
         ]
 
         # replace constants
-        for i in QueryFormConstants:
+        for i in formatconst:
             queryformat = queryformat.replace(i[0], i[1])
 
         return queryformat
@@ -65,16 +65,16 @@ class Analyzer(object):
         fields = set()
 
         state = 0
-        ignoreNext = False
+        ignorenext = False
         field = ""
         skip = -1
-        c = len(queryformat)
+        length = len(queryformat)
 
         # algorithm for detecting the requested properties
         for idx, char in enumerate(queryformat):
             # ignore the current char if needed
-            if ignoreNext == True:
-                ignoreNext = False
+            if ignorenext:
+                ignorenext = False
 
                 # if we are in the "capturing" state (1), we can just add the
                 # current char to our field string
@@ -91,7 +91,7 @@ class Analyzer(object):
             # this is also an escape detection but it is actually no longer needed.
             # can be removed in future versions
             if char == '\\':
-                ignoreNext = True
+                ignorenext = True
                 continue
 
             # if we are not in any capturing state (1), we jump into this condition if
@@ -101,7 +101,7 @@ class Analyzer(object):
                 # if we are not at the end of the string, we have a look onto the next
                 # character. If the next character also contains a '{', we are in a
                 # 'ignore everything in it' statement
-                if c-1 != idx:
+                if length-1 != idx:
                     if queryformat[idx+1] == '{':
                         # ok, we are in a 'ignore everything' statement. we skip now the next
                         # character (because that's the '{') and jump into the 'ignore everything'
@@ -135,7 +135,7 @@ class Analyzer(object):
                 # check if we reached the end of the string - if not, look onto the next character.
                 # if the next character is a '}', we can leave the 'ignore everything' sequence.
                 # if not, just skip it
-                if c-1 != idx:
+                if length-1 != idx:
                     if queryformat[idx+1] == '}':
                         # go back into the 'nothing' (append until we found a new instruction)
                         # statement
@@ -228,7 +228,7 @@ class Analyzer(object):
                     if f not in f_xpath:
                         return {}
 
-                        f_xpath[f] = ''
+                        # f_xpath[f] = ''
 
                     # condition checks
                     if filters[f]['mode'] == '+':

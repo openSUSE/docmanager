@@ -4,14 +4,14 @@ import pytest
 import shlex
 from docmanager.action import Actions
 from docmanager.cli import parsecli
-from docmanager.core import DefaultDocManagerProperties
+from docmanager.core import DEFAULT_DM_PROPERTIES
 from docmanager.xmlhandler import XmlHandler
 
 IDS =['set_with_one_prop', 'set_with_two_props', 'init']
 COMMANDS = [
     ('set -p firstprop=123 {}', ['firstprop']),
     ('set -p firstprop=123 -p secondprop=123 {}', ['firstprop', 'secondprop']),
-    ('init {}', DefaultDocManagerProperties)
+    ('init {}', DEFAULT_DM_PROPERTIES)
 ]
 
 @pytest.mark.parametrize("command,expected",

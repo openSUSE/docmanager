@@ -48,7 +48,7 @@ def get_git_repo_config():
             gitrepo = gitrepo[0].decode("utf-8").strip()
             return os.path.join(gitrepo, os.path.join('.git', BASECONFIG_NAME))
 
-    except FileNotFoundError:
+    except FileNotFoundError: # pylint:disable=undefined-variable
         # If we don't find the git command, we skip the local config file
         # alltogether
         return None
@@ -92,7 +92,7 @@ def docmanagerconfig(cfgfiles=None, include_etc=True):
         # Append config when a .git repo is found
         gitcfg = get_git_repo_config()
         if gitcfg:
-          configfiles.append(gitcfg)
+            configfiles.append(gitcfg)
     else:
         log.debug("Using own config file %s", cfgfiles)
         # In case the user passes its own config file list, use it but
