@@ -71,9 +71,9 @@
      <term><option>--format/-f</option> <replaceable>(table|json|xml)</replaceable></term>
      <listitem>
       <para>
-        This function sets the output format (does only work for <command>list</command>). 
-        <para>The default output format is: <command>table</command></para>
+        This function sets the output format (does only work for <command>list</command>).
       </para>
+      <para>The default output format is: <command>table</command></para>
      </listitem>
     </varlistentry>
     <varlistentry>
