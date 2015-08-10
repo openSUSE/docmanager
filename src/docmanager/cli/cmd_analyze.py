@@ -31,5 +31,5 @@ def analyze_subcmd(subparsers, queryformat, filters, sort, default_output, files
     panalyze.add_argument('-qf', '--queryformat', **queryformat)
     panalyze.add_argument('-f', '--filter', **filters)
     panalyze.add_argument('-s', '--sort', **sort)
-    panalyze.add_argument('-do', '--default-output', **sort)
+    panalyze.add_argument('-do', '--default-output', **default_output)
     panalyze.add_argument("files", **filesargs)
