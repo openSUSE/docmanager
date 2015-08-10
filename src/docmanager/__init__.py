@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 SUSE Linux GmbH
+# Copyright (c) 2015 SUSE Linux GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 3 of the GNU General Public License as
@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.2.1"
+__version__="3.2.2"
 
 import sys
 from docmanager.action import Actions
@@ -57,5 +57,5 @@ def main(cliargs=None):
         log.error("Couldn't find config file '%s'", err)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
     except KeyboardInterrupt:
-        log.warn("Exited by user.")
         sys.exit()
+

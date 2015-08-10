@@ -408,7 +408,7 @@ class Actions(object):
         if action != 'list':
             if alias is None and value is None:
                 log.error("You have to provide an alias name for method '{}'.".format(action))
-                sys.exit(ReturnCodes.E_INVALID_PARAMETERS)
+                sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
 
         if not value:
             value = ""

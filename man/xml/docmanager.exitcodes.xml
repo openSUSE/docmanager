@@ -20,10 +20,10 @@
      <para>A file could not be found.</para>
     </listitem>
    </varlistentry>
-   <varlistentry id="E_COULD_NOT_SET_VALUE">
+   <varlistentry id="E_INVALID_ARGUMENTS">
     <term>2</term>
     <listitem>
-     <para>Could not set the given value for a property.</para>
+     <para>The given arguments are wrong.</para>
     </listitem>
    </varlistentry>
    <varlistentry id="E_XML_PARSE_ERROR">
@@ -140,14 +140,6 @@
     <listitem>
      <para>
       The given file is a directory.
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry id="E_INVALID_PARAMETERS">
-    <term>19</term>
-    <listitem>
-     <para>
-      The given parameters are wrong.
      </para>
     </listitem>
    </varlistentry>
