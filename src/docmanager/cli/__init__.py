@@ -91,14 +91,15 @@ def parsecli(cliargs=None, error_on_config=False):
         alias = remaining_argv[0]
 
         # parse aliases
-        if is_alias(alias):
+        if is_alias(alias) and not alias.startswith('-'):
+            remaining_argv = remaining_argv[1:]
+
             try:
-                value = parse_alias_value(config.get("alias", alias))
+                value = parse_alias_value("{alias} {args}".format(alias=config.get("alias", alias),
+                                                args=" ".join(remaining_argv)))
                 cliargs = shlex.split(value)
             except (NoSectionError, NoOptionError) as err:
-                log.warn(err)
-                if error_on_config:
-                    raise
+                pass
 
     # parse cli parameters
     filesargs = dict(nargs='+',

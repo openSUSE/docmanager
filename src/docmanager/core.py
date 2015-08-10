@@ -67,7 +67,7 @@ STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment',
 class ReturnCodes(object):
     E_OK = 0
     E_FILE_NOT_FOUND = 1
-    E_COULD_NOT_SET_VALUE = 2
+    E_INVALID_ARGUMENTS = 2
     E_XML_PARSE_ERROR = 3
     E_INVALID_USAGE_KEYVAL = 4
     E_METHOD_NOT_IMPLEMENTED = 5
@@ -84,7 +84,6 @@ class ReturnCodes(object):
     E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
     E_USER_EXIT = 17
     E_FILE_IS_DIRECTORY = 18
-    E_INVALID_PARAMETERS = 19
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',
