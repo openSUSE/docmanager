@@ -158,33 +158,32 @@ class Actions(object):
         args = [i.split("=") for i in arguments]
 
         # iter through all key and values
-        if validfiles > 0:
-            for f in self.__files:
-                if handlers[f].invalidfile:
-                    print("[ {} ] {} -> {}".format(red("error"), f, red(handlers[f].fileerror)))
-                else:
-                    for arg in args:
-                        try:
-                            key, value = arg
+        for f in self.__files:
+            if handlers[f].invalidfile:
+                print("[ {} ] {} -> {}".format(red("error"), f, red(handlers[f].fileerror)))
+            else:
+                for arg in args:
+                    try:
+                        key, value = arg
 
-                            if key == "languages":
-                                value = value.split(",")
-                                value = ",".join(self.remove_duplicate_langcodes(value))
+                        if key == "languages":
+                            value = value.split(",")
+                            value = ",".join(self.remove_duplicate_langcodes(value))
 
-                            log.debug("[%s] Trying to set value for property "
-                                      "%r to %r.", f, key, value)
-                            
-                            if self.__args.bugtracker:
-                                handlers[f].set({"bugtracker/" + key: value})
-                            else:
-                                handlers[f].set({key: value})
-                        except ValueError:
-                            log.error('Invalid usage. '
-                                      'Set values with the following format: '
-                                      'property=value')
-                            sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+                        log.debug("[%s] Trying to set value for property "
+                                  "%r to %r.", f, key, value)
+                           
+                        if self.__args.bugtracker:
+                            handlers[f].set({"bugtracker/" + key: value})
+                        else:
+                            handlers[f].set({key: value})
+                    except ValueError:
+                        log.error('Invalid usage. '
+                                  'Set values with the following format: '
+                                  'property=value')
+                        sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
-                    print("[ {} ] Set data for file {}.".format(green("ok"), f))
+                print("[ {} ] Set data for file {}.".format(green("ok"), f))
 
         # save the changes
         for f in self.__files:
