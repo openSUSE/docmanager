@@ -57,5 +57,4 @@ def main(cliargs=None):
         log.error("Couldn't find config file '%s'", err)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
     except KeyboardInterrupt:
-        log.warn("Exited by user.")
         sys.exit()
