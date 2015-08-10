@@ -292,8 +292,14 @@ class Actions(object):
             fields = analyzer.extract_fields(out)
             data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
 
-            if not self.__args.sort and data:
-                print(analyzer.format_output(out, data))
+            if not self.__args.sort:
+                # we can print all caught data here. If we have no data, we assume that the user
+                # didn't want to see any data from the XML files and he just want to see the
+                # output of the constants like {os.file} - https://github.com/openSUSE/docmanager/issues/93
+                if data:
+                    print(analyzer.format_output(out, data))
+                elif analyzer.filters_matched:
+                    print(analyzer.format_output(out, data))
             else:
                 file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
 
