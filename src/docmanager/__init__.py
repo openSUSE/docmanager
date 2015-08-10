@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.2.0"
+__version__="3.2.1"
 
 import sys
 from docmanager.action import Actions
@@ -58,3 +58,4 @@ def main(cliargs=None):
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
     except KeyboardInterrupt:
         sys.exit()
+
