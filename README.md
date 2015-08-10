@@ -1,5 +1,5 @@
 # DocManager
-[![Build Status](https://travis-ci.org/openSUSE/docmanager.svg?branch=master)](https://travis-ci.org/openSUSE/docmanager)
+[![Build Status](https://travis-ci.org/openSUSE/docmanager.svg?branch=develop)](https://travis-ci.org/openSUSE/docmanager)
 [![codecov.io](http://codecov.io/github/openSUSE/docmanager/coverage.svg?branch=develop)](http://codecov.io/github/openSUSE/docmanager?branch=develop)
 [![Code Health](https://landscape.io/github/openSUSE/docmanager/develop/landscape.svg?style=flat)](https://landscape.io/github/openSUSE/docmanager/develop)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/openSUSE/docmanager/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/openSUSE/docmanager/?branch=develop)
