@@ -108,41 +108,49 @@ class XmlHandler(object):
                                                dtd_validation=False)
 
             # load the file and set a reference to the dm group
-            self.__tree = etree.parse(self._buffer, self.__xmlparser)
-            self.__root = self.__tree.getroot()
-
             try:
-                check_root_element(self.__root, etree)
-            except ValueError as err:
+                self.__tree = etree.parse(self._buffer, self.__xmlparser)
+            except etree.XMLSyntaxError as err:
                 self.invalidfile = True
-                self.fileerror = err
+                self.fileerror = err.msg
 
                 if self.stoponerror:
                     log.error(err)
                     sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
 
             if not self.invalidfile:
-                # check for DocBook 5 namespace in start tag
+                self.__root = self.__tree.getroot()
+
                 try:
-                    self.check_docbook5_ns()
-
-                    # check for docmanager element
-                    self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
-
-                    if self.__docmanager is None:
-                        log.info("No docmanager element found")
-                        self.create_group()
-                    else:
-                        log.debug("Found docmanager element %s", self.__docmanager.getparent())
-                except DMNotDocBook5File:
+                    check_root_element(self.__root, etree)
+                except ValueError as err:
                     self.invalidfile = True
-                    self.fileerror = "%s is not a DocBook 5 XML document. " \
-                                     "The start tag of the document has to be in the official " \
-                                     "DocBook 5 namespace: %s", self._filename, NS['d']
+                    self.fileerror = err
 
-                    if self.stoponerror == True:
-                        log.error(self.fileerror)
-                        sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
+                    if self.stoponerror:
+                        log.error(err)
+                        sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+
+                if not self.invalidfile:
+                    # check for DocBook 5 namespace in start tag
+                    try:
+                        self.check_docbook5_ns()
+
+                        # check for docmanager element
+                        self.__docmanager = self.__tree.find("//dm:docmanager", namespaces=NS)
+
+                        if self.__docmanager is None:
+                            log.info("No docmanager element found")
+                            self.create_group()
+                        else:
+                            log.debug("Found docmanager element %s", self.__docmanager.getparent())
+                    except DMNotDocBook5File:
+                        self.invalidfile = True
+                        self.fileerror = "The document is not a valid DocBook 5 document."
+
+                        if self.stoponerror == True:
+                            log.error(self.fileerror)
+                            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
