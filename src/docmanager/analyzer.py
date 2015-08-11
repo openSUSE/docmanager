@@ -191,10 +191,10 @@ class Analyzer(object):
             # loop over all 'properties' and fetch their values from the XML file. properties
             # without values will become an empty string if the 'default-option' was not set
             for f in self.fields:
-                data.setdefault(f, data.get(f, ""))
+                data.setdefault(f, data.get(f, None))
 
-                if data[f] is None:
-                    if default_output is None:
+                if not data[f]:
+                    if not default_output:
                         data[f] = ''
                     else:
                         data[f] = default_output
