@@ -19,7 +19,9 @@
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
 __version__="3.2.2"
 
+import atexit
 import sys
+import time
 from docmanager.action import Actions
 from docmanager.cli import parsecli
 from docmanager.core import ReturnCodes
@@ -28,11 +30,18 @@ from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 # from xml.sax._exceptions import SAXParseException
 
+def shutdown(start):
+    end = int(round(time.time() * 1000))
+    log.info("DocManager Runtime: %d seconds" % ((end-start)/1000))
+
 def main(cliargs=None):
     """Entry point for the application script
 
     :param list cliargs: Arguments to parse or None (=use sys.argv)
     """
+
+    atexit.register(shutdown, int(round(time.time() * 1000)))
+
     try:
         a = Actions(parsecli(cliargs))
         res = a.parse()
@@ -58,4 +67,3 @@ def main(cliargs=None):
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
     except KeyboardInterrupt:
         sys.exit()
-
