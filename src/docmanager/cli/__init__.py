@@ -132,6 +132,9 @@ def parsecli(cliargs=None, error_on_config=False):
     default_output = dict(action='store',
                        help='Sets the default output for properties which are not available in a file. By default, DocManager prints nothing.'
                 )
+    quiet = dict(action='store_true',
+                       help='DocManager will print nothing or in some cases only the relevant output.'
+                )
     mainprops = tuple(("-{}".format(i.upper()[0]), "--{}".format(i))
                       for i in DEFAULT_DM_PROPERTIES)
 
@@ -161,7 +164,7 @@ def parsecli(cliargs=None, error_on_config=False):
     get_subcmd(subparsers, propargs, filesargs)
     set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
-    analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs)
+    analyze_subcmd(subparsers, queryformat, filters, sort, quiet, stop_on_error, default_output, filesargs)
     config_subcmd(subparsers)
     alias_subcmd(subparsers)
 

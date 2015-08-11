@@ -20,7 +20,7 @@ def test_analyze_sort_0(testdir, tmpdir, capsys):
         xmlfile.copy(tmpdir)
     xmlfiles = [ str(tmpdir / base) for base in xmlset ]
     
-    clicmd = 'analyze -qf "{{maintainer}}" -s "maintainer" {}'.format(" ".join(xmlfiles))
+    clicmd = 'analyze -qf "{{maintainer}}" -q -s "maintainer" {}'.format(" ".join(xmlfiles))
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
     out, err = capsys.readouterr()
@@ -45,7 +45,7 @@ def test_analyze_sort_1(testdir, tmpdir, capsys):
         xmlfile.copy(tmpdir)
     xmlfiles = [ str(tmpdir / base) for base in xmlset ]
     
-    clicmd = 'analyze -qf "{{priority}}" -s "priority" {}'.format(" ".join(xmlfiles))
+    clicmd = 'analyze -qf "{{priority}}" -q -s "priority" {}'.format(" ".join(xmlfiles))
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
     out, err = capsys.readouterr()

@@ -86,5 +86,22 @@ maintainer=mschnitzer</screen>
       </para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--stop-on-error</option></term>
+     <listitem>
+      <para>
+        DocManager will stop if one XML error was found.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><option>--quiet/-q</option></term>
+     <listitem>
+      <para>
+        This will reduce the output to the minimum. By default, you get an overview over all XML errors and how many
+        files were successfully analyzed.
+      </para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>

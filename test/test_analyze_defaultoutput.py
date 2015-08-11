@@ -15,7 +15,7 @@ def test_analyze_defaultoutput_0(testdir, tmpdir, capsys):
         xmlfile.copy(tmpdir)
     xmlfiles = [ str(tmpdir / base) for base in xmlset ]
 
-    clicmd = 'analyze -qf "{{emptytest}} {{emptytest2}}" -do "-" {}'.format(" ".join(xmlfiles))
+    clicmd = 'analyze -qf "{{emptytest}} {{emptytest2}}" -q -do "-" {}'.format(" ".join(xmlfiles))
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
     out, err = capsys.readouterr()

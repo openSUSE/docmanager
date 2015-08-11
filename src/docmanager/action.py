@@ -277,31 +277,37 @@ class Actions(object):
             qformat = self.args.queryformat
 
         file_data = list()
+        errors = list()
         ntfiledata = namedtuple("FileData", "file,out_formatted,data")
+        validfiles = 0
 
         for f in self.__files:
-            handlers[f] = XmlHandler(f)
+            handlers[f] = XmlHandler(f, self.__args.stop_on_error)
 
-            try:
-                analyzer = Analyzer(handlers[f])
-            except DMInvalidXMLHandlerObject:
-                log.critical("XML Handler object is None.")
-
-            out = qformat[:]
-            out = analyzer.replace_constants(out)
-            fields = analyzer.extract_fields(out)
-            data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
-
-            if not self.__args.sort:
-                # we can print all caught data here. If we have no data, we assume that the user
-                # didn't want to see any data from the XML files and he just want to see the
-                # output of the constants like {os.file} - https://github.com/openSUSE/docmanager/issues/93
-                if data:
-                    print(analyzer.format_output(out, data))
-                elif analyzer.filters_matched:
-                    print(analyzer.format_output(out, data))
+            if handlers[f].invalidfile:
+                errors.append("Error in '{}': {}".format(f, red(handlers[f].fileerror)))
             else:
-                file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
+                validfiles += 1
+                try:
+                    analyzer = Analyzer(handlers[f])
+                except DMInvalidXMLHandlerObject:
+                    log.critical("XML Handler object is None.")
+
+                out = qformat[:]
+                out = analyzer.replace_constants(out)
+                fields = analyzer.extract_fields(out)
+                data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
+
+                if not self.__args.sort:
+                    # we can print all caught data here. If we have no data, we assume that the user
+                    # didn't want to see any data from the XML files and he just want to see the
+                    # output of the constants like {os.file} - https://github.com/openSUSE/docmanager/issues/93
+                    if data:
+                        print(analyzer.format_output(out, data))
+                    elif analyzer.filters_matched:
+                        print(analyzer.format_output(out, data))
+                else:
+                    file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
 
         if self.__args.sort:
             values = None
@@ -317,8 +323,17 @@ class Actions(object):
                 except KeyError:
                     log.error("Could not find key '{}' in -qf for sort.")
 
-            for i in values:
-                print(analyzer.format_output(i.out_formatted, i.data))
+            if values:
+                for i in values:
+                    print(analyzer.format_output(i.out_formatted, i.data))
+
+        if not self.__args.quiet:
+            print("\nSuccessfully analyzed {} XML files.".format(green(validfiles)))
+
+        if errors and not self.__args.quiet:
+            print("Got {} errors in the analyzed files:\n".format(red(len(errors))))
+            for i in errors:
+                print(i)
 
     def _readconfig(self, confname):
         """Read the configuration file
