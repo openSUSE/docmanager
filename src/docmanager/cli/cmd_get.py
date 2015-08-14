@@ -17,10 +17,11 @@
 # you may find current contact information at www.suse.com
 
 
-def get_subcmd(subparsers, propargs, filesargs):
+def get_subcmd(subparsers, quiet, propargs, filesargs):
     """Create the 'get' subcommand
 
     :param subparsers:      Subparser for all subcommands
+    :param quiet:           The quiet option
     :param dict propargs:   Dict with action and help for default
                             properties
     :param dict filesargs:  Dict for FILE argument
@@ -29,6 +30,7 @@ def get_subcmd(subparsers, propargs, filesargs):
                                  aliases=['g'],
                                  help='Get key and returns value'
                                  )
+    pget.add_argument('-q', '--quiet', **quiet)
     pget.add_argument('-p', '--properties', **propargs)
     pget.add_argument('-f', '--format',
                       choices=['table', 'json', 'xml'],

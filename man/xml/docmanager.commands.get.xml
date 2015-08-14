@@ -32,5 +32,13 @@
       <para>Set the output format. Valid format types: <option>table</option>, <option>json</option>, <option>xml</option></para>
      </listitem>
     </varlistentry>
+    <varlistentry>
+     <term><option>--quiet/-q</option></term>
+     <listitem>
+      <para>
+        This will reduce the output to the minimum. By default, you get also an overview over all XML errors.
+      </para>
+     </listitem>
+    </varlistentry>
    </variablelist>
   </refsect2>

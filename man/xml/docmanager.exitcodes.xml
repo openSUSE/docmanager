@@ -143,4 +143,12 @@
      </para>
     </listitem>
    </varlistentry>
+   <varlistentry id="E_INVALID_ROOT_ELEMENT">
+    <term>19</term>
+    <listitem>
+     <para>
+      The XML file has an invalid root element.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>

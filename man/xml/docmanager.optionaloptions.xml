@@ -32,4 +32,11 @@
      <para>Displays a list with all supported language codes.</para>
     </listitem>
    </varlistentry>
+   <varlistentry>
+    <term><option>-j/--jobs</option> <replaceable>[1-64]</replaceable></term>
+    <listitem>
+     <para>This option defines how many processes do you want to start for parsing all provided XML files. The default is: 4</para>
+     <para>The default should be fast enough, though.</para>
+    </listitem>
+   </varlistentry>
   </variablelist>

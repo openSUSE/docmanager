@@ -21,7 +21,7 @@ from configparser import NoOptionError, NoSectionError
 
 from .. import __version__
 from ..config import docmanagerconfig, create_userconfig
-from ..core import ReturnCodes, DEFAULT_DM_PROPERTIES
+from ..core import ReturnCodes, DEFAULT_DM_PROPERTIES, DEFAULT_PROCESSES
 from ..logmanager import log, logmgr_flog, setloglevel
 
 from .checks import (show_langlist, populate_properties, populate_bugtracker_properties,
@@ -151,6 +151,12 @@ def parsecli(cliargs=None, error_on_config=False):
     parser.add_argument('--langlist',
                         action='store_true'
                         )
+    parser.add_argument('-j', '--jobs',
+                        type=int,
+                        default=DEFAULT_PROCESSES,
+                        action='store',
+                        help='The amount of jobs for parsing all XML files.'
+                        )
 
     # Create a subparser for all of our subcommands,
     # save the subcommand in 'dest'
@@ -161,7 +167,7 @@ def parsecli(cliargs=None, error_on_config=False):
         )
 
     init_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
-    get_subcmd(subparsers, propargs, filesargs)
+    get_subcmd(subparsers, quiet, propargs, filesargs)
     set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
     analyze_subcmd(subparsers, queryformat, filters, sort, quiet, stop_on_error, default_output, filesargs)
@@ -200,7 +206,12 @@ def parsecli(cliargs=None, error_on_config=False):
     else:
         args.files = None
 
+    # set default value for --quiet
+    if not hasattr(args, 'quiet'):
+        args.quiet = False
+
     # Fix file list - this is needed for aliases - issue#67
+    # This functions kills the process if a file was not found
     fix_filelist(args.files)
 
     # Fix properties
@@ -208,5 +219,10 @@ def parsecli(cliargs=None, error_on_config=False):
 
     # check for input format
     input_format_check(args)
+
+    # check jobs argument
+    if args.jobs < 1 or args.jobs > 64:
+        log.error("Invalid argument in '-j/--jobs'. Please choose something between 1-64!")
+        sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
 
     return args
