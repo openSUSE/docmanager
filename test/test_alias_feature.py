@@ -14,7 +14,7 @@ def test_alias_feature_0():
     args = parsecli(shlex.split(cmd))
 
     assert args.configfile == configfile
-    assert args.files == ['example.xml']
+    assert args.files == ['test/testfiles/valid_xml_file.xml']
 
 
 @pytest.mark.parametrize("configstr,expected", [
