@@ -20,6 +20,7 @@ import json
 from collections import OrderedDict
 from lxml import etree
 from prettytable import PrettyTable
+from docmanager.shellcolors import red
 
 def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     """Normal text output
@@ -33,23 +34,35 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     if data is None:
         return
 
-    # print only the value of the given property if only one property and
-    # only one file are given
-    if len(data) == 1:
-        if len(data[0][1]) == 1:
-            for v in data[0][1]:
-                if data[0][1][v] is not None:
-                    print(data[0][1][v])
-                return
+    args = kwargs["args"]
 
-    # if there are more than one file or one property
-    for d in data:
-        props = d[1]
-        props = " ".join(["%s=%s" % (key, value) \
-                          for key, value in props.items()])
-        if len(props):
-            print("{} -> {}".format(d[0], props))
+    if args.action == "get":
+        # print only the value of the given property if only one property and
+        # only one file are given
+        errors = data['errors']
+        data = data['data']
 
+        if len(data) == 1:
+            if len(data[0][1]) == 1:
+                for v in data[0][1]:
+                    if data[0][1][v] is not None:
+                        print(data[0][1][v])
+                    return
+
+        # if there are more than one file or one property
+        for d in data:
+            props = d[1]
+            props = " ".join(["%s=%s" % (key, value) \
+                              for key, value in props.items()])
+            if len(props):
+                print("{} -> {}".format(d[0], props))
+
+        # print all errors if -q/--quiet is not set
+        if errors and not args.quiet:
+            print("")
+
+            for i in errors:
+                print("[{}] {} -> {}".format(red(" error "), i[0], i[1]))
 
 def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
     """Output as table
@@ -79,7 +92,7 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
             print(table)
     else:
         index = 0
-        for i in data:
+        for i in data['data']:
             if len(i[1]):
                 filename = i[0]
                 print("File: {}".format(filename))
@@ -119,7 +132,7 @@ def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
         print(json.dumps(json_out))
     else:
         json_out = OrderedDict()
-        for i in data:
+        for i in data['data']:
             json_out[i[0]] = {}
             json_out[i[0]] = i[1]
 
@@ -162,7 +175,7 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
         fileselem = etree.Element("files")
         root.append(fileselem)
 
-        for i in data:
+        for i in data['data']:
             if len(i[1]):
                 filename = i[0]
 

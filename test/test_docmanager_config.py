@@ -27,12 +27,12 @@ def test_docmanager_config(tmpdir, configstr, expected):
     assert result == expected
 
 
-def test_docmanager_configfile():
+def test_docmanager_configfile(tmp_valid_xml):
     """Test for config file
     """
     testdir = os.path.dirname(__file__)
     configfile = os.path.join(testdir, "testfiles/dm-test.conf")
-    cmd = "--config {} get -p x foo.xml".format(configfile)
+    cmd = "--config {} get -p x {}".format(configfile, tmp_valid_xml.strpath)
     args = parsecli(shlex.split(cmd), error_on_config=True)
 
     assert os.path.exists(configfile)
@@ -52,10 +52,10 @@ def test_docmanager_wrongconfigfile():
         args = parsecli(shlex.split(cmd), error_on_config=True)
 
 
-def test_docmanager_allconfigfiles():
+def test_docmanager_allconfigfiles(tmp_valid_xml):
     """Test for standard config files
     """
-    cmd = "get -p x foo.xml"
+    cmd = "get -p x {}".format(tmp_valid_xml.strpath)
     args = parsecli(shlex.split(cmd))
     assert args
     assert args.config

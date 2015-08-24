@@ -17,9 +17,11 @@
 # you may find current contact information at www.suse.com
 
 import sys
+from collections import OrderedDict
 from docmanager.core import DEFAULT_DM_PROPERTIES, \
      NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
-from docmanager.exceptions import DMNotDocBook5File
+from docmanager.exceptions import DMNotDocBook5File, DMXmlParseError, \
+                                  DMInvalidXMLRootElement
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
@@ -88,8 +90,7 @@ class XmlHandler(object):
                                             self.filename,)
 
             if self.stoponerror:
-                log.error(self.fileerror)
-                sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                raise DMXmlParseError(self.fileerror, ReturnCodes.E_XML_PARSE_ERROR)
 
         if not self.invalidfile:
             # save prolog details
@@ -197,10 +198,11 @@ class XmlHandler(object):
 
         tag = etree.QName(self.__root.tag)
         if tag.localname not in VALIDROOTS:
-            raise ValueError("Cannot add info element to file %r. "
-                             "This file does not contain a valid "
-                             "DocBook 5 root element. Found %s",
-                             self._filename, localname(self.__root.tag))
+            raise DMInvalidXMLRootElement("Cannot add info element to file %r. "
+                                          "This file does not contain a valid "
+                                          "DocBook 5 root element. Found %s",
+                                          self._filename, localname(self.__root.tag),
+                                          ReturnCodes.E_INVALID_ROOT_ELEMENT)
 
     def create_group(self):
         """Creates the docmanager group element"""
@@ -239,6 +241,9 @@ class XmlHandler(object):
            whereas foo belongs to the DocManager namespace
         """
         logmgr_flog()
+
+        #import pdb
+        #pdb.set_trace()
 
         dm = self.__docmanager
         dmelem = list()
@@ -312,7 +317,7 @@ class XmlHandler(object):
 
         dm = self.__docmanager
         dmelem = list()
-        values = {}
+        values = OrderedDict()
 
         if not isinstance(keys, list):
             keys = [ keys ]
@@ -339,7 +344,7 @@ class XmlHandler(object):
         """
         logmgr_flog()
 
-        ret = dict()
+        ret = OrderedDict()
         for i in self.__docmanager.iterchildren():
             ret[localname(i.tag)] = i.text
 

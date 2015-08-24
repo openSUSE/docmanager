@@ -117,8 +117,10 @@ def clean_filelist(args):
     allfiles = args.files[:]
     args.files = [f for f in args.files if not os.path.isdir(f)]
     diff = list(set(allfiles) - set(args.files))
-    if diff:
-        print("Ignoring the following directories:", ", ".join(diff))
+
+    # This just disturbs especially if we want to use DocManager in scripts
+    #if diff:
+    #    print("Ignoring the following directories:", ", ".join(diff))
 
 
 def fix_properties(args):
@@ -244,9 +246,17 @@ def fix_filelist(files):
     """
 
     if files:
-        for idx, i in enumerate(files):
+        for idx, i in enumerate(files[:]):
             filelist = glob(i)
             if filelist:
                 files.pop(idx)
                 for x in filelist:
+                    if not os.path.exists(x):
+                        log.error("Cannot find file {!r}!".format(x))
+                        sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+                    
                     files.append(x)
+            else:
+                if not os.path.exists(i):
+                    log.error("Cannot find file {!r}!".format(i))
+                    sys.exit(ReturnCodes.E_FILE_NOT_FOUND)

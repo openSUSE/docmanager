@@ -21,6 +21,8 @@ import sys
 import xml.sax
 from collections import namedtuple
 from docmanager.core import NS, ReturnCodes, VALIDROOTS
+from docmanager.exceptions import DMInvalidXMLRootElement, \
+                                  DMFileNotFoundError
 from docmanager.logmanager import log, logmgr_flog
 from io import StringIO
 from itertools import accumulate
@@ -115,8 +117,9 @@ def check_root_element(rootelem, etree):
 
     tag = etree.QName(rootelem.tag)
     if tag.localname not in VALIDROOTS:
-        raise ValueError("Cannot add info element to %s. "
-                         "Not a valid root element." % tag.localname)
+        raise DMInvalidXMLRootElement("Cannot add info element to %s. "
+                                      "Not a valid root element." % tag.localname,
+                                      ReturnCodes.E_INVALID_ROOT_ELEMENT)
 
 # -------------------------------------------------------------------
 
@@ -185,8 +188,8 @@ def ensurefileobj(source):
             try:
                 res = StringIO(open(source, 'r').read())
             except FileNotFoundError as err: # pylint:disable=undefined-variable
-                log.error("Could not find file %r.", err.filename)
-                sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+                raise DMFileNotFoundError("Could not find file {!r}.".format(err.filename),
+                                          err.filename, ReturnCodes.E_FILE_NOT_FOUND)
             # pylint: enable=undefined-variable
 
             return res

@@ -33,6 +33,7 @@ class Analyzer(object):
 
         self.xmlhandler = xmlhandler
         self.fields = set()
+        self.filters_matched = True
 
         # validate the XmlHandler object
         if self.xmlhandler is None:
@@ -164,6 +165,9 @@ class Analyzer(object):
 
         data = dict()
 
+        if not filter:
+            self.filters_matched = True
+
         if self.fields:
             # build the xpath for selecting all needed properties
             xpath = "*[self::dm:" + " or self::dm:".join(self.fields)
@@ -185,58 +189,61 @@ class Analyzer(object):
                 sys.exit(ReturnCodes.E_INVALID_XML_PROPERTIES)
 
             # loop over all 'properties' and fetch their values from the XML file. properties
-            # without values will become an empty string
+            # without values will become an empty string if the 'default-option' was not set
             for f in self.fields:
-                data.setdefault(f, data.get(f, ""))
+                data.setdefault(f, data.get(f, None))
 
-                if data[f] is None:
-                    if default_output is None:
+                if not data[f]:
+                    if not default_output:
                         data[f] = ''
                     else:
                         data[f] = default_output
 
-            if filter:
-                filters = dict()
-                filters_xpath = ""
+        if filter:
+            filters = dict()
+            filters_xpath = ""
 
-                for idx, f in enumerate(filter):
-                    try:
-                        # validate the filter syntax of any given filter
-                        mode, prop, condition = self.validate_filter(f)
+            for idx, f in enumerate(filter):
+                try:
+                    # validate the filter syntax of any given filter
+                    mode, prop, condition = self.validate_filter(f)
 
-                        # save the details about a filter in a dictionary
-                        filters[prop] = dict()
-                        filters[prop]['mode'] = mode
-                        filters[prop]['condition'] = condition
+                    # save the details about a filter in a dictionary
+                    filters[prop] = dict()
+                    filters[prop]['mode'] = mode
+                    filters[prop]['condition'] = condition
 
-                        if idx == 0:
-                            filters_xpath += "self::dm:" + prop
-                        else:
-                            filters_xpath += " or self::dm:" + prop
-                    except DMAnalyzeInvalidFilterSyntax:
-                        # syntax is wrong
-                        log.error("Invalid syntax in filter: '{}'".format(f))
-                        log.error("Look into the manual page for more information about using filters.")
-                        sys.exit(ReturnCodes.E_ANALYZE_FILTER_INVALID_SYNTAX)
+                    if idx == 0:
+                        filters_xpath += "self::dm:" + prop
+                    else:
+                        filters_xpath += " or self::dm:" + prop
+                except DMAnalyzeInvalidFilterSyntax:
+                    # syntax is wrong
+                    log.error("Invalid syntax in filter: '{}'".format(f))
+                    log.error("Look into the manual page for more information about using filters.")
+                    sys.exit(ReturnCodes.E_ANALYZE_FILTER_INVALID_SYNTAX)
 
-                # catch the values of the filter properties
-                f_xpath = { localname(e.tag): e.text  for e in self.xmlhandler.dm.xpath("*[{}]".format(filters_xpath), namespaces=NS) }
+            # catch the values of the filter properties
+            f_xpath = { localname(e.tag): e.text  for e in self.xmlhandler.dm.xpath("*[{}]".format(filters_xpath), namespaces=NS) }
 
-                for f in filters:
-                    # if the filter property was not found in the XML file -> the filter does
-                    # not match and we have to return an empty dictionary
-                    if f not in f_xpath:
+            for f in filters:
+                # if the filter property was not found in the XML file -> the filter didn't
+                # not match and we have to return an empty dictionary
+                if f not in f_xpath:
+                    self.filters_matched = False
+                    return {}
+
+                    # f_xpath[f] = ''
+
+                # condition checks
+                if filters[f]['mode'] == '+':
+                    if f_xpath[f] != filters[f]['condition']:
+                        self.filters_matched = False
                         return {}
-
-                        # f_xpath[f] = ''
-
-                    # condition checks
-                    if filters[f]['mode'] == '+':
-                        if f_xpath[f] != filters[f]['condition']:
-                            return {}
-                    elif filters[f]['mode'] == '-':
-                        if f_xpath[f] == filters[f]['condition']:
-                            return {}
+                elif filters[f]['mode'] == '-':
+                    if f_xpath[f] == filters[f]['condition']:
+                        self.filters_matched = False
+                        return {}
 
         return data
 

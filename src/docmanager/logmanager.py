@@ -37,12 +37,13 @@ LOGLEVELS = {None: logging.NOTSET, 0: logging.NOTSET, 1: logging.INFO, 2: loggin
 def logmgr_flog():
     """Prints debug information about the last called function.
     """
-    stack = traceback.extract_stack()
-    filename, line, func, _ = stack[-2]
+    if log.getEffectiveLevel() <= logging.DEBUG:
+      stack = traceback.extract_stack()
+      filename, line, func, _ = stack[-2]
 
-    log.debug('Called function "%s" in file %s/%s (line: %d).',
-              func, os.getcwd(), os.path.basename(filename), line
-             )
+      log.debug('Called function "%s" in file %s/%s (line: %d).',
+                func, os.getcwd(), os.path.basename(filename), line
+               )
 
 def setloglevel(verbose):
     """Set log level according to verbose argument

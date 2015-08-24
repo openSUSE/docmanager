@@ -21,6 +21,9 @@ NS = {
         "dm":"urn:x-suse:ns:docmanager"
 }
 
+# the default amount of processes for parsing all XML files
+DEFAULT_PROCESSES = 4
+
 # If you add new default properties:
 # * should start with a different character
 # * are used to create options
@@ -84,6 +87,7 @@ class ReturnCodes(object):
     E_CONFIGCMD_NO_METHOD_SPECIFIED = 16
     E_USER_EXIT = 17
     E_FILE_IS_DIRECTORY = 18
+    E_INVALID_ROOT_ELEMENT = 19
 
 VALIDROOTS = ('abstract', 'address', 'annotation', 'appendix', 'article', 'audiodata',
               'audioobject', 'bibliodiv', 'bibliography', 'bibliolist',

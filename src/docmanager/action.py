@@ -18,15 +18,19 @@
 
 import os.path
 import sys
+import threading
 from collections import OrderedDict, namedtuple
 from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
 from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
-from docmanager.exceptions import DMInvalidXMLHandlerObject
+from docmanager.exceptions import DMInvalidXMLHandlerObject, DMXmlParseError, \
+                                  DMInvalidXMLRootElement, DMFileNotFoundError
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
+from math import trunc
+from multiprocessing.pool import ThreadPool
 
 class Actions(object):
     """An Actions instance represents an action event
@@ -39,17 +43,52 @@ class Actions(object):
         """
         logmgr_flog()
 
+        # set default variables
         self.__files = args.files
         self.__args = args
+        self.__xml = OrderedDict()
 
+        # set the default output format for 'alias' sub cmd to 'table'
         if args.action == "alias":
             args.format = "table"
 
         if self.__files:
-            if hasattr(self.__args, 'stop_on_error'):
-                self.__xml = [ XmlHandler(x, self.__args.stop_on_error) for x in self.__files ]
-            else:
-                self.__xml = [ XmlHandler(x) for x in self.__files ]
+            # temporary xml handler list
+            xml = list()
+
+            # start multiple processes for initialize all XML files
+            with ThreadPool(processes=self.__args.jobs) as pool:
+                for i in pool.map(self.init_xml_handlers, self.__files):
+                    xml.append(i)
+
+            # build the self.__xml dict
+            for i in xml:
+                name = i["file"]
+                self.__xml[name] = dict()
+                
+                for x in i:
+                    if x is not "file":
+                        self.__xml[name][x] = i[x]
+
+                # stop if we found an error and --stop-on-error is set
+                if self.__args.stop_on_error and "error" in self.__xml[name]:
+                    log.error(self.__xml[name]["errorstr"])
+                    sys.exit(self.__xml[name]["error"])
+
+    def init_xml_handlers(self, fname):
+        """
+        Initializes an XmlHandler for a file.
+
+        :param string fname: The file name
+        """
+        h = None
+
+        try:
+            h = { "file": fname, "handler": XmlHandler(fname, True) }
+        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError) as err:
+            h = { "file": fname, "errorstr": err.errorstr, "error": err.error }
+
+        return h
 
     def parse(self):
         logmgr_flog()
@@ -65,12 +104,12 @@ class Actions(object):
 
     def init(self, arguments):
         logmgr_flog()
-        log.debug("Arguments %s", arguments)
 
         _set = dict()
         props = list(DEFAULT_DM_PROPERTIES)
-        validfiles = 0
-        invalidfiles = 0
+
+        # count all valid and invalid xml files
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
 
         # append bugtracker properties if needed
         if self.__args.with_bugtracker:
@@ -86,16 +125,17 @@ class Actions(object):
                 _set[item] = getattr(self.__args, rprop)
 
         # iter through all xml handlers and init its properties
-        for xh in self.__xml:
-            if not xh.invalidfile:
-                validfiles += 1
+        for f in self.__files:
+            if "error" not in self.__xml[f]:
+                xh = self.__xml[f]["handler"]
 
-                log.debug("Trying to initialize the predefined DocManager "
+                log.info("Trying to initialize the predefined DocManager "
                           "properties for %r.", xh.filename)
+
                 if xh.init_default_props(self.__args.force,
                                          self.__args.with_bugtracker) == 0:
                     print("[{}] Initialized default "
-                          "properties for {!r}.".format(green("success"),
+                          "properties for {!r}.".format(green(" ok "),
                                                         xh.filename))
                 else:
                     log.warn("Could not initialize all properties for %r because "
@@ -119,16 +159,19 @@ class Actions(object):
                        getattr(self.__args, rprop) is not None and \
                        len(getattr(self.__args, rprop)) >= 1:
                         xh.set({ i: getattr(self.__args, rprop) })
-
-                # safe the xml file
-                xh.write()
             else:
-                invalidfiles += 1
                 print("[{}] Initialized default properties for {!r}: {}. ".format(\
-                    red("failed"),
-                    xh.filename,
-                    red(xh.xmllogerrorstring)))
+                    red(" error "),
+                    f,
+                    red(self.__xml[f]["errorstr"])))
 
+        # save the changes
+        if validfiles:
+            for f in self.__files:
+                if "error" not in self.__xml[f]:
+                    self.__xml[f]["handler"].write()
+
+        # print the statistics
         print("\nInitialized successfully {} files. {} files failed.".format(\
               green(validfiles), red(invalidfiles)))
 
@@ -139,28 +182,16 @@ class Actions(object):
         """
         logmgr_flog()
 
-        invalidfiles = 0
-        validfiles = 0
-
-        # init xml handlers for all given files
-        handlers = OrderedDict()
-
-        for idx, i in enumerate(self.__files):
-            log.debug("Trying to initialize the XmlHandler for file '{}'.".format(i))
-            handlers[i] = self.__xml[idx]
-
-            if handlers[i].invalidfile:
-                invalidfiles += 1
-            else:
-                validfiles += 1
+        # count all valid and invalid xml files
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
 
         # split key and value
         args = [i.split("=") for i in arguments]
 
         # iter through all key and values
         for f in self.__files:
-            if handlers[f].invalidfile:
-                print("[ {} ] {} -> {}".format(red("error"), f, red(handlers[f].fileerror)))
+            if "error" in self.__xml[f]:
+                print("[ {} ] {} -> {}".format(red("error"), f, red(self.__xml[f]['errorstr'])))
             else:
                 for arg in args:
                     try:
@@ -174,9 +205,9 @@ class Actions(object):
                                   "%r to %r.", f, key, value)
                            
                         if self.__args.bugtracker:
-                            handlers[f].set({"bugtracker/" + key: value})
+                            self.__xml[f]["handler"].set({"bugtracker/" + key: value})
                         else:
-                            handlers[f].set({key: value})
+                            self.__xml[f]["handler"].set({key: value})
                     except ValueError:
                         log.error('Invalid usage. '
                                   'Set values with the following format: '
@@ -187,10 +218,11 @@ class Actions(object):
 
         # save the changes
         for f in self.__files:
-            if not handlers[f].invalidfile:
+            if "error" not in self.__xml[f]:
                 log.debug("[%s] Trying to save the changes.", f)
-                handlers[f].write()
+                self.__xml[f]["handler"].write()
 
+        # print the statistics output
         print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
                 green(validfiles),
                 '' if validfiles == 1 else 's',
@@ -211,7 +243,16 @@ class Actions(object):
         """
         logmgr_flog()
 
-        return [ (xh.filename, xh.get(arguments)) for xh in self.__xml ]
+        output = list()
+        errors = list()
+
+        for f in self.__files:
+            if "error" in self.__xml[f]:
+                errors.append([f, self.__xml[f]['errorstr']])
+            else:
+                output.append((f, self.__xml[f]["handler"].get(arguments)))
+
+        return {'data': output, 'errors': errors}
 
 
     def delete(self, arguments):
@@ -221,81 +262,96 @@ class Actions(object):
         """
         logmgr_flog()
 
-        handlers = dict()
+        # statistics variables
+        file_errors = 0
+        props_failed = 0
+        props_deleted = 0
 
+        # delete the properties
         for f in self.__files:
-            handlers[f] = XmlHandler(f)
-            props_success = list()
-            props_failed = list()
-
-            for arg in arguments:
-                prop = ""
-                cond = None
-
-                arglist = arg.split("=")
-                if len(arglist) == 1:
-                    prop = arglist[0]
-                else:
-                    prop = arglist[0]
-                    arglist.pop(0)
-                    cond = "".join(arglist)
-
-                log.debug("[%s] Trying to delete property %r.", f, arg)
-                if handlers[f].delete(prop, cond) is True:
-                    props_success.append(prop)
-                else:
-                    props_failed.append(prop)
-
-            props_success_c = len(props_success)
-            props_failed_c = len(props_failed)
-
-            if props_success_c == 1:
-                props_str = "property has been deleted"
+            if "error" in self.__xml[f]:
+                print("[{}] {} -> {}".format(red(" error "), f, red(self.__xml[f]["errorstr"])))
+                file_errors += 1
             else:
-                props_str = "properties have been deleted"
+                failed_properties = list()
 
-            print("[{}] {} {} and {} could not be deleted.".format(f, green(props_success_c), props_str, red(props_failed_c)))
-            if props_success_c > 0:
-                print("  - [{}] {}".format(green("success"), ", ".join(props_success)))
+                for a in arguments:
+                    cond = None
+                    prop = a
+                    pos = a.find("=")
 
-            if props_failed_c > 0:
-                print("  - [{}] {}".format(red("failed"), ", ".join(props_failed)))
+                    # look if there is condition
+                    if pos != -1:
+                        prop = a[:pos]
+                        cond = a[pos+1:]
 
+                    if not self.__xml[f]["handler"].delete(prop, cond):
+                        failed_properties.append(a)
+                        props_failed += 1
+                    else:
+                        props_deleted += 1
+
+                if not failed_properties:
+                    print("[{}] {}".format(green(" ok "), f))
+                else:
+                    print("[{}] {} -> Couldn't delete these properties: {}".format(
+                          yellow(" info "), f, ", ".join(failed_properties)
+                         ))
+
+        # save changes
         for f in self.__files:
-            log.debug("[%s] Trying to save the changes.", f)
-            handlers[f].write()
+            if "error" not in self.__xml[f]:
+                self.__xml[f]["handler"].write()
+
+        # print statistics
+        print("")
+        print("Deleted successfully {} propert{}, {} propert{} couldn't be deleted, and {} {} invalid.".format(
+                green(props_deleted), 'ies' if props_deleted != 1 else 'y',
+                yellow(props_failed), 'ies' if props_failed != 1 else 'y', red(file_errors),
+                'files were' if file_errors != 1 else 'file was'
+             ))
 
     def analyze(self, arguments): # pylint:disable=unused-argument
         handlers = dict()
 
         # Set default query format
         try:
-            qformat = self.args.config['analzye']['querformat']
+            qformat = self.args.config['analzye']['queryformat']
         except KeyError:
             pass
+
         if self.args.queryformat:
             qformat = self.args.queryformat
 
         file_data = list()
+        errors = list()
         ntfiledata = namedtuple("FileData", "file,out_formatted,data")
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
 
         for f in self.__files:
-            handlers[f] = XmlHandler(f)
-
-            try:
-                analyzer = Analyzer(handlers[f])
-            except DMInvalidXMLHandlerObject:
-                log.critical("XML Handler object is None.")
-
-            out = qformat[:]
-            out = analyzer.replace_constants(out)
-            fields = analyzer.extract_fields(out)
-            data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
-
-            if not self.__args.sort and data:
-                print(analyzer.format_output(out, data))
+            if "error" in self.__xml[f]:
+                errors.append("Error in '{}': {}".format(f, red(self.__xml[f]["errorstr"])))
             else:
-                file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
+                try:
+                    analyzer = Analyzer(self.__xml[f]["handler"])
+                except DMInvalidXMLHandlerObject:
+                    log.critical("XML Handler object is None.")
+
+                out = qformat[:]
+                out = analyzer.replace_constants(out)
+                fields = analyzer.extract_fields(out)
+                data = analyzer.fetch_data(self.__args.filter, self.__args.sort, self.__args.default_output)
+
+                if not self.__args.sort:
+                    # we can print all caught data here. If we have no data, we assume that the user
+                    # didn't want to see any data from the XML files and he just want to see the
+                    # output of the constants like {os.file} - https://github.com/openSUSE/docmanager/issues/93
+                    if data:
+                        print(analyzer.format_output(out, data))
+                    elif analyzer.filters_matched:
+                        print(analyzer.format_output(out, data))
+                else:
+                    file_data.append(ntfiledata(file=f, out_formatted=out, data=data))
 
         if self.__args.sort:
             values = None
@@ -311,8 +367,17 @@ class Actions(object):
                 except KeyError:
                     log.error("Could not find key '{}' in -qf for sort.")
 
-            for i in values:
-                print(analyzer.format_output(i.out_formatted, i.data))
+            if values:
+                for i in values:
+                    print(analyzer.format_output(i.out_formatted, i.data))
+
+        if not self.__args.quiet:
+            print("\nSuccessfully analyzed {} XML files.".format(green(validfiles)))
+
+        if errors and not self.__args.quiet:
+            print("Got {} errors in the analyzed files:\n".format(red(len(errors))))
+            for i in errors:
+                print(i)
 
     def _readconfig(self, confname):
         """Read the configuration file
@@ -459,6 +524,22 @@ class Actions(object):
                 new_list.append(i)
 
         return new_list
+
+    def get_files_status(self, handlers):
+        """Count all valid and invalid XML files
+
+        :param dict handlers: The self.__xml object with all XML handlers
+        """
+        validfiles = 0
+        invalidfiles = 0
+
+        for i in self.__files:
+            if "error" in handlers[i]:
+                invalidfiles += 1
+            else:
+                validfiles += 1
+
+        return [validfiles, invalidfiles]
 
     @property
     def args(self):

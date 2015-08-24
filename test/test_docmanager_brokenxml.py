@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import pytest
+from docmanager.exceptions import DMXmlParseError
 from docmanager.xmlhandler import XmlHandler
-# from lxml.etree import XMLSyntaxError
 from xml.sax._exceptions import SAXParseException
 
 def test_brokenxml(tmp_broken_xml):
@@ -12,5 +12,11 @@ def test_brokenxml(tmp_broken_xml):
     :param py.path.local tmp_broken_xml: Fixture, pointing to a temporary
                                          XML file
     """
-    with pytest.raises(SystemExit) as err:
+    handler = None
+
+    try:
         handler = XmlHandler(tmp_broken_xml.strpath)
+    except DMXmlParseError:
+        pass
+
+    assert handler is None

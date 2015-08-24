@@ -16,6 +16,8 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+import shlex
+import subprocess
 import sys
 import os
 
@@ -41,6 +43,8 @@ skipif_travis = pytest.mark.skipif(travis, reason=reason)
 no_network = os.environ.get('DM_NO_NETWORK_TESTS', False)
 skipif_no_network = pytest.mark.skipif(no_network, reason=reason)
 
+
+
 # ------------------------------------------------------
 # Version Check
 #
@@ -65,6 +69,25 @@ def compare_pytest_version(minimum):
 def testdir():
     """Fixture: Returns the test directory"""
     return py.path.local(py.path.local(__file__).dirname) / "testfiles"
+
+
+@pytest.fixture
+def gitrepo():
+    """Fixture: returns current Git repository path
+    """
+    try:
+        cmd = shlex.split("git rev-parse --show-toplevel")
+        git = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        gitrepo = git.communicate()
+
+        # Not a git repository?
+        if git.returncode != 128:
+            gitrepo = gitrepo[0].decode("utf-8").strip()
+    except FileNotFoundError:
+        gitrepo = None
+
+    return gitrepo
+
 
 
 @pytest.fixture(params=["valid_xml_file.xml"])

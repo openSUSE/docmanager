@@ -27,3 +27,19 @@ class DMConfigFileNotFound(Exception):
 
 class DMNotDocBook5File(Exception):
 	pass
+
+class DMXmlParseError(Exception):
+	def __init__(self, errorstr, error):
+		self.errorstr = errorstr
+		self.error = error
+
+class DMInvalidXMLRootElement(Exception):
+	def __init__(self, errorstr, error):
+		self.errorstr = errorstr
+		self.error = error
+
+class DMFileNotFoundError(Exception):
+	def __init__(self, errorstr, filename, error):
+		self.errorstr = errorstr
+		self.error = error
+		self.filename = filename

@@ -35,7 +35,7 @@ def test_docmanager_predefprops(option, value, tmp_valid_xml, capsys):
     a = Actions(parsecli(clicmd))
     res = a.parse()
     renderer = getrenderer('default')
-    renderer(res)
+    renderer(res, args=a.args)
 
     out, err = capsys.readouterr()
 

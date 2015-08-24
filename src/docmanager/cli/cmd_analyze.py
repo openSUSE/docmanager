@@ -16,7 +16,7 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-def analyze_subcmd(subparsers, queryformat, filters, sort, default_output, filesargs):
+def analyze_subcmd(subparsers, queryformat, filters, sort, quiet, stop_on_error, default_output, filesargs):
     """Create the 'analyze' subcommand
 
     :param subparsers:           Subparser for all subcommands
@@ -31,5 +31,7 @@ def analyze_subcmd(subparsers, queryformat, filters, sort, default_output, files
     panalyze.add_argument('-qf', '--queryformat', **queryformat)
     panalyze.add_argument('-f', '--filter', **filters)
     panalyze.add_argument('-s', '--sort', **sort)
-    panalyze.add_argument('-do', '--default-output', **sort)
+    panalyze.add_argument('--stop-on-error', **stop_on_error)
+    panalyze.add_argument('-q', '--quiet', **quiet)
+    panalyze.add_argument('-do', '--default-output', **default_output)
     panalyze.add_argument("files", **filesargs)
