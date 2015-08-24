@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 __author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.2.2"
+__version__="3.3.0"
 
 import atexit
 import sys
