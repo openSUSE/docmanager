@@ -1,31 +1,73 @@
 -------------------------------------------------------------------
-Fri Aug 07 15:40:00 UTC 2015 - toms@opensuse.org
+Tue Aug 25 13:26:21 UTC 2015 - mschnitzer@suse.com
+
+## Bugfixes
+* There was a logic error in our file list parser.
+
+-------------------------------------------------------------------
+Tue Aug 25 09:30:20 UTC 2015 - mschnitzer@suse.com
+
+## Bugfixes
+* DocManager hangs during the initialization of broken XML files #96
+* Error output messages without file names #97
+
+-------------------------------------------------------------------
+Mon Aug 24 09:27:07 UTC 2015 - mschnitzer@suse.com
+
+## Bugfixes
+* Issues in test cases
+* Help text for --default-output
+* Default output for 'analyze' cmd
+* Typo in config file (querformat -> queryformat)
+
+## New features
+* --stop-on-error and -q for 'analyze' cmd
+* Runtime information
+* Threading feature (--jobs/-j)- 
+
+-------------------------------------------------------------------
+Mon Aug 10 12:53:55 UTC 2015 - mschnitzer@suse.com
+
+## Bugfixes
+* Fix alias bug: It was not possible to add extra arguments to an alias
+* --version shows now the version without any warnings- 
+
+-------------------------------------------------------------------
+Mon Aug 10 10:25:26 UTC 2015 - mschnitzer@suse.com
+
+## Bugfixes
+* There was a not caught exception in XmlHandler
+* The output of `set` was disabled when no valid XML files were
+  found. 
+
+-------------------------------------------------------------------
+Fri Aug  7 14:21:54 UTC 2015 - mschnitzer@suse.com
 
 Stable release DocManager 3.2.0:
 
-* Bugfixes:
-  - Del Subcommand Should Really Delete Properties (#60)
-  - Output of not available properties is 'None' (#65)
-  - Resolve * in aliases (#67)
-  - Catch KeyboardInterrupt exception (#77)
-  - 'config' subcommand does not show 'Permission denied' error (#80)
-  - alias subcommand: "Permission denied for file '/' [...]" (#86)
+## Bugfixes
+* Del Subcommand Should Really Delete Properties (#60)
+* Output of not available properties is 'None' (#65)
+* Resolve * in aliases (#67)
+* Catch KeyboardInterrupt exception (#77)
+* 'config' subcommand does not show 'Permission denied' error (#80)
+* alias subcommand: "Permission denied for file '/' [...]" (#86)
 
-* New features:
-  - Adapt DocManager with Configuration File (#27)
-  - Implement Query/Analyze Feature (#49)
-  - Support Aliases (#64)
-  - Default aliases (#66)
-  - Implement 'config' subcommand (#70)
-  - Implement 'alias' subcommand (#72)
-  - Allow to set verbosity level through config file (#81)
+## New features
+* Adapt DocManager with Configuration File (#27)
+* Implement Query/Analyze Feature (#49)
+* Support Aliases (#64)
+* Default aliases (#66)
+* Implement 'config' subcommand (#70)
+* Implement 'alias' subcommand (#72)
+* Allow to set verbosity level through config file (#81)
 
-* Miscellaneous:
-  - documented several new features in manpage (#36, #82)
-  - Prepared setup.py for OBS (5f6990b)
+## Miscellaneous
+* documented several new features in manpage (#36, #82)
+* Prepared setup.py for OBS (5f6990b)
 
 -------------------------------------------------------------------
-Thu Jun 23 15:44:00 UTC 2015 - toms@opensuse.org
+Thu Jul 23 15:43:28 UTC 2015 - toms@opensuse.org
 
 Stable release DocManager 3.1.0:
 
@@ -47,25 +89,61 @@ Stable release DocManager 3.1.0:
 -------------------------------------------------------------------
 Thu Jun 18 10:56:30 UTC 2015 - mschnitzer@suse.com
 
-Stable release DocManager 3.0.0:
+This is a stable release of DocManager.
 
-* Bugfixes:
-  - Fixed #54 (usage output irritating)
-  - Fixed #53 (Default property for product or release is missing)
-  - Fixed #52 (Inconsistent reporting)
-  - Fixed #51 (Include filename in error messages)
-  - Fixed #50 (Proceed on error when handling multiple files)
-  - Fixed #48 (docmanager set --priority 1,2 xml/FILE.xml causes traceback)
+ChangeLog:
+* Performance improvement
+* --repository is a new option in init and set (have a look into the man page)
+* Updated man page and restructured some things
+* Internal code improvement
+* Fixed bug in del sub command
+* Fixed some typos
+* Adjusted the output of set and get
+* Added table output format
+* Added xml output format
+* Added --stop-on-error as option (documentation is in the man page)
+* init does now support the same options like in set (also documented in the man page)- 
 
-* New features:
-  - Added xml and table output format
-  - Option `--repository` is a new option in init and set (have a look into
-    the man page)
-  - Added Option `--stop-on-error` for get and set
-  - Added '--repository' as option to subcommand 'set' (#35, b421a15)
+-------------------------------------------------------------------
+Tue Jun 16 10:45:11 UTC 2015 - mschnitzer@suse.com
 
-* Miscellaneous:
-  - Performance improvemenets
-  - Internal code improvement
-  - Updated man page and restructured some things
-  - Fixed some typos
+Added 2 new requirements: python-lxml and python3-lxml 
+
+-------------------------------------------------------------------
+Tue Jun 16 10:42:59 UTC 2015 - mschnitzer@suse.com
+
+Release of DocManager 3.0.0-RC4
+
+* Code refactoring
+* Added more valid root elements (chapter, appendix, and preface)
+* Improved output message of "invalid root element"
+* Performance improvement
+* Removed old analyze feature (will be implemented in 3.1)
+* More function call logging
+* Added new default property '--release'- 
+
+-------------------------------------------------------------------
+Fri Jun 12 06:24:07 UTC 2015 - mschnitzer@suse.com
+
+* Fixed bug in sub command 'del'
+* Fixed bug in --priority
+* Changed help text in --help
+* Small code refactoring 
+
+-------------------------------------------------------------------
+Thu Jun 11 09:20:56 UTC 2015 - mschnitzer@suse.com
+
+This is the next release of DocManager.
+
+Changelog:
+* Added new information in man page
+* Fixed typos in man page
+* Changed possible values of the --translation option (true and false are no longer available. Please use instead yes or no)
+* Fixed a bug in the init sub command. It was not possible to initialize an XML document when there is a comment after the XML start tag..
+* Isolated _find_pos() -> findinfo_pos
+* Moved functionality of findinfo_pos() into xmlutil.py
+* Added test cases
+
+Known issues:
+* analyze feature doesn't work as expected- 
+
