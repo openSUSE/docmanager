@@ -257,7 +257,6 @@ class Actions(object):
                 log.error("The values of -a must have a key and a value, like: key=value or key=")
                 sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
-        print(self.__files)
         for f in self.__files:
             if "error" in self.__xml[f]:
                 print("[{}] {} -> {}".format(red(" error "), f, red(self.__xml[f]["errorstr"])))
