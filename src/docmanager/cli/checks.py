@@ -246,15 +246,17 @@ def fix_filelist(files):
     """
 
     if files:
-        for idx, i in enumerate(files[:]):
+        tmpfiles = files[:]
+        files.clear()
+
+        for idx, i in enumerate(tmpfiles[:]):
             filelist = glob(i)
             if filelist:
-                files.pop(idx)
                 for x in filelist:
                     if not os.path.exists(x):
                         log.error("Cannot find file {!r}!".format(x))
                         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
-                    
+
                     files.append(x)
             else:
                 if not os.path.exists(i):
