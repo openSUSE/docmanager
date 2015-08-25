@@ -116,8 +116,7 @@ class XmlHandler(object):
                 self.fileerror = err.msg
 
                 if self.stoponerror:
-                    log.error(err)
-                    sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                    raise DMXmlParseError(err, ReturnCodes.E_XML_PARSE_ERROR)
 
             if not self.invalidfile:
                 self.__root = self.__tree.getroot()
@@ -129,8 +128,7 @@ class XmlHandler(object):
                     self.fileerror = err
 
                     if self.stoponerror:
-                        log.error(err)
-                        sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                        raise DMXmlParseError(err, ReturnCodes.E_XML_PARSE_ERROR)
 
                 if not self.invalidfile:
                     # check for DocBook 5 namespace in start tag
@@ -145,20 +143,18 @@ class XmlHandler(object):
                             self.create_group()
                         else:
                             log.debug("Found docmanager element %s", self.__docmanager.getparent())
-                    except DMNotDocBook5File:
-                        self.invalidfile = True
-                        self.fileerror = "The document is not a valid DocBook 5 document."
-
+                    except DMNotDocBook5File as err:
                         if self.stoponerror == True:
-                            log.error(self.fileerror)
-                            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
+                            raise DMNotDocBook5File(err.errorstr, err.error)
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
         """
         rootns = get_namespace(self.__root.tag)
         if rootns != NS['d']:
-            raise DMNotDocBook5File()
+            self.invalidfile = True
+            self.fileerror = "The document is not a valid DocBook 5 document."
+            raise DMNotDocBook5File(self.fileerror, ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def replace_entities(self):
         """This function replaces entities in the StringIO buffer

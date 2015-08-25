@@ -24,8 +24,7 @@ from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
 from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
-from docmanager.exceptions import DMInvalidXMLHandlerObject, DMXmlParseError, \
-                                  DMInvalidXMLRootElement, DMFileNotFoundError
+from docmanager.exceptions import *
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
@@ -72,7 +71,7 @@ class Actions(object):
 
                 # stop if we found an error and --stop-on-error is set
                 if self.__args.stop_on_error and "error" in self.__xml[name]:
-                    log.error(self.__xml[name]["errorstr"])
+                    log.error("{}: {}".format(name, self.__xml[name]["errorstr"]))
                     sys.exit(self.__xml[name]["error"])
 
     def init_xml_handlers(self, fname):
@@ -85,7 +84,7 @@ class Actions(object):
 
         try:
             h = { "file": fname, "handler": XmlHandler(fname, True) }
-        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError) as err:
+        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError, DMNotDocBook5File) as err:
             h = { "file": fname, "errorstr": err.errorstr, "error": err.error }
 
         return h

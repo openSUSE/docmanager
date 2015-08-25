@@ -26,7 +26,9 @@ class DMConfigFileNotFound(Exception):
 	pass
 
 class DMNotDocBook5File(Exception):
-	pass
+	def __init__(self, errorstr, error):
+		self.errorstr = errorstr
+		self.error = error	
 
 class DMXmlParseError(Exception):
 	def __init__(self, errorstr, error):
