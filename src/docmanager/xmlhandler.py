@@ -20,8 +20,7 @@ import sys
 from collections import OrderedDict
 from docmanager.core import DEFAULT_DM_PROPERTIES, \
      NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
-from docmanager.exceptions import DMNotDocBook5File, DMXmlParseError, \
-                                  DMInvalidXMLRootElement
+from docmanager.exceptions import *
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
@@ -298,6 +297,20 @@ class XmlHandler(object):
 
         return False
 
+    def set_attr(self, prop, data):
+        """Sets an attribute for a property
+        :param str prop: The property
+        :param dict data: A dictionary of attributes and values
+                          example: {"attr1": "val1", "attr2": "val2"}
+        """
+        node = self.find_elem(prop)
+
+        if node is None:
+            raise DMPropertyNotFound(self.filename, prop)
+
+        for i in data:
+            node.set(i, data[i])
+
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
 
@@ -378,6 +391,27 @@ class XmlHandler(object):
                 return True
 
         return False
+
+    def find_elem(self, prop):
+        """Searches for the an XML element
+        :param str prop: The property
+        :return lxml.etree._Element:
+        """
+        props = prop.split("/")
+
+        dm = self.__docmanager
+        lastnode = None
+
+        for i in props:
+            if lastnode is None:
+                lastnode = dm
+
+            lastnode = lastnode.find("dm:{}".format(i), namespaces=NS)
+
+            if lastnode is None:
+                return None
+
+        return lastnode
 
     def get_indentation(self, node, indentation=""):
         """Calculates indentation level

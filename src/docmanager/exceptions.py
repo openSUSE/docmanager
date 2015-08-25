@@ -45,3 +45,8 @@ class DMFileNotFoundError(Exception):
 		self.errorstr = errorstr
 		self.error = error
 		self.filename = filename
+
+class DMPropertyNotFound(Exception):
+	def __init__(self, filename, prop):
+		self.filename = filename
+		self.property = prop

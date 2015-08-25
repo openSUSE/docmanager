@@ -24,9 +24,7 @@ from ..config import docmanagerconfig, create_userconfig
 from ..core import ReturnCodes, DEFAULT_DM_PROPERTIES, DEFAULT_PROCESSES
 from ..logmanager import log, logmgr_flog, setloglevel
 
-from .checks import (show_langlist, populate_properties, populate_bugtracker_properties,
-clean_filelist, fix_properties, is_alias, parse_alias_value, input_format_check,
-fix_filelist)
+from .checks import *
 from .cmd_alias import alias_subcmd, rewrite_alias
 from .cmd_analyze import analyze_subcmd
 from .cmd_config import config_subcmd
@@ -34,6 +32,7 @@ from .cmd_del import del_subcmd
 from .cmd_get import get_subcmd
 from .cmd_init import init_subcmd
 from .cmd_set import set_subcmd
+from .cmd_setattr import setattr_subcmd
 
 from glob import glob
 import re
@@ -135,6 +134,13 @@ def parsecli(cliargs=None, error_on_config=False):
     quiet = dict(action='store_true',
                        help='DocManager will print nothing or in some cases only the relevant output.'
                 )
+    prop = dict(action='store', help='The property which gets modified.')
+    attributes = dict(action='append', help='One or more attributes to get, set, or delete.'
+                                            'Syntax of ATTRIBUTES: ATTR[[=VALUE],ATTR[=VALUE]...]'
+                                            ' Example (attr-get/attr-del): -a foo or -a foo,bar or '
+                                            '-a foo -a bar '
+                                            'Example (attr-set): -a foo=a or -a foo=a,bar=b or '
+                                            '-a foo=a -a bar=b')
     mainprops = tuple(("-{}".format(i.upper()[0]), "--{}".format(i))
                       for i in DEFAULT_DM_PROPERTIES)
 
@@ -170,6 +176,7 @@ def parsecli(cliargs=None, error_on_config=False):
     get_subcmd(subparsers, quiet, propargs, filesargs)
     set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
+    setattr_subcmd(subparsers, stop_on_error, prop, attributes, filesargs)
     analyze_subcmd(subparsers, queryformat, filters, sort, quiet, stop_on_error, default_output, filesargs)
     config_subcmd(subparsers)
     alias_subcmd(subparsers)
@@ -216,6 +223,9 @@ def parsecli(cliargs=None, error_on_config=False):
 
     # Fix properties
     fix_properties(args)
+
+    # Fix attributes (-a/--attribute)
+    fix_attributes(args)
 
     # check for input format
     input_format_check(args)
