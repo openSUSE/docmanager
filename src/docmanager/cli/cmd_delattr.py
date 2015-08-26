@@ -29,11 +29,11 @@ def delattr_subcmd(subparsers, stop_on_error, prop, attributes, filesargs):
     :param dict filesargs:       Dict for FILE argument
 
     """
-    pattrset = subparsers.add_parser('del-attr',
+    pattrget = subparsers.add_parser('del-attr',
                                  aliases=['da'],
                                  help='Deletes an attribute from a property/XML-Tag.'
                                  )
-    pattrset.add_argument('--stop-on-error', **stop_on_error)
-    pattrset.add_argument('-p', '--property')
-    pattrset.add_argument('-a', '--attributes', **attributes)
-    pattrset.add_argument("files", **filesargs)
+    pattrget.add_argument('--stop-on-error', **stop_on_error)
+    pattrget.add_argument('-p', '--property')
+    pattrget.add_argument('-a', '--attributes', **attributes)
+    pattrget.add_argument("files", **filesargs)
