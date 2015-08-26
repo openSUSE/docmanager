@@ -33,6 +33,7 @@ from .cmd_get import get_subcmd
 from .cmd_init import init_subcmd
 from .cmd_set import set_subcmd
 from .cmd_setattr import setattr_subcmd
+from .cmd_delattr import delattr_subcmd
 
 from glob import glob
 import re
@@ -177,6 +178,7 @@ def parsecli(cliargs=None, error_on_config=False):
     set_subcmd(subparsers, stop_on_error, propargs, mainprops, filesargs)
     del_subcmd(subparsers, propargs, filesargs)
     setattr_subcmd(subparsers, stop_on_error, prop, attributes, filesargs)
+    delattr_subcmd(subparsers, stop_on_error, prop, attributes, filesargs)
     analyze_subcmd(subparsers, queryformat, filters, sort, quiet, stop_on_error, default_output, filesargs)
     config_subcmd(subparsers)
     alias_subcmd(subparsers)

@@ -311,6 +311,25 @@ class XmlHandler(object):
         for i in data:
             node.set(i, data[i])
 
+    def del_attr(self, prop, data):
+        """Deletes one or more attributes of a property
+        :param str prop: The property
+        :param list data: A list of all attributes
+        """
+        node = self.find_elem(prop)
+
+        if node is None:
+            raise DMPropertyNotFound(self.filename, prop)
+
+        errors = []
+        for i in data:
+            try:
+                del node.attrib[i]
+            except KeyError:
+                errors.append(i)
+
+        return errors
+
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
 

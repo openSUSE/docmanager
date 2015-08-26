@@ -58,6 +58,8 @@ DEFAULTSUBCOMMANDS = {
     "set":      "set",
     "set-attr": "set_attr",
     "sa":       "set_attr",
+    "del-attr": "del_attr",
+    "da":       "del_attr",
     "a":        "analyze",
     "analyze":  "analyze",
     "c":        "config",

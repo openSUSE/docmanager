@@ -286,6 +286,56 @@ class Actions(object):
         if invalidfiles > 0:
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
+    def del_attr(self, arguments):
+        prop = self.__args.property
+        attrs = self.__args.attributes
+
+        if not prop:
+            log.error("You must specify a property with -p!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        if not attrs:
+            log.error("You must specify at least one attribute with -a!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        # count all valid and invalid xml files
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
+
+        for f in self.__files:
+            if "error" in self.__xml[f]:
+                print("[{}] {} -> {}".format(red(" error "), f, red(self.__xml[f]["errorstr"])))
+            else:
+                try:
+                    errors = self.__xml[f]["handler"].del_attr(prop, attrs)
+                    self.__xml[f]["handler"].write()
+
+                    if errors:
+                        print("[{}] These attributes couldn't be deleted for {}: {}".format(
+                            yellow(" notice "), f, ", ".join(errors)
+                        ))
+                    else:
+                        print("[{}] Deleted attributes for file {}.".format(green(" ok "), f))
+
+                except DMPropertyNotFound:
+                    print("[{}] Property {} was not found in {}.".format(red(" error "), yellow(prop), f))
+
+                    # we must substract 1 of "validfiles" since XML files are valid even
+                    # if they don't have the given property.
+                    validfiles -= 1
+                    invalidfiles += 1
+
+        # print the statistics output
+        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
+                green(validfiles),
+                '' if validfiles == 1 else 's',
+                red(invalidfiles),
+                '' if invalidfiles == 1 else 's'
+                )
+             )
+
+        if invalidfiles > 0:
+            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
+
 
     def get(self, arguments):
         """Lists all properties
