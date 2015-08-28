@@ -340,9 +340,9 @@ class XmlHandler(object):
         nodes = []
 
         if props:
-            for p in props:
-                attrs[p] = OrderedDict()
-                node = self.find_elem(p)
+            for prop in props:
+                attrs[prop] = OrderedDict()
+                node = self.find_elem(prop)
 
                 if node is not None:
                     nodes.append((localname(node.tag), node))
@@ -356,9 +356,9 @@ class XmlHandler(object):
                     attrs[xpath] = OrderedDict()
                     nodes.append((xpath, i))
 
-        for n in nodes:
-            prop = n[0]
-            elem = n[1]
+        for node in nodes:
+            prop = node[0]
+            elem = node[1]
 
             if data:
                 for i in data:

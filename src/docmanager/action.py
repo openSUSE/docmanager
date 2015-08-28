@@ -80,14 +80,14 @@ class Actions(object):
 
         :param string fname: The file name
         """
-        h = None
+        handler = None
 
         try:
-            h = { "file": fname, "handler": XmlHandler(fname, True) }
+            handler = { "file": fname, "handler": XmlHandler(fname, True) }
         except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError, DMNotDocBook5File) as err:
-            h = { "file": fname, "errorstr": err.errorstr, "error": err.error }
+            handler = { "file": fname, "errorstr": err.errorstr, "error": err.error }
 
-        return h
+        return handler
 
     def parse(self):
         logmgr_flog()
@@ -388,18 +388,18 @@ class Actions(object):
             else:
                 failed_properties = list()
 
-                for a in arguments:
+                for arg in arguments:
                     cond = None
-                    prop = a
-                    pos = a.find("=")
+                    prop = arg
+                    pos = arg.find("=")
 
                     # look if there is condition
                     if pos != -1:
-                        prop = a[:pos]
-                        cond = a[pos+1:]
+                        prop = arg[:pos]
+                        cond = arg[pos+1:]
 
                     if not self.__xml[f]["handler"].delete(prop, cond):
-                        failed_properties.append(a)
+                        failed_properties.append(arg)
                         props_failed += 1
                     else:
                         props_deleted += 1

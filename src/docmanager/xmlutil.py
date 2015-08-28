@@ -123,7 +123,7 @@ def check_root_element(rootelem, etree):
 
 # -------------------------------------------------------------------
 
-def isXML(text):
+def is_xml(text):
     """Checks if a text starts with a typical XML construct
 
        :param str text: The text to observe
@@ -180,7 +180,7 @@ def ensurefileobj(source):
         # we return the source
         return source
     elif isinstance(source, (str, bytes)):
-        if isXML(source):
+        if is_xml(source):
             return StringIO(source)
         else:
             # source isn't a file-like object nor starts with XML structure

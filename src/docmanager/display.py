@@ -71,10 +71,10 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
         if data:
             for i in data:
                 if data[i]:
-                    for p in data[i]:
-                        if data[i][p]:
-                            print("{}[{}] -> {}".format(i, p, ", ".join(["%s=%s" % (key, value) \
-                                                          for key, value in data[i][p].items()])))
+                    for prop in data[i]:
+                        if data[i][prop]:
+                            print("{}[{}] -> {}".format(i, prop, ", ".join(["%s=%s" % (key, value) \
+                                                          for key, value in data[i][prop].items()])))
 
 def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
     """Output as table
@@ -134,10 +134,10 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
                     table.align["Value"] = "1"
 
                     # properties
-                    for p in data['data'][f]:
+                    for prop in data['data'][f]:
                         # attributes
-                        for i in data['data'][f][p]:
-                            table.add_row([p, i, data['data'][f][p][i]])
+                        for i in data['data'][f][prop]:
+                            table.add_row([prop, i, data['data'][f][prop][i]])
 
                     print(table)
 
@@ -262,12 +262,12 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
                 child = root[0][index]
                 child.set("name", filename)
 
-                for p in data['data'][i]:
+                for prop in data['data'][i]:
                     propelem = etree.Element("property")
                     child.append(propelem)
-                    propelem.set("name", p)
+                    propelem.set("name", prop)
 
-                    for key, value in data['data'][i][p].items():
+                    for key, value in data['data'][i][prop].items():
                         elem = etree.Element("attribute")
                         elem.set("name", key)
                         elem.text = value
