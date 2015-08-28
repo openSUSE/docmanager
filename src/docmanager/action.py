@@ -336,6 +336,16 @@ class Actions(object):
         if invalidfiles > 0:
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
+    def get_attr(self, arguments):
+        props = self.__args.properties
+        attrs = self.__args.attributes
+
+        data = dict(data=OrderedDict(),errors=None)
+
+        for f in self.__files:
+            data['data'][f] = self.__xml[f]["handler"].get_attr(props, attrs)
+
+        return data
 
     def get(self, arguments):
         """Lists all properties

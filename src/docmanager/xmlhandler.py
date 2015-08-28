@@ -24,7 +24,8 @@ from docmanager.exceptions import *
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
-     replaceinstream, preserve_entities, findinfo_pos, xml_indent
+     replaceinstream, preserve_entities, findinfo_pos, xml_indent, \
+     get_property_xpath
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -329,6 +330,47 @@ class XmlHandler(object):
                 errors.append(i)
 
         return errors
+
+    def get_attr(self, props, data):
+        """Gets one or more attributes of a property
+        :param list props: The properties
+        :param list data: A list of all attributes
+        """
+        attrs = OrderedDict()
+        nodes = []
+
+        if props:
+            for p in props:
+                attrs[p] = OrderedDict()
+                node = self.find_elem(p)
+
+                if node is not None:
+                    nodes.append((localname(node.tag), node))
+        else:
+            for idx, i in enumerate(self.__docmanager.iter()):
+                # this is needed because otherwise we also get the "docmanager"
+                # element
+                if idx:
+                    xpath = get_property_xpath(i)
+
+                    attrs[xpath] = OrderedDict()
+                    nodes.append((xpath, i))
+
+        for n in nodes:
+            prop = n[0]
+            elem = n[1]
+
+            if data:
+                for i in data:
+                    try:
+                        attrs[prop][i] = elem.attrib[i]
+                    except KeyError:
+                        pass
+            else:
+                for i in elem.attrib:
+                    attrs[prop][i] = elem.attrib[i]
+
+        return attrs
 
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
