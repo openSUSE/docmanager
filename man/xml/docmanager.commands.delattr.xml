@@ -9,7 +9,7 @@
 
   <refsect2>
    <title><command>del-attr</command> <replaceable>[OPTIONAL_OPTIONS]</replaceable> -p <replaceable>[PROPERTY]</replaceable> -a <replaceable>[ATTRIBUTES...]</replaceable> <replaceable>FILES</replaceable></title>
-   <para>Setting one or more attributes of a property.</para>
+   <para>Deletes one or more attributes of a property.</para>
    <variablelist>
     <varlistentry>
      <term><option>-p/--property</option> <replaceable>PROPERTY</replaceable></term>
