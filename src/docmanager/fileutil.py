@@ -24,7 +24,6 @@ class FileUtil(object):
 	def __init__(self, filename):
 		# set the default variables
 		self.filename = filename
-		self.isOpened = False
 
 	def get_mtime(self, with_ms=False):
 		"""Returns the last modify time
