@@ -1,5 +1,5 @@
 <!ENTITY progname "DocManager">
-<!ENTITY version "3.3.2">
+<!ENTITY version "3.3.3">
 <!ENTITY progcmd "docmanager">
 <!ENTITY release "08/31/2015">
 <!ENTITY filesentry "<varlistentry>
