@@ -8,11 +8,11 @@
 ]>
  
   <refsect2>
-   <title><command>del</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <title><command>del</command> <replaceable>[-h] [-p PROPERTIES] FILE [FILE ...]</replaceable></title>
    <para>Deleting one or more existing properties.</para>
    <variablelist>
     <varlistentry>
-     <term><option>-p</option> <replaceable>PROPERTY</replaceable></term>
+     <term><option>-p/--properties</option> <replaceable>PROPERTIES...</replaceable></term>
      <listitem>
       <para>
        Delete a property in all given XML files. Note: You can build conditions with "=" like: del -p property=value - This means, DocManager will only
@@ -20,5 +20,6 @@
       </para>
      </listitem>
     </varlistentry>
+    &filesentry;
    </variablelist>
   </refsect2>

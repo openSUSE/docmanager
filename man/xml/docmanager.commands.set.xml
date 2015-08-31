@@ -8,7 +8,16 @@
 ]>
 
   <refsect2>
-   <title><command>set</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <title><command>set</command> <replaceable>[-h] [-B] [--stop-on-error] [-p PROPERTIES]
+                      [-M MAINTAINER] [-S STATUS] [-D DEADLINE] [-P PRIORITY]
+                      [-T TRANSLATION] [-L LANGUAGES] [-R RELEASE]
+                      [--repository REPOSITORY]
+                      [--bugtracker-url BUGTRACKER_URL]
+                      [--bugtracker-component BUGTRACKER_COMPONENT]
+                      [--bugtracker-product BUGTRACKER_PRODUCT]
+                      [--bugtracker-assignee BUGTRACKER_ASSIGNEE]
+                      [--bugtracker-version BUGTRACKER_VERSION]
+                      FILE [FILE ...]</replaceable></title>
    <para>Setting one or more properties.</para>
    <variablelist>
     <varlistentry>
@@ -25,15 +34,7 @@
 &lt;/dm:property1></screen>
      </listitem>
     </varlistentry>
-    <varlistentry>
-     <term><option>--stop-on-error</option></term>
-     <listitem>
-      <para>
-       In case of errors in the XML files, this option exits the script without writing any changes. If not specified, files causing errors will
-       be reported and otherwise be ignored.
-      </para>
-     </listitem>
-    </varlistentry>
+    &stoponerrorentry;
     <varlistentry>
      <term><option>--maintainer</option> <replaceable>MAINTAINER</replaceable></term>
      <listitem>
@@ -43,7 +44,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable></term>
+     <term><option>--status</option> <replaceable>(editing|edited|proofing|proofed|comment|ready)</replaceable></term>
      <listitem>
       <para>
        Set the status for the given XML files. Note: If you use <option>-p</option> status=FOO, <option>--status</option> has a higher priority than <option>-p</option>
@@ -67,7 +68,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--translation</option> <replaceable>[yes|no]</replaceable></term>
+     <term><option>--translation</option> <replaceable>(yes|no)</replaceable></term>
      <listitem>
       <para>
        Set the translation element for the given XML files. Note: If you use <option>-p</option> translation=FOO, <option>--translation</option> has a higher priority
@@ -148,5 +149,6 @@
       </para>
      </listitem>
     </varlistentry>
+    &filesentry;
    </variablelist>
   </refsect2>

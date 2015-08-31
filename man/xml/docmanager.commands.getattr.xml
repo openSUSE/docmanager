@@ -8,15 +8,17 @@
 ]>
 
   <refsect2>
-   <title><command>get-attr</command> <replaceable>[OPTIONAL_OPTIONS]</replaceable> -p <replaceable>[PROPERTIES...]</replaceable> -a <replaceable>[ATTRIBUTES...]</replaceable> <replaceable>FILES</replaceable></title>
+   <title><command>get-attr</command> <replaceable>[-h] [--stop-on-error] [-f {table,json,xml}]
+   [-p PROPERTIES] [-a ATTRIBUTES] FILE [FILE ...]</replaceable></title>
    <para>Gets one, more, or all attributes of properties.</para>
    <variablelist>
     <varlistentry>
-     <term><option>-p/--properties</option> <replaceable>[PROPERTIES...]</replaceable></term>
+     <term><option>-p/--properties</option> <replaceable>PROPERTIES...</replaceable></term>
      <listitem>
       <para>
-        Property is the name of an XML tag. More properties can be separated by a comma or instead of that, just add
-        more -p options.
+        &propertydesc; More properties can be separated by a comma or instead of that, just add
+        more -p options. If no property was specified, you'll get the specified attributes of
+        all properties. &optionalopt;
       </para>
       <para>
         It's possible to use sub properties. For example: "-p property1/property2/property3"
@@ -29,21 +31,14 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>-a/--attributes</option> <replaceable>[ATTRIBUTES...]</replaceable></term>
+     <term><option>-a/--attributes</option> <replaceable>ATTRIBUTES...</replaceable></term>
      <listitem>
       <para>Attributes of an XML tag. Like: &lt;dm:property attribute1="myvalue" attribute2="test"/></para>
       <para>Multiple attributes are possible. Examples: -a attr1,attr2 or -a attr1 -a attr2</para>
-      <para>Notice: Don't set the -a option if you want to see everything.</para>
+      <para>Notice: Don't set the -a option if you want to see everything. &optionalopt;</para>
      </listitem>
     </varlistentry>
-    <varlistentry>
-     <term><option>--stop-on-error</option></term>
-     <listitem>
-      <para>
-       In case of errors in the XML files, this option exits the script without writing any changes. If not specified, files causing errors will
-       be reported and otherwise be ignored.
-      </para>
-     </listitem>
-    </varlistentry>
+    &stoponerrorentry;
+    &filesentry;
    </variablelist>
   </refsect2>
