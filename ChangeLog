@@ -1,4 +1,19 @@
 -------------------------------------------------------------------
+Mon Aug 31 17:51:39 UTC 2015 - mschnitzer@suse.com
+
+DocManager 3.3.3 Release
+
+## Features
+* Implemented 3 methods for handling XML attributes: set-attr, get-attr, and del-attr
+* Added {os.lastmodify} to `analyze` feature
+
+## Bugfixes
+* `get` will now show sub properties if all properties are desired.
+
+## Miscellaneous
+* Many changes in man page 
+
+-------------------------------------------------------------------
 Tue Aug 25 13:26:21 UTC 2015 - mschnitzer@suse.com
 
 ## Bugfixes
