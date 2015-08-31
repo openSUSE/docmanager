@@ -47,7 +47,8 @@ class Analyzer(object):
 
         # constants
         formatconst = [
-            [ "{os.file}", self.xmlhandler.filename ]
+            [ "{os.file}", self.xmlhandler.filename ],
+            [ "{os.lastmodify}", self.xmlhandler.fileutil.get_mtime_format('%Y-%m-%d %H:%M:%S') ]
         ]
 
         # replace constants

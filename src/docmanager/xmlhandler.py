@@ -20,12 +20,13 @@ import sys
 from collections import OrderedDict
 from docmanager.core import DEFAULT_DM_PROPERTIES, \
      NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
-from docmanager.exceptions import DMNotDocBook5File, DMXmlParseError, \
-                                  DMInvalidXMLRootElement
+from docmanager.exceptions import *
+from docmanager.fileutil import FileUtil
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
-     replaceinstream, preserve_entities, findinfo_pos, xml_indent
+     replaceinstream, preserve_entities, findinfo_pos, xml_indent, \
+     get_property_xpath
 from lxml import etree
 from xml.sax._exceptions import SAXParseException
 
@@ -44,6 +45,9 @@ class XmlHandler(object):
         # general
         self._filename = ""
         self._buffer = None # StringIO
+
+        # file util
+        self._fileutil = FileUtil(filename)
 
         # prolog
         self._offset = 0
@@ -116,8 +120,7 @@ class XmlHandler(object):
                 self.fileerror = err.msg
 
                 if self.stoponerror:
-                    log.error(err)
-                    sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                    raise DMXmlParseError(err, ReturnCodes.E_XML_PARSE_ERROR)
 
             if not self.invalidfile:
                 self.__root = self.__tree.getroot()
@@ -129,8 +132,7 @@ class XmlHandler(object):
                     self.fileerror = err
 
                     if self.stoponerror:
-                        log.error(err)
-                        sys.exit(ReturnCodes.E_XML_PARSE_ERROR)
+                        raise DMXmlParseError(err, ReturnCodes.E_XML_PARSE_ERROR)
 
                 if not self.invalidfile:
                     # check for DocBook 5 namespace in start tag
@@ -145,20 +147,18 @@ class XmlHandler(object):
                             self.create_group()
                         else:
                             log.debug("Found docmanager element %s", self.__docmanager.getparent())
-                    except DMNotDocBook5File:
-                        self.invalidfile = True
-                        self.fileerror = "The document is not a valid DocBook 5 document."
-
+                    except DMNotDocBook5File as err:
                         if self.stoponerror == True:
-                            log.error(self.fileerror)
-                            sys.exit(ReturnCodes.E_NOT_DOCBOOK5_FILE)
+                            raise DMNotDocBook5File(err.errorstr, err.error)
 
     def check_docbook5_ns(self):
         """Checks if the current file is a valid DocBook 5 file.
         """
         rootns = get_namespace(self.__root.tag)
         if rootns != NS['d']:
-            raise DMNotDocBook5File()
+            self.invalidfile = True
+            self.fileerror = "The document is not a valid DocBook 5 document."
+            raise DMNotDocBook5File(self.fileerror, ReturnCodes.E_NOT_DOCBOOK5_FILE)
 
     def replace_entities(self):
         """This function replaces entities in the StringIO buffer
@@ -302,6 +302,80 @@ class XmlHandler(object):
 
         return False
 
+    def set_attr(self, prop, data):
+        """Sets an attribute for a property
+        :param str prop: The property
+        :param dict data: A dictionary of attributes and values
+                          example: {"attr1": "val1", "attr2": "val2"}
+        """
+        node = self.find_elem(prop)
+
+        if node is None:
+            raise DMPropertyNotFound(self.filename, prop)
+
+        for i in data:
+            node.set(i, data[i])
+
+    def del_attr(self, prop, data):
+        """Deletes one or more attributes of a property
+        :param str prop: The property
+        :param list data: A list of all attributes
+        """
+        node = self.find_elem(prop)
+
+        if node is None:
+            raise DMPropertyNotFound(self.filename, prop)
+
+        errors = []
+        for i in data:
+            try:
+                del node.attrib[i]
+            except KeyError:
+                errors.append(i)
+
+        return errors
+
+    def get_attr(self, props, data):
+        """Gets one or more attributes of a property
+        :param list props: The properties
+        :param list data: A list of all attributes
+        """
+        attrs = OrderedDict()
+        nodes = []
+
+        if props:
+            for prop in props:
+                attrs[prop] = OrderedDict()
+                node = self.find_elem(prop)
+
+                if node is not None:
+                    nodes.append((localname(node.tag), node))
+        else:
+            for idx, i in enumerate(self.__docmanager.iter()):
+                # this is needed because otherwise we also get the "docmanager"
+                # element
+                if idx:
+                    xpath = get_property_xpath(i)
+
+                    attrs[xpath] = OrderedDict()
+                    nodes.append((xpath, i))
+
+        for node in nodes:
+            prop = node[0]
+            elem = node[1]
+
+            if data:
+                for i in data:
+                    try:
+                        attrs[prop][i] = elem.attrib[i]
+                    except KeyError:
+                        pass
+            else:
+                for i in elem.attrib:
+                    attrs[prop][i] = elem.attrib[i]
+
+        return attrs
+
     def get(self, keys=None):
         """Returns all matching values for a key in docmanager element
 
@@ -345,8 +419,11 @@ class XmlHandler(object):
         logmgr_flog()
 
         ret = OrderedDict()
-        for i in self.__docmanager.iterchildren():
-            ret[localname(i.tag)] = i.text
+        for idx, i in enumerate(self.__docmanager.iter()):
+            # we want to skip the "docmanager" element here
+            if idx:
+                xpath = get_property_xpath(i)
+                ret[xpath] = i.text
 
         return ret
 
@@ -382,6 +459,27 @@ class XmlHandler(object):
                 return True
 
         return False
+
+    def find_elem(self, prop):
+        """Searches for the an XML element
+        :param str prop: The property
+        :return lxml.etree._Element:
+        """
+        props = prop.split("/")
+
+        dm = self.__docmanager
+        lastnode = None
+
+        for i in props:
+            if lastnode is None:
+                lastnode = dm
+
+            lastnode = lastnode.find("dm:{}".format(i), namespaces=NS)
+
+            if lastnode is None:
+                return None
+
+        return lastnode
 
     def get_indentation(self, node, indentation=""):
         """Calculates indentation level
@@ -509,3 +607,7 @@ class XmlHandler(object):
     @property
     def dm(self):
         return self.__docmanager
+
+    @property
+    def fileutil(self):
+        return self._fileutil

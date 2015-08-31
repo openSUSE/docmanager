@@ -9,42 +9,50 @@
 
   <refsect2>
    <title>
-    <command>config</command> <replaceable>OPTION(--system|--user|--repo|--own)</replaceable> <replaceable>PROPERTY</replaceable> <replaceable>VALUE</replaceable>
+    <command>config</command> <replaceable>[-h] [-s] [-u] [-r] [-o FILE] PROPERTY [VALUE]</replaceable>
    </title>
    <para>Manage the configuration files.</para>
    <variablelist>
     <varlistentry>
-     <term><option>--system/-s</option></term>
-     <listitem>
-      <para>
-        Uses the system configuration file from /etc/docmanager/docmanager.conf.
-        If the file was not found, &progname; will create that file.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><option>--user/-u</option></term>
-     <listitem>
-      <para>
-        Uses the user configuration file from /home/{user}/.config/docmanager/docmanager.conf.
-        If the file was not found, &progname; will create that file.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><option>--repo/-r</option></term>
-     <listitem>
-      <para>
-        Uses the git repository configuration file from {current_git_director}/.git/docmanager/docmanager.conf.
-        If the file was not found, &progname; will create that file.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><option>--own/-o</option> <replaceable>FILE</replaceable></term>
-     <listitem>
-      <para>Uses an own configuration file. If the file was not found, &progname; will create that file.</para>
-     </listitem>
+      <term><option>CONFIG FILE</option></term>
+      <listitem>
+       <para>You must choose between one of these config file options.</para>
+       <variablelist>
+        <varlistentry>
+         <term><option>--system/-s</option></term>
+         <listitem>
+          <para>
+            Uses the system configuration file from /etc/docmanager/docmanager.conf.
+            If the file was not found, &progname; will create that file.
+          </para>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><option>--user/-u</option></term>
+         <listitem>
+          <para>
+            Uses the user configuration file from /home/{user}/.config/docmanager/docmanager.conf.
+            If the file was not found, &progname; will create that file.
+          </para>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><option>--repo/-r</option></term>
+         <listitem>
+          <para>
+            Uses the git repository configuration file from {current_git_director}/.git/docmanager/docmanager.conf.
+            If the file was not found, &progname; will create that file.
+          </para>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><option>--own/-o</option> <replaceable>FILE</replaceable></term>
+         <listitem>
+          <para>Uses an own configuration file. If the file was not found, &progname; will create that file.</para>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </listitem>
     </varlistentry>
     <varlistentry>
      <term><option>PROPERTY</option></term>
@@ -55,7 +63,7 @@
     <varlistentry>
      <term><option>VALUE</option></term>
      <listitem>
-      <para>The value of the property.</para>
+      <para>The value of the property. &optionalopt; If no value is provided, you get the value of <option>PROPERTY</option>. Like the <command>get</command> command.</para>
      </listitem>
     </varlistentry>
    </variablelist>

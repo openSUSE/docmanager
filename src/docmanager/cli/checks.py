@@ -246,17 +246,35 @@ def fix_filelist(files):
     """
 
     if files:
-        for idx, i in enumerate(files[:]):
+        tmpfiles = files[:]
+        files.clear()
+
+        for idx, i in enumerate(tmpfiles[:]):
             filelist = glob(i)
             if filelist:
-                files.pop(idx)
                 for x in filelist:
                     if not os.path.exists(x):
                         log.error("Cannot find file {!r}!".format(x))
                         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
-                    
+
                     files.append(x)
             else:
                 if not os.path.exists(i):
                     log.error("Cannot find file {!r}!".format(i))
                     sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
+
+def fix_attributes(args):
+    """Make different attributes styles consistent
+
+    :param argparse.Namespace args: Parsed arguments
+    """
+    # Handle the different styles with -a foo and -a foo,bar
+    # Needed to split the syntax 'a,b', 'a;b' or 'a b' into a list
+    # regardless of the passed arguments
+    _attrs = []
+    # Use an empty list when args.attributes = None or if args.attributes does not exists
+    args.attributes = [] if not hasattr(args, 'attributes') or args.attributes is None else args.attributes
+    for item in args.attributes:
+        repl = re.split("[,;]", item)
+        _attrs.extend(repl)
+    args.attributes = _attrs

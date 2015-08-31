@@ -4,7 +4,7 @@ import pytest
 
 from io import StringIO
 from docmanager.xmlutil import preserve_entities, recover_entities, \
-                               isXML, \
+                               is_xml, \
                                get_namespace, localname, \
                                replaceinstream
 
@@ -86,7 +86,7 @@ def test_replaceinstream_recover(text, expected):
   (".hello/foo",            False),
 ])
 def test_isxml(text, expected):
-    result = isXML(text)
+    result = is_xml(text)
     assert result == expected
 
 

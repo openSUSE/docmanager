@@ -48,20 +48,26 @@ BT_ELEMENTLIST = (
 )
 
 DEFAULTSUBCOMMANDS = {
-    "i":       "init",
-    "init":    "init",
-    "g":       "get",
-    "get":     "get",
-    "d":       "delete",
-    "del":     "delete",
-    "s":       "set",
-    "set":     "set",
-    "a":       "analyze",
-    "analyze": "analyze",
-    "c":       "config",
-    "config":  "config",
-    "al":      "alias",
-    "alias":   "alias"
+    "i":        "init",
+    "init":     "init",
+    "g":        "get",
+    "get":      "get",
+    "d":        "delete",
+    "del":      "delete",
+    "s":        "set",
+    "set":      "set",
+    "set-attr": "set_attr",
+    "sa":       "set_attr",
+    "del-attr": "del_attr",
+    "da":       "del_attr",
+    "get-attr": "get_attr",
+    "ga":       "get_attr",
+    "a":        "analyze",
+    "analyze":  "analyze",
+    "c":        "config",
+    "config":   "config",
+    "al":       "alias",
+    "alias":    "alias"
 }
 
 STATUSFLAGS = ('editing', 'edited', 'proofing', 'proofed', 'comment',

@@ -8,7 +8,16 @@
 ]>
 
   <refsect2>
-   <title><command>init</command> <replaceable>[OPTIONS]</replaceable> <replaceable>FILES</replaceable></title>
+   <title><command>init</command> <replaceable>[-h] [--force] [--stop-on-error] [--with-bugtracker]
+                       [-p PROPERTIES] [-M MAINTAINER] [-S STATUS]
+                       [-D DEADLINE] [-P PRIORITY] [-T TRANSLATION]
+                       [-L LANGUAGES] [-R RELEASE] [--repository REPOSITORY]
+                       [--bugtracker-url BUGTRACKER_URL]
+                       [--bugtracker-component BUGTRACKER_COMPONENT]
+                       [--bugtracker-product BUGTRACKER_PRODUCT]
+                       [--bugtracker-assignee BUGTRACKER_ASSIGNEE]
+                       [--bugtracker-version BUGTRACKER_VERSION]
+                       FILE [FILE ...]</replaceable></title>
    <para>Initializes an XML document with all relevant properties. Property is the name of an XML tag.</para>
    <variablelist>
     <varlistentry>
@@ -20,7 +29,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--status</option> <replaceable>[editing|edited|proofing|proofed|comment|ready]</replaceable></term>
+     <term><option>--status</option> <replaceable>(editing|edited|proofing|proofed|comment|ready)</replaceable></term>
      <listitem>
       <para>
        Set the status for the given XML files.
@@ -44,7 +53,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>--translation</option> <replaceable>[yes|no]</replaceable></term>
+     <term><option>--translation</option> <replaceable>(yes|no)</replaceable></term>
      <listitem>
       <para>
        Set the translation element for the given XML files.
@@ -131,14 +140,7 @@
       </para>
      </listitem>
     </varlistentry>
-    <varlistentry>
-     <term><option>--stop-on-error</option></term>
-     <listitem>
-      <para>
-       If this option is given, DocManager will stop if there is an XML error in one file.
-      </para>
-     </listitem>
-    </varlistentry>
+    &stoponerrorentry;
     <varlistentry>
      <term><option>--force</option></term>
      <listitem>
@@ -147,5 +149,6 @@
       </para>
      </listitem>
     </varlistentry>
+    &filesentry;
    </variablelist>
   </refsect2>

@@ -20,7 +20,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><option>CONFIG_FILE</option></term>
+     <term><option>CONFIG FILE</option></term>
      <listitem>
       <variablelist>
        <varlistentry>

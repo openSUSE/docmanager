@@ -31,6 +31,7 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     :return: rendered output
     :rtype: str
     """
+
     if data is None:
         return
 
@@ -63,6 +64,17 @@ def textrenderer(data, **kwargs): # pylint: disable=unused-argument
 
             for i in errors:
                 print("[{}] {} -> {}".format(red(" error "), i[0], i[1]))
+    elif args.action == "get_attr":
+        errors = data['errors']
+        data = data['data']
+
+        if data:
+            for i in data:
+                if data[i]:
+                    for prop in data[i]:
+                        if data[i][prop]:
+                            print("{}[{}] -> {}".format(i, prop, ", ".join(["%s=%s" % (key, value) \
+                                                          for key, value in data[i][prop].items()])))
 
 def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
     """Output as table
@@ -90,7 +102,7 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
                 table.add_row([i, data['aliases'][i]])
 
             print(table)
-    else:
+    elif args.action == "get":
         index = 0
         for i in data['data']:
             if len(i[1]):
@@ -109,6 +121,25 @@ def tablerenderer(data, **kwargs): # pylint: disable=unused-argument
                     print("")
 
             index += 1
+    elif args.action == "get_attr":
+        if data['data']:
+            # file names
+            for f in data['data']:
+                if data['data'][f]:
+                    print("File: {}".format(f))
+
+                    table = PrettyTable(["Property", "Attribute", "Value"])
+                    table.align["Property"] = "1"
+                    table.align["Attribute"] = "1"
+                    table.align["Value"] = "1"
+
+                    # properties
+                    for prop in data['data'][f]:
+                        # attributes
+                        for i in data['data'][f][prop]:
+                            table.add_row([prop, i, data['data'][f][prop][i]])
+
+                    print(table)
 
 
 def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
@@ -130,14 +161,18 @@ def jsonrenderer(data, **kwargs): # pylint: disable=unused-argument
             json_out[i] = data['aliases'][i]
 
         print(json.dumps(json_out))
-    else:
+    elif args.action == "get":
         json_out = OrderedDict()
         for i in data['data']:
             json_out[i[0]] = {}
             json_out[i[0]] = i[1]
 
         print(json.dumps(json_out))
+    elif args.action == "get_attr":
+        json_out = OrderedDict()
+        data = data['data']
 
+        print(json.dumps(data))
 
 def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
     """Output as XML
@@ -171,7 +206,7 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
 
             index += 1
 
-    else:
+    elif args.action == "get":
         fileselem = etree.Element("files")
         root.append(fileselem)
 
@@ -188,12 +223,59 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
                     prop = x
                     value = i[1][x]
 
-                    elem = etree.Element(prop)
+                    elem = etree.Element("property")
+                    elem.set("name", prop)
                     elem.text = value
 
                     child.append(elem)
 
                 index += 1
+
+    elif args.action == "get_attr":
+        """
+        Output structure:
+        <!DOCTYPE docmanager>
+        <docmanager>
+          <files>
+            <file name="example.xml">
+              <property name="priority/test/hello">
+                <attribute name="someattribute">Hello</attribute>
+                <attribute name="attr2">Hallo</attribute>
+              </property>
+              <property name="status">
+                <attribute name="attr3">Hi</attribute>
+              </property>
+            </file>
+          </files>
+        </docmanager>
+        """
+
+        fileselem = etree.Element("files")
+        root.append(fileselem)
+
+        if data['data']:
+            index = 0
+
+            for i in data['data']:
+                filename = i
+                root[0].append(etree.Element("file"))
+
+                child = root[0][index]
+                child.set("name", filename)
+
+                for prop in data['data'][i]:
+                    propelem = etree.Element("property")
+                    child.append(propelem)
+                    propelem.set("name", prop)
+
+                    for key, value in data['data'][i][prop].items():
+                        elem = etree.Element("attribute")
+                        elem.set("name", key)
+                        elem.text = value
+
+                        propelem.append(elem)
+
+                    index += 1
 
     print(etree.tostring(tree,
                          encoding="unicode",

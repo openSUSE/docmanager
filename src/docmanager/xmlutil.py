@@ -123,7 +123,7 @@ def check_root_element(rootelem, etree):
 
 # -------------------------------------------------------------------
 
-def isXML(text):
+def is_xml(text):
     """Checks if a text starts with a typical XML construct
 
        :param str text: The text to observe
@@ -180,7 +180,7 @@ def ensurefileobj(source):
         # we return the source
         return source
     elif isinstance(source, (str, bytes)):
-        if isXML(source):
+        if is_xml(source):
             return StringIO(source)
         else:
             # source isn't a file-like object nor starts with XML structure
@@ -496,3 +496,17 @@ def xml_indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
+def get_property_xpath(elem):
+    """Gets the xpath of an lxml.etree._Element
+    :param lxml.etree._Element elem: An etree element
+    :return str: XPath of the given element
+    """
+    elems = [ localname(i.tag) for i in elem.iterancestors() if get_namespace(i.tag) == NS['dm'] ]
+
+    elems.reverse()
+    elems = elems[1:]
+
+    elems.append(localname(elem.tag))
+
+    return "/".join(elems)

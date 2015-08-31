@@ -24,8 +24,7 @@ from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
 from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
-from docmanager.exceptions import DMInvalidXMLHandlerObject, DMXmlParseError, \
-                                  DMInvalidXMLRootElement, DMFileNotFoundError
+from docmanager.exceptions import *
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
@@ -72,7 +71,7 @@ class Actions(object):
 
                 # stop if we found an error and --stop-on-error is set
                 if self.__args.stop_on_error and "error" in self.__xml[name]:
-                    log.error(self.__xml[name]["errorstr"])
+                    log.error("{}: {}".format(name, self.__xml[name]["errorstr"]))
                     sys.exit(self.__xml[name]["error"])
 
     def init_xml_handlers(self, fname):
@@ -81,14 +80,14 @@ class Actions(object):
 
         :param string fname: The file name
         """
-        h = None
+        handler = None
 
         try:
-            h = { "file": fname, "handler": XmlHandler(fname, True) }
-        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError) as err:
-            h = { "file": fname, "errorstr": err.errorstr, "error": err.error }
+            handler = { "file": fname, "handler": XmlHandler(fname, True) }
+        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError, DMNotDocBook5File) as err:
+            handler = { "file": fname, "errorstr": err.errorstr, "error": err.error }
 
-        return h
+        return handler
 
     def parse(self):
         logmgr_flog()
@@ -234,6 +233,120 @@ class Actions(object):
         if invalidfiles > 0:
             sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
+    def set_attr(self, arguments):
+        prop = self.__args.property
+        attrs = self.__args.attributes
+
+        if not prop:
+            log.error("You must specify a property with -p!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        if not attrs:
+            log.error("You must specify at least one attribute with -a!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        # count all valid and invalid xml files
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
+
+        data = OrderedDict()
+        for i in attrs:
+            try:
+                key, val = i.split("=")
+                data[key] = val
+            except ValueError:
+                log.error("The values of -a must have a key and a value, like: key=value or key=")
+                sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+
+        for f in self.__files:
+            if "error" in self.__xml[f]:
+                print("[{}] {} -> {}".format(red(" error "), f, red(self.__xml[f]["errorstr"])))
+            else:
+                try:
+                    self.__xml[f]["handler"].set_attr(prop, data)
+                    self.__xml[f]["handler"].write()
+
+                    print("[{}] Set attributes for file {}.".format(green(" ok "), f))
+                except DMPropertyNotFound:
+                    print("[{}] Property {} was not found in {}.".format(red(" error "), yellow(prop), f))
+
+                    # we must substract 1 of "validfiles" since XML files are valid even
+                    # if they don't have the given property.
+                    validfiles -= 1
+                    invalidfiles += 1
+
+        # print the statistics output
+        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
+                green(validfiles),
+                '' if validfiles == 1 else 's',
+                red(invalidfiles),
+                '' if invalidfiles == 1 else 's'
+                )
+             )
+
+        if invalidfiles > 0:
+            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
+
+    def del_attr(self, arguments):
+        prop = self.__args.property
+        attrs = self.__args.attributes
+
+        if not prop:
+            log.error("You must specify a property with -p!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        if not attrs:
+            log.error("You must specify at least one attribute with -a!")
+            sys.exit(ReturnCodes.E_INVALID_ARGUMENTS)
+
+        # count all valid and invalid xml files
+        validfiles, invalidfiles = self.get_files_status(self.__xml)
+
+        for f in self.__files:
+            if "error" in self.__xml[f]:
+                print("[{}] {} -> {}".format(red(" error "), f, red(self.__xml[f]["errorstr"])))
+            else:
+                try:
+                    errors = self.__xml[f]["handler"].del_attr(prop, attrs)
+                    self.__xml[f]["handler"].write()
+
+                    if errors:
+                        print("[{}] These attributes couldn't be deleted for {}: {}".format(
+                            yellow(" notice "), f, ", ".join(errors)
+                        ))
+                    else:
+                        print("[{}] Deleted attributes for file {}.".format(green(" ok "), f))
+
+                except DMPropertyNotFound:
+                    print("[{}] Property {} was not found in {}.".format(red(" error "), yellow(prop), f))
+
+                    # we must substract 1 of "validfiles" since XML files are valid even
+                    # if they don't have the given property.
+                    validfiles -= 1
+                    invalidfiles += 1
+
+        # print the statistics output
+        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
+                green(validfiles),
+                '' if validfiles == 1 else 's',
+                red(invalidfiles),
+                '' if invalidfiles == 1 else 's'
+                )
+             )
+
+        if invalidfiles > 0:
+            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
+
+    def get_attr(self, arguments):
+        props = self.__args.properties
+        attrs = self.__args.attributes
+
+        data = dict(data=OrderedDict(),errors=None)
+
+        for f in self.__files:
+            data['data'][f] = self.__xml[f]["handler"].get_attr(props, attrs)
+
+        return data
+
     def get(self, arguments):
         """Lists all properties
 
@@ -275,18 +388,18 @@ class Actions(object):
             else:
                 failed_properties = list()
 
-                for a in arguments:
+                for arg in arguments:
                     cond = None
-                    prop = a
-                    pos = a.find("=")
+                    prop = arg
+                    pos = arg.find("=")
 
                     # look if there is condition
                     if pos != -1:
-                        prop = a[:pos]
-                        cond = a[pos+1:]
+                        prop = arg[:pos]
+                        cond = arg[pos+1:]
 
                     if not self.__xml[f]["handler"].delete(prop, cond):
-                        failed_properties.append(a)
+                        failed_properties.append(arg)
                         props_failed += 1
                     else:
                         props_deleted += 1
