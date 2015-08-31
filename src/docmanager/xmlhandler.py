@@ -419,8 +419,11 @@ class XmlHandler(object):
         logmgr_flog()
 
         ret = OrderedDict()
-        for i in self.__docmanager.iterchildren():
-            ret[localname(i.tag)] = i.text
+        for idx, i in enumerate(self.__docmanager.iter()):
+            # we want to skip the "docmanager" element here
+            if idx:
+                xpath = get_property_xpath(i)
+                ret[xpath] = i.text
 
         return ret
 
