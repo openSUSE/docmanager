@@ -223,7 +223,8 @@ def xmlrenderer(data, **kwargs): # pylint: disable=unused-argument
                     prop = x
                     value = i[1][x]
 
-                    elem = etree.Element(prop)
+                    elem = etree.Element("property")
+                    elem.set("name", prop)
                     elem.text = value
 
                     child.append(elem)
