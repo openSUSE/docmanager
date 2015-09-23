@@ -6,4 +6,5 @@ languages:
   PHP: true
   Python: true
 exclude_paths:
-    - tests/*.py
+    - tests/**
+    - test/**
