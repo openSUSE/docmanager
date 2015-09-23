@@ -1,0 +1,9 @@
+# https://codeclimate.com/
+#
+languages:
+  Ruby: true
+  JavaScript: true
+  PHP: true
+  Python: true
+exclude_paths:
+    - tests/*.py
