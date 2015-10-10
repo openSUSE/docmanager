@@ -20,7 +20,7 @@ import json
 from collections import OrderedDict
 from lxml import etree
 from prettytable import PrettyTable
-from docmanager.shellcolors import red
+from .shellcolors import red
 
 def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     """Normal text output

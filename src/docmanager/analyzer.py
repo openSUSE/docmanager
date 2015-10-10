@@ -17,10 +17,11 @@
 # you may find current contact information at www.suse.com
 
 import sys
-from docmanager.core import NS, ReturnCodes
-from docmanager.exceptions import DMInvalidXMLHandlerObject, DMAnalyzeInvalidFilterSyntax
-from docmanager.logmanager import log
-from docmanager.xmlutil import localname
+from .core import NS, ReturnCodes
+from .exceptions import DMInvalidXMLHandlerObject, DMAnalyzeInvalidFilterSyntax
+from .logmanager import log
+from .util import ignored, logandexit
+from .xmlutil import localname
 from lxml import etree
 
 class Analyzer(object):
@@ -183,11 +184,10 @@ class Analyzer(object):
 
             # if there are invalid characters in the xpath, lxml throws an exception.
             # We have to catch that.
-            try:
-                data = { localname(e.tag): e.text  for e in self.xmlhandler.dm.xpath(xpath, namespaces=NS) }
-            except etree.XPathEvalError:
-                log.error("The given XML properties in --sort/-s or --queryformat/-qf are invalid.")
-                sys.exit(ReturnCodes.E_INVALID_XML_PROPERTIES)
+            with logandexit("The given XML properties in --sort/-s or --queryformat/-qf are invalid.",
+                            ReturnCodes.E_INVALID_XML_PROPERTIES,
+                            etree.XPathEvalError):
+                data = { localname(e.tag): e.text for e in self.xmlhandler.dm.xpath(xpath, namespaces=NS) }
 
             # loop over all 'properties' and fetch their values from the XML file. properties
             # without values will become an empty string if the 'default-option' was not set
@@ -205,7 +205,11 @@ class Analyzer(object):
             filters_xpath = ""
 
             for idx, f in enumerate(filter):
-                try:
+                with logandexit(["Invalid syntax in filter: '{}'".format(f),
+                                 "Look into the manual page for more information about using filters."
+                                ],
+                                ReturnCodes.E_ANALYZE_FILTER_INVALID_SYNTAX,
+                                DMAnalyzeInvalidFilterSyntax):
                     # validate the filter syntax of any given filter
                     mode, prop, condition = self.validate_filter(f)
 
@@ -218,11 +222,7 @@ class Analyzer(object):
                         filters_xpath += "self::dm:" + prop
                     else:
                         filters_xpath += " or self::dm:" + prop
-                except DMAnalyzeInvalidFilterSyntax:
-                    # syntax is wrong
-                    log.error("Invalid syntax in filter: '{}'".format(f))
-                    log.error("Look into the manual page for more information about using filters.")
-                    sys.exit(ReturnCodes.E_ANALYZE_FILTER_INVALID_SYNTAX)
+
 
             # catch the values of the filter properties
             f_xpath = { localname(e.tag): e.text  for e in self.xmlhandler.dm.xpath("*[{}]".format(filters_xpath), namespaces=NS) }

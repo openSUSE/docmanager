@@ -21,15 +21,17 @@ import sys
 import threading
 from collections import OrderedDict, namedtuple
 from configparser import ConfigParser, NoOptionError
-from docmanager.analyzer import Analyzer
-from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
-from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
-from docmanager.exceptions import *
-from docmanager.logmanager import log, logmgr_flog
-from docmanager.shellcolors import red, green, yellow
-from docmanager.xmlhandler import XmlHandler
+from .analyzer import Analyzer
+from .config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
+from .core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
+from .exceptions import *
+from .logmanager import log, logmgr_flog
+from .shellcolors import red, green, yellow
+from .util import ignored, logandexit
+from .xmlhandler import XmlHandler
 from math import trunc
 from multiprocessing.pool import ThreadPool
+
 
 class Actions(object):
     """An Actions instance represents an action event
@@ -193,7 +195,12 @@ class Actions(object):
                 print("[ {} ] {} -> {}".format(red("error"), f, red(self.__xml[f]['errorstr'])))
             else:
                 for arg in args:
-                    try:
+                    with logandexit('Invalid usage. '
+                                    'Set values with the following format: '
+                                    'property=value',
+                                    ReturnCodes.E_INVALID_USAGE_KEYVAL,
+                                    ValueError
+                                   ):
                         key, value = arg
 
                         if key == "languages":
@@ -207,11 +214,7 @@ class Actions(object):
                             self.__xml[f]["handler"].set({"bugtracker/" + key: value})
                         else:
                             self.__xml[f]["handler"].set({key: value})
-                    except ValueError:
-                        log.error('Invalid usage. '
-                                  'Set values with the following format: '
-                                  'property=value')
-                        sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
+
 
                 print("[ {} ] Set data for file {}.".format(green("ok"), f))
 
@@ -250,12 +253,11 @@ class Actions(object):
 
         data = OrderedDict()
         for i in attrs:
-            try:
+            with logandexit("The values of -a must have a key and a value, like: key=value or key=",
+                            ReturnCodes.E_INVALID_USAGE_KEYVAL,
+                            ValueError):
                 key, val = i.split("=")
                 data[key] = val
-            except ValueError:
-                log.error("The values of -a must have a key and a value, like: key=value or key=")
-                sys.exit(ReturnCodes.E_INVALID_USAGE_KEYVAL)
 
         for f in self.__files:
             if "error" in self.__xml[f]:
@@ -428,10 +430,8 @@ class Actions(object):
         handlers = dict()
 
         # Set default query format
-        try:
+        with ignored(KeyError):
             qformat = self.args.config['analzye']['queryformat']
-        except KeyError:
-            pass
 
         if self.args.queryformat:
             qformat = self.args.queryformat
@@ -603,10 +603,8 @@ class Actions(object):
             conf.set("alias", alias, value)
             save = True
         elif action == "get":
-            try:
+            with ignored(NoOptionError):
                 print(conf.get("alias", alias))
-            except NoOptionError:
-                pass
         elif action == "del":
             save = True
             conf.remove_option("alias", alias)

@@ -23,6 +23,7 @@ from .. import __version__
 from ..config import docmanagerconfig, create_userconfig
 from ..core import ReturnCodes, DEFAULT_DM_PROPERTIES, DEFAULT_PROCESSES
 from ..logmanager import log, logmgr_flog, setloglevel
+from ..util import ignored
 
 from .checks import *
 from .cmd_alias import alias_subcmd, rewrite_alias
@@ -73,8 +74,9 @@ def parsecli(cliargs=None, error_on_config=False):
     # Exception handled in __init__.py
     config = docmanagerconfig(args.configfile)
 
-    # Read the log level from the config files
-    try:
+    # Read the log level from the config files and ignore any KeyError
+    # exceptions
+    with ignored(KeyError):
         verbosity_level = int(config["general"]["verbosity_level"])
 
         if args.verbose is not None:
@@ -85,8 +87,6 @@ def parsecli(cliargs=None, error_on_config=False):
 
         # set log level
         setloglevel(args.verbose)
-    except KeyError:
-        pass
 
     if remaining_argv:
         alias = remaining_argv[0]
@@ -95,12 +95,10 @@ def parsecli(cliargs=None, error_on_config=False):
         if is_alias(alias) and not alias.startswith('-'):
             remaining_argv = remaining_argv[1:]
 
-            try:
+            with ignored(NoSectionError, NoOptionError):
                 value = parse_alias_value("{alias} {args}".format(alias=config.get("alias", alias),
                                                 args=" ".join(remaining_argv)))
                 cliargs = shlex.split(value)
-            except (NoSectionError, NoOptionError) as err:
-                pass
 
     # parse cli parameters
     filesargs = dict(nargs='+',

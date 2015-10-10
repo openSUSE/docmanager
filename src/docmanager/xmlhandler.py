@@ -18,12 +18,12 @@
 
 import sys
 from collections import OrderedDict
-from docmanager.core import DEFAULT_DM_PROPERTIES, \
+from .core import DEFAULT_DM_PROPERTIES, \
      NS, ReturnCodes, VALIDROOTS, BT_ELEMENTLIST
-from docmanager.exceptions import *
-from docmanager.fileutil import FileUtil
-from docmanager.logmanager import log, logmgr_flog
-from docmanager.xmlutil import check_root_element, compilestarttag, \
+from .exceptions import *
+from .fileutil import FileUtil
+from .logmanager import log, logmgr_flog
+from .xmlutil import check_root_element, compilestarttag, \
      ensurefileobj, findprolog, get_namespace, localname, recover_entities, \
      replaceinstream, preserve_entities, findinfo_pos, xml_indent, \
      get_property_xpath

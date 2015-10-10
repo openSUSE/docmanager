@@ -20,10 +20,10 @@ import re
 import sys
 import xml.sax
 from collections import namedtuple
-from docmanager.core import NS, ReturnCodes, VALIDROOTS
-from docmanager.exceptions import DMInvalidXMLRootElement, \
+from .core import NS, ReturnCodes, VALIDROOTS
+from .exceptions import DMInvalidXMLRootElement, \
                                   DMFileNotFoundError
-from docmanager.logmanager import log, logmgr_flog
+from .logmanager import log, logmgr_flog
 from io import StringIO
 from itertools import accumulate
 
