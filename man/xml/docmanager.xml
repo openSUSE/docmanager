@@ -61,8 +61,8 @@
   <para>The following example shows an XML file after being edited with &progname;:</para>
   <screen>&lt;info>
  &lt;dm:docmanager xmlns:dm="urn:x-suse:ns:docmanager">
-  &lt;dm:test1>value1&lt;/dm:property>
-  &lt;dm:test2>value2&lt;/dm:maintainer>
+  &lt;dm:test1>value1&lt;/dm:test1>
+  &lt;dm:test2>value2&lt;/dm:test2>
  &lt;/dm:docmanager>
 &lt;/info></screen>
   <para>
