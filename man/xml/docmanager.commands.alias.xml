@@ -32,14 +32,6 @@
         </listitem>
        </varlistentry>
        <varlistentry>
-        <term><option>--system/-s</option></term>
-        <listitem>
-         <para>
-           This option let the <command>alias</command> feature use the system configuration file from /etc
-         </para>
-        </listitem>
-       </varlistentry>
-       <varlistentry>
         <term><option>--user/-u</option></term>
         <listitem>
          <para>
