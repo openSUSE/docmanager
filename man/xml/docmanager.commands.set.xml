@@ -25,7 +25,7 @@
      <listitem>
       <para>Set the value of a property. Property is the name of the XML tag. For example: "-p property=value" would result in &lt;dm:property&gt;value&lt;/dm:property&gt;</para>
       <para>
-        It's possible to use sub properties. For example: "-p property1/property2/property3=value" would result in:
+        It's possible to use subproperties. For example: "-p property1/property2/property3=value" would result in:
       </para>
       <screen>&lt;dm:property1>
  &lt;dm:property2>
@@ -112,7 +112,7 @@
           For Bugzilla, for example: https://bugzilla.suse.com/enter_bug.cgi
       </para>
       <para>
-          For GitHub, for example: https://github.com/openSUSE/suse-xsl/issues/new (Please let the URL point to the "new issue" site
+          For GitHub, for example: https://github.com/openSUSE/suse-xsl/issues/new (Point URL to the "new issue" site
           of your documentation repository - otherwise, it will not work)
       </para>
      </listitem>

@@ -17,7 +17,7 @@
      <listitem>
       <para>&propertydesc;</para>
       <para>
-        It's possible to use sub properties. For example: "-p property1/property2/property3"
+        It is possible to use subproperties. For example: "-p property1/property2/property3"
       </para>
       <screen>&lt;dm:property1>
  &lt;dm:property2>

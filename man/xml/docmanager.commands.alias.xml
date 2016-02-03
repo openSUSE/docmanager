@@ -27,7 +27,7 @@
         <term><option>--system/-s</option></term>
         <listitem>
          <para>
-           This option let the <command>alias</command> feature use the system configuration file from /etc
+           This option allows the <command>alias</command> feature to use the system configuration file from /etc
          </para>
         </listitem>
        </varlistentry>
@@ -35,7 +35,7 @@
         <term><option>--user/-u</option></term>
         <listitem>
          <para>
-           This option let the <command>alias</command> feature use the user configuration file from /home/{user}/.config/docmanager
+           This option allows the <command>alias</command> feature to use the user configuration file from /home/{user}/.config/docmanager
          </para>
         </listitem>
        </varlistentry>
@@ -43,7 +43,7 @@
         <term><option>--repo/-r</option></term>
         <listitem>
          <para>
-           This option let the <command>alias</command> feature use the repository configuration file from the current git repository.
+           This option allows the <command>alias</command> feature to use the repository configuration file from the current git repository.
            The user has to be in a git repository otherwise it won't work.
          </para>
         </listitem>
@@ -52,7 +52,7 @@
         <term><option>--own/-o</option> <replaceable>FILE</replaceable></term>
         <listitem>
          <para>
-           This option let the <command>alias</command> feature use an own configuration file.
+           This option allows the <command>alias</command> feature to use an own configuration file.
          </para>
         </listitem>
        </varlistentry>

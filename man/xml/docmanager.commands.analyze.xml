@@ -28,7 +28,7 @@
       <screen>Hi mschnitzer
 Hi toms</screen>
       <para>
-        There are also pre defined placeholders:
+        There are also predefined placeholders:
       </para>
       <variablelist>
        <varlistentry>
@@ -56,7 +56,7 @@ Hi toms</screen>
 maintainer=mschnitzer</screen>
       <para>
        You might wonder why we don't used an operator in example three. If no or an invalid operator is set, &progname; will use
-       by default the + operator.
+       the + operator by default.
       </para>
       <para>
        Operator definitions:
@@ -99,7 +99,7 @@ maintainer=mschnitzer</screen>
      <term><option>--quiet/-q</option></term>
      <listitem>
       <para>
-        This will reduce the output to the minimum. By default, you get an overview over all XML errors and how many
+        This will reduce the output to a minimum. By default, you get an overview of all XML errors and how many
         files were successfully analyzed. &optionalopt;
       </para>
      </listitem>
