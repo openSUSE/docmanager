@@ -5,6 +5,7 @@
 [
 <!ENTITY % entities SYSTEM "entity-decl.ent">
 %entities;
+ <!ENTITY nbsp "&#xa0;">
 ]>
 <refentry lang="en" id="docmanager">
  <refentryinfo>

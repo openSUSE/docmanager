@@ -52,7 +52,7 @@ def main(cliargs=None):
         else:
             renderer = getrenderer(a.args.format)
 
-        renderer(res, args=a.args)
+        sys.exit(renderer(res, args=a.args))
     except PermissionError as err: # noqa
         log.error("%s on file %r.", err.args[1], err.filename)
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)

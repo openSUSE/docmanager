@@ -31,6 +31,7 @@ from docmanager.xmlhandler import XmlHandler
 from math import trunc
 from multiprocessing.pool import ThreadPool
 
+
 class Actions(object):
     """An Actions instance represents an action event
     """
@@ -64,7 +65,7 @@ class Actions(object):
             for i in xml:
                 name = i["file"]
                 self.__xml[name] = dict()
-                
+
                 for x in i:
                     if x is not "file":
                         self.__xml[name][x] = i[x]
@@ -137,7 +138,7 @@ class Actions(object):
                           "properties for {!r}.".format(green(" ok "),
                                                         xh.filename))
                 else:
-                    log.warn("Could not initialize all properties for %r because "
+                    log.warning("Could not initialize all properties for %r because "
                           "there are already some properties in the XML file "
                           "which would be overwritten after this operation has been "
                           "finished. If you want to perform this operation and "
@@ -202,7 +203,7 @@ class Actions(object):
 
                         log.debug("[%s] Trying to set value for property "
                                   "%r to %r.", f, key, value)
-                           
+
                         if self.__args.bugtracker:
                             self.__xml[f]["handler"].set({"bugtracker/" + key: value})
                         else:
