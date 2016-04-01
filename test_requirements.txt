@@ -1,5 +1,4 @@
 -r requirements.txt
-wheel
 pytest
 flake8
 bumpversion

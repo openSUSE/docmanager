@@ -1,10 +1,9 @@
 # Config file for automatic testing at travis-ci.org
 language: python
 python:
-    #- "2.7"
-    #- "3.2"
     - "3.3"
     - "3.4"
+    - "3.5"
 
 env:
     global:
@@ -17,6 +16,7 @@ install:
 # command to run tests
 script:
     - ./.travis-script.sh
+    - py.test -l -vv --no-cov-on-fail --cov=docmanager --cov-report=term-missing
 
 after_success:
     codecov
