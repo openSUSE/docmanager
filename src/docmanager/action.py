@@ -140,11 +140,10 @@ class Actions(object):
                                                         xh.filename))
                 else:
                     log.warning("Could not initialize all properties for %r because "
-                          "there are already some properties in the XML file "
-                          "which would be overwritten after this operation has been "
-                          "finished. If you want to perform this operation and "
-                          "overwrite the existing properties, you can add the "
-                          "'--force' option to your command.", xh.filename)
+                          "some properties are already set in the XML file. "
+                          "These would be overwritten by this operation. "
+                          "To perform this operation anyway, add the option "
+                          "'--force' to your command.", xh.filename)
 
                 # set default values for the given properties
                 for i in _set:
