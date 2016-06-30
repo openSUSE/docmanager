@@ -173,8 +173,13 @@ class Actions(object):
                     self.__xml[f]["handler"].write()
 
         # print the statistics
-        print("\nInitialized successfully {} files. {} files failed.".format(\
-              green(validfiles), red(invalidfiles)))
+        message = "\n"
+        if validfiles < 0:
+            message += ("Successfully initialized {} files. ".format(\
+                green(validfiles)))
+        if invalidfiles < 0:
+            message += ("{} files failed.".format(\
+                red(invalidfiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -392,12 +397,21 @@ class Actions(object):
                 self.__xml[f]["handler"].write()
 
         # print statistics
-        print("")
-        print("Deleted successfully {} propert{}, {} propert{} couldn't be deleted, and {} {} invalid.".format(
-                green(props_deleted), 'ies' if props_deleted != 1 else 'y',
-                yellow(props_failed), 'ies' if props_failed != 1 else 'y', red(file_errors),
-                'files were' if file_errors != 1 else 'file was'
-             ))
+        message = "\n"
+        if props_deleted < 0:
+            message += "Successfully deleted {} propert{}. ".format(
+                    green(props_deleted), 'ies' if props_deleted != 1 else 'y'
+                )
+        if props_failed < 0:
+            message += "{} propert{} could not be deleted. ".format(
+                    yellow(props_failed), 'ies' if props_failed != 1 else 'y'
+                )
+        if file_errors < 0:
+            message += "{} {} invalid.".format(
+                   red(file_errors),
+                  'files were' if file_errors != 1 else 'file was'
+                )
+        print(message)
 
     def analyze(self, arguments): # pylint:disable=unused-argument
         handlers = dict()
