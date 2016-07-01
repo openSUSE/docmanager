@@ -16,35 +16,53 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
+__all__ = ['DMInvalidXMLHandlerObject',
+           'DMAnalyzeInvalidFilterSyntax',
+           'DMConfigFileNotFound',
+           'DMNotDocBook5File',
+           'DMXmlParseError',
+           'DMInvalidXMLRootElement',
+           'DMFileNotFoundError',
+           'DMPropertyNotFound',
+           ]
+
+
 class DMInvalidXMLHandlerObject(Exception):
 	pass
+
 
 class DMAnalyzeInvalidFilterSyntax(Exception):
 	pass
 
+
 class DMConfigFileNotFound(Exception):
 	pass
+
 
 class DMNotDocBook5File(Exception):
 	def __init__(self, errorstr, error):
 		self.errorstr = errorstr
 		self.error = error	
 
+
 class DMXmlParseError(Exception):
 	def __init__(self, errorstr, error):
 		self.errorstr = errorstr
 		self.error = error
+
 
 class DMInvalidXMLRootElement(Exception):
 	def __init__(self, errorstr, error):
 		self.errorstr = errorstr
 		self.error = error
 
+
 class DMFileNotFoundError(Exception):
 	def __init__(self, errorstr, filename, error):
 		self.errorstr = errorstr
 		self.error = error
 		self.filename = filename
+
 
 class DMPropertyNotFound(Exception):
 	def __init__(self, filename, prop):

@@ -16,9 +16,6 @@
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-__author__="Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
-__version__="3.3.4"
-
 import atexit
 import sys
 import time
@@ -30,9 +27,14 @@ from docmanager.exceptions import DMConfigFileNotFound
 from docmanager.logmanager import log
 # from xml.sax._exceptions import SAXParseException
 
+__author__ = "Rick Salevsky, Manuel Schnitzer, and Thomas Schraitle"
+__version__ = "3.3.4"
+
+
 def shutdown(start):
     end = int(round(time.time() * 1000))
     log.info("DocManager Runtime: %d seconds" % ((end-start)/1000))
+
 
 def main(cliargs=None):
     """Entry point for the application script
@@ -53,16 +55,16 @@ def main(cliargs=None):
             renderer = getrenderer(a.args.format)
 
         sys.exit(renderer(res, args=a.args))
-    except PermissionError as err: # noqa
+    except PermissionError as err:  # noqa
         log.error("%s on file %r.", err.args[1], err.filename)
         sys.exit(ReturnCodes.E_PERMISSION_DENIED)
     except ValueError as err:
         log.error(err)
         sys.exit(ReturnCodes.E_INVALID_XML_DOCUMENT)
-    except FileNotFoundError as err: # noqa
+    except FileNotFoundError as err:  # noqa
         log.error("Could not find file %r.", err.filename)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
-    except DMConfigFileNotFound as err: #noqa
+    except DMConfigFileNotFound as err:  # noqa
         log.error("Couldn't find config file '%s'", err)
         sys.exit(ReturnCodes.E_FILE_NOT_FOUND)
     except KeyboardInterrupt:

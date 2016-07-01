@@ -18,18 +18,20 @@
 
 import os.path
 import sys
-import threading
 from collections import OrderedDict, namedtuple
 from configparser import ConfigParser, NoOptionError
 from docmanager.analyzer import Analyzer
 from docmanager.config import GLOBAL_CONFIG, USER_CONFIG, GIT_CONFIG
 from docmanager.core import DEFAULT_DM_PROPERTIES, ReturnCodes, BT_ELEMENTLIST
-from docmanager.exceptions import *
+from docmanager.exceptions import (DMXmlParseError,
+                                   DMInvalidXMLRootElement,
+                                   DMFileNotFoundError,
+                                   DMNotDocBook5File
+                                   )
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
 from docmanager.display import print_stats
-from math import trunc
 from multiprocessing.pool import ThreadPool
 
 
@@ -85,10 +87,12 @@ class Actions(object):
         handler = None
 
         try:
-            handler = { "file": fname, "handler": XmlHandler(fname, True) }
-        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError, DMNotDocBook5File) as err:
-            handler = { "file": fname, "errorstr": err.errorstr, "error": err.error }
-
+            handler = {"file": fname, "handler": XmlHandler(fname, True)}
+        except (DMXmlParseError, DMInvalidXMLRootElement, DMFileNotFoundError,
+                DMNotDocBook5File) as err:
+            handler = {"file": fname,
+                       "errorstr": err.errorstr,
+                       "error": err.error}
         return handler
 
     def parse(self):
@@ -101,7 +105,6 @@ class Actions(object):
         else:
             log.error("Method \"%s\" is not implemented.", action)
             sys.exit(ReturnCodes.E_METHOD_NOT_IMPLEMENTED)
-
 
     def init(self, arguments):
         logmgr_flog()
@@ -131,7 +134,7 @@ class Actions(object):
                 xh = self.__xml[f]["handler"]
 
                 log.info("Trying to initialize the predefined DocManager "
-                          "properties for %r.", xh.filename)
+                         "properties for %r.", xh.filename)
 
                 if xh.init_default_props(self.__args.force,
                                          self.__args.with_bugtracker) == 0:
@@ -139,17 +142,19 @@ class Actions(object):
                           "properties for {!r}.".format(green(" ok "),
                                                         xh.filename))
                 else:
-                    log.warning("Could not initialize all properties for %r because "
-                          "some properties are already set in the XML file. "
-                          "These would be overwritten by this operation. "
-                          "To perform this operation anyway, add the option "
-                          "'--force' to your command.", xh.filename)
+                    log.warning("Could not initialize all properties for %r "
+                                "because some properties are already set in "
+                                "the XML file. "
+                                "These would be overwritten by this operation. "
+                                "To perform this operation anyway, add "
+                                "the option '--force' to your command.",
+                                xh.filename)
 
                 # set default values for the given properties
                 for i in _set:
                     ret = xh.get(i)
                     if len(ret[i]) == 0 or self.__args.force:
-                        xh.set({ i: str(_set[i]) })
+                        xh.set({i: str(_set[i])})
 
                 # if bugtracker options are provided, set default values
                 for i in BT_ELEMENTLIST:
@@ -158,7 +163,7 @@ class Actions(object):
                     if hasattr(self.__args, rprop) and \
                        getattr(self.__args, rprop) is not None and \
                        len(getattr(self.__args, rprop)) >= 1:
-                        xh.set({ i: getattr(self.__args, rprop) })
+                        xh.set({i: getattr(self.__args, rprop)})
             else:
                 print("[{}] Initialized default properties for {!r}: {}. ".format(\
                     red(" error "),
@@ -567,7 +572,7 @@ class Actions(object):
         action = self.__args.alias_action
         alias = self.__args.alias
         value = self.__args.command
-        m = { 0: None, 1: GLOBAL_CONFIG[0], 2: USER_CONFIG, 3: GIT_CONFIG }
+        m = {0: None, 1: GLOBAL_CONFIG[0], 2: USER_CONFIG, 3: GIT_CONFIG}
         configname = m.get(self.__args.method, self.__args.own)
         save = False
 
