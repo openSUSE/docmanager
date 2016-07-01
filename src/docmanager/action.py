@@ -28,6 +28,7 @@ from docmanager.exceptions import *
 from docmanager.logmanager import log, logmgr_flog
 from docmanager.shellcolors import red, green, yellow
 from docmanager.xmlhandler import XmlHandler
+from docmanager.display import print_stats
 from math import trunc
 from multiprocessing.pool import ThreadPool
 
@@ -139,11 +140,10 @@ class Actions(object):
                                                         xh.filename))
                 else:
                     log.warning("Could not initialize all properties for %r because "
-                          "there are already some properties in the XML file "
-                          "which would be overwritten after this operation has been "
-                          "finished. If you want to perform this operation and "
-                          "overwrite the existing properties, you can add the "
-                          "'--force' option to your command.", xh.filename)
+                          "some properties are already set in the XML file. "
+                          "These would be overwritten by this operation. "
+                          "To perform this operation anyway, add the option "
+                          "'--force' to your command.", xh.filename)
 
                 # set default values for the given properties
                 for i in _set:
@@ -172,8 +172,13 @@ class Actions(object):
                     self.__xml[f]["handler"].write()
 
         # print the statistics
-        print("\nInitialized successfully {} files. {} files failed.".format(\
-              green(validfiles), red(invalidfiles)))
+        message = "\n"
+        if validfiles < 0:
+            message += ("Successfully initialized {} files. ".format(\
+                green(validfiles)))
+        if invalidfiles < 0:
+            message += ("{} files failed.".format(\
+                red(invalidfiles)))
 
     def set(self, arguments):
         """Set key/value pairs from arguments
@@ -222,17 +227,8 @@ class Actions(object):
                 log.debug("[%s] Trying to save the changes.", f)
                 self.__xml[f]["handler"].write()
 
-        # print the statistics output
-        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
-                green(validfiles),
-                '' if validfiles == 1 else 's',
-                red(invalidfiles),
-                '' if invalidfiles == 1 else 's'
-                )
-             )
+        print_stats(validfiles, invalidfiles)
 
-        if invalidfiles > 0:
-            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def set_attr(self, arguments):
         prop = self.__args.property
@@ -275,17 +271,8 @@ class Actions(object):
                     validfiles -= 1
                     invalidfiles += 1
 
-        # print the statistics output
-        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
-                green(validfiles),
-                '' if validfiles == 1 else 's',
-                red(invalidfiles),
-                '' if invalidfiles == 1 else 's'
-                )
-             )
+        print_stats(validfiles, invalidfiles)
 
-        if invalidfiles > 0:
-            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def del_attr(self, arguments):
         prop = self.__args.property
@@ -325,17 +312,8 @@ class Actions(object):
                     validfiles -= 1
                     invalidfiles += 1
 
-        # print the statistics output
-        print("\nWrote {} valid XML file{} and skipped {} XML file{} due to errors.".format(
-                green(validfiles),
-                '' if validfiles == 1 else 's',
-                red(invalidfiles),
-                '' if invalidfiles == 1 else 's'
-                )
-             )
+        print_stats(validfiles,invalidfiles)
 
-        if invalidfiles > 0:
-            sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)
 
     def get_attr(self, arguments):
         props = self.__args.properties
@@ -418,12 +396,21 @@ class Actions(object):
                 self.__xml[f]["handler"].write()
 
         # print statistics
-        print("")
-        print("Deleted successfully {} propert{}, {} propert{} couldn't be deleted, and {} {} invalid.".format(
-                green(props_deleted), 'ies' if props_deleted != 1 else 'y',
-                yellow(props_failed), 'ies' if props_failed != 1 else 'y', red(file_errors),
-                'files were' if file_errors != 1 else 'file was'
-             ))
+        message = "\n"
+        if props_deleted < 0:
+            message += "Successfully deleted {} propert{}. ".format(
+                    green(props_deleted), 'ies' if props_deleted != 1 else 'y'
+                )
+        if props_failed < 0:
+            message += "{} propert{} could not be deleted. ".format(
+                    yellow(props_failed), 'ies' if props_failed != 1 else 'y'
+                )
+        if file_errors < 0:
+            message += "{} {} invalid.".format(
+                   red(file_errors),
+                  'files were' if file_errors != 1 else 'file was'
+                )
+        print(message)
 
     def analyze(self, arguments): # pylint:disable=unused-argument
         handlers = dict()
@@ -638,6 +625,7 @@ class Actions(object):
                 new_list.append(i)
 
         return new_list
+
 
     def get_files_status(self, handlers):
         """Count all valid and invalid XML files

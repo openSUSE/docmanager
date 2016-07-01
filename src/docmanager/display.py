@@ -17,10 +17,12 @@
 # you may find current contact information at www.suse.com
 
 import json
+import sys
 from collections import OrderedDict
 from lxml import etree
 from prettytable import PrettyTable
-from docmanager.shellcolors import red
+from docmanager.core import ReturnCodes
+from docmanager.shellcolors import red,green
 
 def textrenderer(data, **kwargs): # pylint: disable=unused-argument
     """Normal text output
@@ -302,3 +304,29 @@ def getrenderer(fmt):
     }
 
     return renderer.get(fmt, DEFAULTRENDERER)
+
+
+def print_stats(validfiles, invalidfiles):
+    """Print statistics how many files were valid/invalid, do a sys.exit
+    if there were invalid files.
+
+    :param int validfiles: The number of valid files
+    :param int invalidfiles: The number of invalid files
+    """
+
+    message = "\n"
+    if validfiles > 0:
+        message += "Wrote {} valid XML file{}. ".format(
+            green(validfiles),
+            '' if validfiles == 1 else 's'
+            )
+    if invalidfiles > 0:
+        message += "Skipped {} XML file{} due to errors.".format(
+            red(invalidfiles),
+            '' if invalidfiles == 1 else 's'
+            )
+
+    print(message)
+
+    if invalidfiles > 0:
+        sys.exit(ReturnCodes.E_SOME_FILES_WERE_INVALID)

@@ -1,22 +1,72 @@
 # Config file for automatic testing at travis-ci.org
 language: python
-python:
-    - "3.3"
-    - "3.4"
-    - "3.5"
-
+sudo: required
+python: "3.4"
 env:
     global:
         - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+        - SEGFAULT_SIGNALS=all
+    matrix:
+        # TODO: Add checks after some flake8 issues are solved:
+        - TOXENV=docs
+
+matrix:
+  fast_finish: true
+  include:
+    - python: 3.3
+      env: TOXENV=3.3
+    - python: 3.4
+      env: TOXENV=3.4
+    # Currently does not build :-(
+    #- python: 3.5
+    #  env: TOXENV=3.5
+    # - "nightly" currently points to 3.6-dev
+    #- python: nightly
+    #  env: TOXENV=3.6
+
+
+before_install:
+    - python --version
+    - uname -a
+    - lsb_release -a
+    - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
+    - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
+    - echo "TRAVIS_TAG=$TRAVIS_TAG"
+    - echo "repo=$TRAVIS_REPO_SLUG"
 
 # command to install dependencies
 install:
-    - pip install -r coverage_requirements.txt
+  - sudo apt-get install -y xsltproc docbook-xsl
+  - pip install -U pip setuptools
+  - pip install tox
+  - pip install codecov>=1.4.0 codeclimate-test-reporter scrutinizer-ocular
+  - pip install -r coverage_requirements.txt
+  - virtualenv --version
+  - easy_install --version
+  - pip --version
+  - tox --version
+  - echo "$PWD"
 
 # command to run tests
 script:
+    - tox -v -e $TOXENV
     - ./.travis-script.sh
-    - py.test -l -vv --no-cov-on-fail --cov=docmanager --cov-report=term-missing
+
+after_failure:
+  - more .tox/log/* | cat
+  - more .tox/*/log/* | cat
+
+before_cache:
+  - rm -rf $HOME/.cache/pip/log
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
 
 after_success:
-    codecov
+  - mv -v .coverage.* .coverage
+#  - codecov --token=$CODECOV_TOKEN
+  - codeclimate-test-reporter
+  - ocular
+#  - ./.travis-deploy.sh

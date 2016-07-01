@@ -10,12 +10,25 @@ prune man/build
 
 include ChangeLog
 include README*
+include LICENSE
 
-include .coverage*
+include .coveragerc
+include .codeclimate.yml
+include .coveralls.yml
 include .landscape.yml
 include .travis.yml
+include .travis-script.sh
+include .bumpversion.cfg
 include *requirements.txt
+include tox.ini
+include pytest.ini
 include make_devsetup.sh 
 include src/docmanager/docmanager.conf
+
+exclude .coverage
+
+recursive-include test *.conf
+recursive-include test *.py
+recursive-include test *.xml
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib
