@@ -46,20 +46,20 @@ travisfoldend git.test_data
 travisfoldstart doc_sle
 echo "--- Doc SLE ---"
 cd doc-sle
-docmanager init *
+docmanager init *.xml
 check_exitcode $?
 travisfoldend doc_sle
 
 travisfoldstart doc_sleha
 echo "--- Doc SLEHA ---"
 cd ../doc-sleha
-docmanager init *
+docmanager init *.xml
 check_exitcode $?
 travisfoldend doc_sleha
 
 travisfoldstart doc_cloud
 echo "--- Doc Cloud ---"
 cd ../doc-cloud
-docmanager init *
+docmanager init *.xml
 check_exitcode $?
 travisfoldend doc_cloud
