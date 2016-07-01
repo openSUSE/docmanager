@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Execute this script after tox or py.test has been finished.
 
 function check_exitcode {
     if [[ $1 -ne 0 ]]; then
@@ -19,18 +21,9 @@ function travisfoldend {
 }
 
 
-# travisfoldstart install
-
-travisfoldstart coverage
-echo "--- Executing coverage test ---"
-# coverage run setup.py test
-tox -e $1
-check_exitcode $?
-travisfoldend coverage
-
 travisfoldstart setup.py_install
 echo "--- Executing setup.py install ---"
-python3 setup.py install
+./setup.py install
 mkdir -p ~/.config/docmanager/
 cp -vi src/docmanager/docmanager.conf ~/.config/docmanager/
 check_exitcode $?
