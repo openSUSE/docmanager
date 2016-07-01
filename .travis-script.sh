@@ -23,11 +23,12 @@ function travisfoldend {
 
 travisfoldstart coverage
 echo "--- Executing coverage test ---"
-coverage run setup.py test
+# coverage run setup.py test
+tox -e $1
 check_exitcode $?
 travisfoldend coverage
 
-travisfoldstart setup.py
+travisfoldstart setup.py_install
 echo "--- Executing setup.py install ---"
 python3 setup.py install
 mkdir -p ~/.config/docmanager/
