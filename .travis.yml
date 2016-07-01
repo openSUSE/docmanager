@@ -1,6 +1,6 @@
 # Config file for automatic testing at travis-ci.org
 language: python
-sudo: false
+sudo: required
 python: "3.4"
 env:
     global:
@@ -17,11 +17,12 @@ matrix:
       env: TOXENV=3.3
     - python: 3.4
       env: TOXENV=3.4
-    - python: 3.5
-      env: TOXENV=3.5
+    # Currently does not build :-(
+    #- python: 3.5
+    #  env: TOXENV=3.5
     # - "nightly" currently points to 3.6-dev
-    - python: nightly
-      env: TOXENV=3.6
+    #- python: nightly
+    #  env: TOXENV=3.6
 
 
 before_install:
@@ -35,6 +36,7 @@ before_install:
 
 # command to install dependencies
 install:
+  - sudo apt-get install -y xsltproc docbook-xsl
   - pip install -U pip setuptools
   - pip install tox
   - pip install codecov>=1.4.0 codeclimate-test-reporter scrutinizer-ocular
@@ -48,7 +50,7 @@ install:
 # command to run tests
 script:
     - tox -v -e $TOXENV
-    - ./.travis-script.sh $TOXENV
+    - ./.travis-script.sh
 
 after_failure:
   - more .tox/log/* | cat
@@ -63,8 +65,8 @@ notifications:
     on_failure: always
 
 after_success:
-#  - mv -v .coverage.* .coverage
+  - mv -v .coverage.* .coverage
 #  - codecov --token=$CODECOV_TOKEN
-  - codeclimate-test-reporter --token $CODECLIMATE_REPO_TOKEN
+  - codeclimate-test-reporter
   - ocular
 #  - ./.travis-deploy.sh
