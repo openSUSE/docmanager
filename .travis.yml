@@ -13,10 +13,12 @@ env:
 matrix:
   fast_finish: true
   include:
-    - python: 3.3
-      env: TOXENV=3.3
     - python: 3.4
       env: TOXENV=3.4
+    - python: 3.5
+      env: TOXENV=3.5
+    - python: 3.6
+      env: TOXENV=3.6
     # Currently does not build :-(
     #- python: 3.5
     #  env: TOXENV=3.5
