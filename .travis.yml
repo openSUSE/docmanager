@@ -1,6 +1,6 @@
 # Config file for automatic testing at travis-ci.org
 language: python
-sudo: required
+cache: pip
 python: "3.4"
 env:
     global:
@@ -44,7 +44,6 @@ install:
   - pip install codecov>=1.4.0 codeclimate-test-reporter scrutinizer-ocular
   - pip install -r coverage_requirements.txt
   - virtualenv --version
-  - easy_install --version
   - pip --version
   - tox --version
   - echo "$PWD"
