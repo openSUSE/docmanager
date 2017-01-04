@@ -22,13 +22,14 @@ __version__="3.3.4"
 import atexit
 import sys
 import time
-from docmanager.action import Actions
-from docmanager.cli import parsecli
-from docmanager.core import ReturnCodes
-from docmanager.display import getrenderer
-from docmanager.exceptions import DMConfigFileNotFound
-from docmanager.logmanager import log
+from .action import Actions
+from .cli import parsecli
+from .core import ReturnCodes
+from .display import getrenderer
+from .exceptions import DMConfigFileNotFound
+from .logmanager import log
 # from xml.sax._exceptions import SAXParseException
+
 
 def shutdown(start):
     end = int(round(time.time() * 1000))
