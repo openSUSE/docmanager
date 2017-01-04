@@ -10,12 +10,9 @@ https://github.com/pypa/sampleproject
 
 import sys
 from os import path, environ
-# To use a consistent encoding
-from codecs import open
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 
 here = path.abspath(path.dirname(__file__))
@@ -44,10 +41,6 @@ setupdict = dict(
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
@@ -60,6 +53,7 @@ setupdict = dict(
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
 
         # Supported Python versions
+        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
