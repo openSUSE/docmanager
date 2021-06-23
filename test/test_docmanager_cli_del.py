@@ -11,23 +11,23 @@ def test_docmanager_cli_del_0(tmp_valid_xml):
     """
 
     ustr = "Ehufuveva271"
-    file = tmp_valid_xml.strpath
+    xmlfile = tmp_valid_xml.strpath
 
-    prepare_file(file, ustr)
+    prepare_file(xmlfile, ustr)
     content = ""
 
-    with open(file, 'r') as f:
+    with open(xmlfile, 'r') as f:
         content = f.read()
     
     assert ustr in content
 
-    clicmd = "del -p {} {}".format(ustr, file)
+    clicmd = "del -p {} {}".format(ustr, xmlfile)
     a = Actions(parsecli(shlex.split(clicmd)))
     a.parse()
 
     content = ""
 
-    with open(file, 'r') as f:
+    with open(xmlfile, 'r') as f:
         content = f.read()
     
     assert ustr not in content

@@ -222,7 +222,7 @@ def input_format_check(args):
             sys.exit(ReturnCodes.E_WRONG_INPUT_FORMAT)
         except urllib.error.URLError as err:
             if hasattr(err, 'code') and err.code is not None:
-                if err.code is not 200:
+                if err.code != 200:
                     log.warn("The remote server returns an error code "
                              "for this request: {} - Please double check if "
                              "the URL is correct. Nevertheless the URL will "
