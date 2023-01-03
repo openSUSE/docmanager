@@ -445,7 +445,7 @@ class Actions(object):
 
                 if not self.__args.sort:
                     # we can print all caught data here. If we have no data, we assume that the user
-                    # didn't want to see any data from the XML files and he just want to see the
+                    # didn't want to see any data from the XML files and they just want to see the
                     # output of the constants like {os.file} - https://github.com/openSUSE/docmanager/issues/93
                     if data:
                         print(analyzer.format_output(out, data))
