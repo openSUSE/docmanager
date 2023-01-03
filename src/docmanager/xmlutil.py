@@ -30,9 +30,42 @@ from itertools import accumulate
 # -------------------------------------------------------------------
 # Regular Expressions
 
-ENTS = re.compile("(&([\w_\.-]+);)")
-STEN = re.compile("(\[\[\[(\#?[\w_\.-]+)\]\]\])")
-NAMESPACE_REGEX = re.compile("\{(?P<ns>.*)\}(?P<local>[-a-zA-Z0-9._]+)")
+ENTS = re.compile(r"(&([\w_\.-]+);)")
+STEN = re.compile(r"(\[\[\[(\#?[\w_\.-]+)\]\]\])")
+NAMESPACE_REGEX = re.compile(r"\{(?P<ns>.*)\}(?P<local>[-a-zA-Z0-9._]+)")
+
+# Regular Expressions
+SPACE = r"[ \t\r\n]"  # whitespace
+S = "%s+" % SPACE  # One or more whitespace
+opS = "%s*" % SPACE  # Zero or more  whitespace
+oS = "%s?" % SPACE  # Optional whitespace
+NAME = "[a-zA-Z_:][-a-zA-Z0-9._:]*"  # Valid XML name
+QSTR = "(?:'[^']*'|\"[^\"]*\")"  # Quoted XML string
+QUOTES = "(?:'[^']'|\"[^\"]\")"
+SYSTEMLITERAL = "(?P<sysid>%s)" % QSTR
+PUBLICLITERAL = (
+    r'(?P<pubid>"[-\'\(\)+,./:=?;!*#@$_%% \n\ra-zA-Z0-9]*"|'
+    r"'[-\(\)+,./:=?;!*#@$_%% \n\ra-zA-Z0-9]*')"
+)
+EXTERNALID = (
+    """(?:SYSTEM|PUBLIC{S}{PUBLICLITERAL})""" """{S}{SYSTEMLITERAL}"""
+).format(**locals())
+ENTITY = (
+    f"""<!ENTITY{S}%{S}""" """(?P<PEDecl>{NAME}){S}""" """{EXTERNALID}{opS}>"""
+)
+r_ENTITY = re.compile(ENTITY, re.VERBOSE | re.DOTALL | re.MULTILINE)
+DOCTYPE = (
+    """(?P<DOCTYPE><!DOCTYPE{S}"""
+    "(?P<Name>{NAME})"
+    "("
+    "({S}{EXTERNALID}{opS})?"  # noqa: 127
+    r"(?:{S}\[(?P<IntSubset>.*)\])?"  # noqa: 127
+    ")?"
+    """{opS}>{opS})"""
+).format(**locals())
+r_DOCTYPE = re.compile(DOCTYPE, re.VERBOSE | re.DOTALL | re.MULTILINE)
+COMMENTOPEN = re.compile("<!--")
+COMMENTCLOSE = re.compile("-->")
 
 
 def ent2txt(match, start="[[[", end="]]]"):
@@ -108,6 +141,7 @@ def replaceinstream(stream, func):
     result.seek(0)
     return result
 
+
 def check_root_element(rootelem, etree):
     """Checks if root element is valid
 
@@ -132,11 +166,11 @@ def is_xml(text):
     """
     logmgr_flog()
 
-    possiblestartstrings = (re.compile("<\?xml"),
-                            re.compile("<!DOCTYPE"),
-                            re.compile("<!--",),
+    possiblestartstrings = (re.compile(r"<\?xml"),
+                            re.compile(r"<!DOCTYPE"),
+                            re.compile(r"<!--"),
                             re.compile(r'<(?P<tag>(?:(?P<prefix>\w+):)?'
-                                        '(?P<name>[a-zA-Z0-9_]+))\s*'),
+                                       r'(?P<name>[a-zA-Z0-9_]+))\s*'),
                            )
     result = False
     for matcher in possiblestartstrings:
@@ -187,13 +221,45 @@ def ensurefileobj(source):
             # so it has to be a filename
             try:
                 res = StringIO(open(source, 'r').read())
-            except FileNotFoundError as err: # pylint:disable=undefined-variable
+            except FileNotFoundError as err:  # pylint:disable=undefined-variable
                 raise DMFileNotFoundError("Could not find file {!r}.".format(err.filename),
                                           err.filename, ReturnCodes.E_FILE_NOT_FOUND)
             # pylint: enable=undefined-variable
 
             return res
     # TODO: Check if source is an URL; should we allow this?
+
+
+def xmlsyntaxcheck(xmlfile):
+    """Check if the XML file is well-formed
+
+    :param str xmlfile: XML filename
+    :return: Nothing if the XML is well-formed, otherwise it raises
+       an exception
+    :raises: :class:`xml.sax.SAXParseException`
+    """
+    from xml.sax import make_parser
+    import xml.sax.handler as xmlsh
+
+    log.debug("Try XML parser for XML well-formedness...")
+    parser = make_parser()
+
+    # Set several features of the XML parser
+    featureset = (
+        (xmlsh.feature_validation, False),
+        (xmlsh.feature_external_ges, False),
+        (xmlsh.feature_external_pes, False),
+    )
+    for feature, state in featureset:
+        parser.setFeature(feature, state)
+
+    parser.setContentHandler(xmlsh.ContentHandler())
+    # parser.setEntityResolver(MyEntityResolver())
+
+    # This will fail with a SAXParseException when we have a XML file
+    # with syntax errors:
+    parser.parse(xmlfile)
+    log.debug("XML syntax check for %r ok", xmlfile)
 
 
 # -------------------------------------------------------------------
@@ -237,19 +303,19 @@ def compilestarttag(roottag=None):
        :return: a pattern object
        :rtype: _sre.SRE_Pattern
     """
-    logmgr_flog()
+    # logmgr_flog()
 
     # Taken from the xmllib.py
     # http://code.metager.de/source/xref/python/jython/lib-python/2.7/xmllib.py
     _S = '[ \t\r\n]+'                       # white space
     _opS = '[ \t\r\n]*'                     # optional white space
     _Name = '[a-zA-Z_:][-a-zA-Z0-9._:]*'    # valid XML name
-    _QStr = "(?:'[^']*'|\"[^\"]*\")"        # quoted XML string
+    _QStr = r"(?:'[^']*'|\"[^\"]*\")"        # quoted XML string
     attrfind = re.compile(
         _S + '(?P<name>' + _Name + ')'
         '(' + _opS + '=' + _opS +
-        '(?P<value>' + _QStr + '|[-a-zA-Z0-9.:+*%?!\(\)_#=~]+))?')
-    starttagend = re.compile(_opS + '(?P<slash>/?)>')
+        '(?P<value>' + _QStr + r'|[-a-zA-Z0-9.:+*%?!\(\)_#=~]+))?')
+    starttagend = re.compile(_opS + '(?P<slash>/?)>\n?')
     if roottag:
         root = '<(?P<tagname>' + roottag + ')'
     else:
@@ -259,156 +325,41 @@ def compilestarttag(roottag=None):
 
 
 # -------------
+def getdocinfo(lines):
+    """Create dict with XML information about XML
 
-class LocatingWrapper(object):
-    """Holds a table which are used to transform line and column position
-       into offset
+    Expects well-formed XML lines.
+
+    :param lines: The lines to investigate
+    :param int maxlines: number of lines that should be investigated
+    :return: { 'header': '...', # str everything before the start tag
+               'root':   '...', # str: start tag from '<' til '>'
+               'offset:  1,     # Integer
+             }
+    :rtype: dict
     """
-    def __init__(self, f):
-        logmgr_flog()
+    result = dict(header="", root="", roottag="", offset=0)
+    # Try to find DOCTYPE first
+    match = r_DOCTYPE.search(lines)
+    if match:
+        result["header"] = lines[:match.end()]
+        pos = match.end()
+        lines = lines[pos:]
+        result["offset"] = pos
 
-        self.f = f
-        self.offset = [0]
-        self.curoffs = 0
+    # Continue with root tag
+    starttag = compilestarttag()
+    match = starttag.search(lines)
+    if not match:
+        return result
 
-    def read(self, *a):
-        """Read data"""
-        logmgr_flog()
+    result["header"] += lines[:match.start()]
+    result["roottag"] = match["tagname"]
+    result["root"] = lines[slice(*match.span())]
+    result["offset"] += match.start()
 
-        data = self.f.read(*a)
-        self.offset.extend(accumulate(len(m)+1 for m in data.split('\n')))
-        return data
-
-    def where(self, locator):
-        """Returns the offset from line and column
-
-        :param locator: locator object
-        :return: offset
-        :rtype:  int
-        """
-        logmgr_flog()
-
-        return self.offset[locator.getLineNumber() - 1] + locator.getColumnNumber()
-
-    def close(self):
-        """Close the locator"""
-        logmgr_flog()
-        # Normally, we would close our file(-alike) object and call
-        #   self.f.close()
-        # However, we do nothing
-
-
-
-class Handler(xml.sax.handler.ContentHandler):
-    """ContentHandler to watch for start and end elements. Needed to
-       get the location of all the elements
-    """
-    def __init__( self, context, locator):
-        logmgr_flog()
-        super().__init__()# pylint:disable=super-on-old-class
-        self.context = context
-        self.locstm = locator
-        self.pos = namedtuple('Position', ['line', 'col', 'offset'])
-
-    def setDocumentLocator(self, locator):
-        """Called by the parser to give the application a locator for
-           locating the origin of document events.
-
-        :param LocatingWrapper loc: LocatingWrapper object
-        """
-        logmgr_flog()
-
-        self.loc = locator
-
-    def startElement(self, name, attrs):
-        """Signals the start of an element in non-namespace mode
-
-        :param str name:  XML 1.0 Name of the element
-        :param Attributes attrs: attributes of the current element
-        """
-        logmgr_flog()
-
-        ctxlen = len(self.context)
-        # We are only interested in the first two start tags
-        if ctxlen < 2:
-            current = self.locstm.where(self.loc)
-            pos = self.pos(self.loc.getLineNumber(), \
-                         self.loc.getColumnNumber(), \
-                         current)
-            self.context.append(["%s" % name, pos])
-
-    def endElement(self, name):
-        """Signals the end of an element in non-namespace mode
-
-        :param str name:  XML 1.0 Name of the element
-        """
-        logmgr_flog()
-
-        eline = self.loc.getLineNumber()
-        ecol = self.loc.getColumnNumber()
-        last = self.locstm.where(self.loc)
-        pos = self.pos(line=eline, col=ecol, offset=last)
-
-        # save the position of an end tag and add '/' in front of the
-        # name to distinguish it from a start tag
-        self.context.append(["/%s" % name, pos])
-
-    def processingInstruction(self, target, data):
-        """Receive notification of a processing instruction (PI)
-
-        :param str target: the target of the PI
-        :param str data:   the data of the PI
-        """
-        logmgr_flog()
-
-        ctxlen = len(self.context)
-        # Only append PIs when it's NOT before start-tag
-        if ctxlen:
-            current = self.locstm.where(self.loc)
-            pos = self.pos(self.loc.getLineNumber(), \
-                            self.loc.getColumnNumber(), \
-                            current)
-            self.context.append(["?%s" % target, pos])
-
-    def comment(self, text): # pylint: disable=unused-argument
-        """Signals an XML comment
-
-        :param str text: text content of the XML comment
-        """
-        logmgr_flog()
-
-        ctxlen = len(self.context)
-        # We are only interested in the first two start tags
-        if ctxlen:
-            current = self.locstm.where(self.loc)
-            pos = self.pos(self.loc.getLineNumber(), \
-                           self.loc.getColumnNumber(), \
-                           current)
-            self.context.append(["-- comment", pos])
-
-    # From LexicalParser
-    def startCDATA(self):
-        """Signals a CDATA section"""
-        logmgr_flog()
-
-    endCDATA = startCDATA
-
-    def startDTD(self,  doctype, publicID, systemID): # pylint:disable=unused-argument
-        """Signals the start of an DTD declaration
-
-        :param  doctype: name of the root element
-        :param publicID: public identifier (or empty)
-        :param systemID: system identifier (or empty)
-        """
-        logmgr_flog()
-
-    def endDTD(self):
-        """Reports the end of a DTD declaration"""
-        logmgr_flog()
-
-    def startEntity(self, name):  # pylint: disable=unused-argument
-        """Reports the start of an entity"""
-        logmgr_flog()
+    log.debug("Found match: %s", match)
+    return result
 
 
 def findprolog(source, maxsize=-1):
@@ -426,55 +377,11 @@ def findprolog(source, maxsize=-1):
     """
     logmgr_flog()
 
-    result = {}
-
-    # context is used to save our locations
-    context = []
-
     buf = ensurefileobj(source)
     # We read in maxsize and hope this is enough...
     xmlbuf = buf.read(maxsize)
-    buf.seek(0)
-    locstm = LocatingWrapper(buf)
-    parser = xml.sax.make_parser()
+    return getdocinfo(xmlbuf)
 
-    # Disable certain features:
-    # no validation, no external general and parameter entities
-    parser.setFeature(xml.sax.handler.feature_validation, False)
-    parser.setFeature(xml.sax.handler.feature_external_ges, False)
-    parser.setFeature(xml.sax.handler.feature_external_pes, False)
-
-    handler = Handler(context, locstm)
-    parser.setProperty(xml.sax.handler.property_lexical_handler, handler);
-
-    parser.setContentHandler(handler)
-    parser.parse(locstm)
-
-    first = context[0]
-    soffset = first[1].offset
-    doctype = xmlbuf[:soffset]
-
-    # Check if we have reached the "end tag" (symbolized with '/' in
-    # its first character).
-    # If yes, start and end tag is on the same line and we can use the
-    # last entry.
-    # If not, we need to look in the next entry
-    if context[1][0][0] == '/':
-        last = context[-1]
-    elif context[1][0][0] ==  '-':
-        last = context[1]
-    else:
-        last = context[1]
-
-    eoffset = last[1].offset
-    starttag = xmlbuf[soffset:eoffset].rstrip(' ')
-
-    result['header'] = doctype
-    result['root'] = starttag
-    result['offset'] = len(doctype)
-    result['roottag'] = context[0][0]
-
-    return result
 
 def xml_indent(elem, level=0):
     """Indent XML elements
@@ -496,6 +403,7 @@ def xml_indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
 
 def get_property_xpath(elem):
     """Gets the xpath of an lxml.etree._Element
